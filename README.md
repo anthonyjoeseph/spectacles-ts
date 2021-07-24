@@ -1,4 +1,4 @@
-# immutable-ts
+# immutable-ts - EXPERIMENTAL
 
 ```ts
 import { prop } from 'immutable-ts'
