@@ -19,7 +19,14 @@ const nested = // <-- correctly inferred as 'string | undefined'
   )('?three', 'four') // <-- autocomplete for a variable # of fields
 ```
 
-TODO:
+## Note
+
+Currently the fn parameters are backwards (ideally they'd be data-last)
+
+This is due to a limitation in typescript ([github issue](https://github.com/microsoft/TypeScript/issues/45174))
+
+## TODO
+
 - array access
 - refinements
 - nested `Option` type for optional access (rather than `undefined`)
