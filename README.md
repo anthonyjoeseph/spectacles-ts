@@ -18,3 +18,12 @@ const nested = // <-- correctly inferred as 'string | undefined'
     full
   )('?three', 'four') // <-- autocomplete for a variable # of fields
 ```
+
+TODO:
+- array access
+- inner refinements
+- nested `Option` type for optional access (rather than `undefined`)
+- `function set(...)`
+- `function insert(...)`
+- `function modify(...)`
+- `function omit(...)`
