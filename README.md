@@ -21,7 +21,7 @@ const nested = // <-- correctly inferred as 'string | undefined'
 
 TODO:
 - array access
-- inner refinements
+- refinements
 - nested `Option` type for optional access (rather than `undefined`)
   - separate 'immutable-ts/non-fp' module that uses `undefined`
 - `function set(...)`
