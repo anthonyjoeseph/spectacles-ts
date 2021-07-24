@@ -23,6 +23,7 @@ TODO:
 - array access
 - inner refinements
 - nested `Option` type for optional access (rather than `undefined`)
+  - separate 'immutable-ts/non-fp' module that uses `undefined`
 - `function set(...)`
 - `function insert(...)`
 - `function modify(...)`
