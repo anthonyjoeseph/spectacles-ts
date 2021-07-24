@@ -12,19 +12,20 @@ const prop = <
     obj as any
   ) as AtPath<Infer, Path>
 
-type struct = { three?: { four: string } }
-const testval: struct = {
+interface Struct { 
+  three?: { 
+    four: string 
+  } 
+}
+const full: Struct = {
   three: {
     four: '33'
   }
 }
-
-const aaaa = // <-- correctly inferred as 'string'
+const nested = // <-- correctly inferred as string | undefined
   prop(
-    testval
+    full
   )('?three', 'four') // <-- autocomplete for a variable # of fields
-
-console.log(aaaa)
 
 ///////////
 // types //
@@ -76,6 +77,3 @@ type OptKeyof<A> = {
 }[keyof A]
 
 type Unopt<K> = K extends `?${infer Key}` ? Key : K
-
-type test = OptKeyof<{ a?: number; b: boolean }>
-type test2 = Unopt<test>
