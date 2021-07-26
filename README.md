@@ -27,11 +27,9 @@ This is due to a limitation in typescript ([github issue](https://github.com/mic
 
 ## TODO
 
-- arg is number = array access
 - final arg is a tuple = `pick`
 - arg is function = refinements (is this possible?)
-- nested `Option` type for optional access (rather than `undefined`)
-  - separate 'immutable-ts/non-fp' module that uses `undefined`
+- separate 'immutable-ts/non-fp' module that uses `undefined` (rather than `Option`)
 - `function set(...)`
 - `function insert(...)`
 - `function modify(...)`
