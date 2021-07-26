@@ -1,3 +1,7 @@
+const addOptions = (path: string[], wrapVal: any) => {
+  const numOpts = path.filter(p => p.startsWith).length
+}
+
 const prop = <
   Infer,
 >(obj: Infer) => <
@@ -25,11 +29,18 @@ const full: Struct = {
 const nested = // <-- correctly inferred as string | undefined
   prop(
     full
-  )('?three', 'four') // <-- autocomplete for a variable # of fields
+  )('three?', 'four') // <-- autocomplete for a variable # of fields
 
 ///////////
 // types //
 //////////
+
+type Some<A> = {
+  _tag: 'Some',
+  value: A
+}
+type None = { _tag: 'None' }
+type Option<A> = Some<A> | None
 
 type HasUndesiredKeys<A> = A extends number
   ? true
@@ -60,20 +71,20 @@ type AtPath<
   Args extends unknown[]
 > = Args extends [infer Key]
   ? Unopt<Key> extends keyof A 
-    ? undefined extends A[Unopt<Key>] ? NonNullable<A[Unopt<Key>]> | undefined : A[Unopt<Key>]
+    ? undefined extends A[Unopt<Key>] ? Option<NonNullable<A[Unopt<Key>]>> : A[Unopt<Key>]
     : never
   : Args extends [infer Key, ...infer Rest]
     ? Unopt<Key> extends keyof A 
       ? undefined extends A[Unopt<Key>] 
-        ? AtPath<NonNullable<A[Unopt<Key>]>, Rest> | undefined 
+        ? Option<AtPath<NonNullable<A[Unopt<Key>]>, Rest>>
         : AtPath<A[Unopt<Key>], Rest>
       : never
     : never
 
 type OptKeyof<A> = {
   [K in keyof A]-?: undefined extends A[K] 
-    ? K extends string ? `?${K}` : never 
+    ? K extends string ? `${K}?` : never 
     : K
 }[keyof A]
 
-type Unopt<K> = K extends `?${infer Key}` ? Key : K
+type Unopt<K> = K extends `${infer Key}?` ? Key : K
