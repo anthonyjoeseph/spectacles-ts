@@ -42,9 +42,18 @@ const prop = <
 
 
 const full: {
-  a: [number, string, boolean]
-} = { a: [11, '11', true] }
-const nested = prop(full)('a')
+  a?: {
+    one: boolean
+    two: string
+    three: number
+  }[],
+  b: number
+} = {a:[{one: true,two: 'abc',three: 123}],b:2}
+
+const nested: Option<{
+  one: boolean;
+  three: number
+}> = prop(full)('a?', 0, ['one', 'three'])
 
 console.log(nested)
 
@@ -96,7 +105,7 @@ type ArrayPaths<
 > = 
   | [...Prev, number]
   | Paths<A[number], [...Prev, number]>
-  // | TupleKeyof<A> extends never ? never : ObjPaths<A, false, Prev, TupleKeyof<A>>
+  // | ObjPaths<A, false, Prev, TupleKeyof<A>>
 
 type ObjPaths<
   A,
@@ -157,6 +166,7 @@ type HasNum<K> = K extends number ? true : never
 type Unopt<K> = K extends `${infer Key}?` ? Key : K
 
 type TupleKeyof<A extends unknown[]> =
-  '0' extends keyof A 
-    ? Exclude<keyof A, keyof Array<A[number]>> 
-    : never
+  Exclude<
+    keyof A,
+    keyof Array<unknown>
+  >

@@ -3,20 +3,19 @@
 ```ts
 import { prop } from 'immutable-ts'
 
-interface Struct { 
-  three?: { 
-    four: string 
-  } 
-}
-const full: Struct = {
-  three: {
-    four: '33'
-  }
-}
-const nested = // <-- correctly inferred as 'string | undefined'
-  prop(
-    full
-  )('?three', 'four') // <-- autocomplete for a variable # of fields
+const full: {
+  a?: {
+    one: boolean
+    two: string
+    three: number
+  }[],
+  b: number
+} = {a:[{one: true,two: 'abc',three: 123}],b:2}
+
+const nested: Option<{
+  one: boolean;
+  three: number
+}> = prop(full)('a?', 0, ['one', 'three'])
 ```
 
 ## Note
