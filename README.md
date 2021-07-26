@@ -27,7 +27,6 @@ This is due to a limitation in typescript ([github issue](https://github.com/mic
 
 ## TODO
 
-- final arg is a tuple = `pick`
 - arg is function = refinements (is this possible?)
 - separate 'immutable-ts/non-fp' module that uses `undefined` (rather than `Option`)
 - `function set(...)`
