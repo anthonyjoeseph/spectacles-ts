@@ -44,9 +44,11 @@ const prop = <
   ) as GiveOpt<AtPath<Infer, Path>, Path>
 }
 
-const nested = pipe(
-  { c: [{a: 123, b: 'abc'}] }, 
-  prop('c', 0, ['a', 'b'] as const)
+declare const data: { a: {b?: {c: number; d: string; e: boolean }[] } }
+
+const nested: Option<{ c: number; d: string }> = pipe(
+  data, 
+  prop('a', 'b?', 0, ['c', 'd'] as const)
 )
 
 console.log(nested)
