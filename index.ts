@@ -1,10 +1,14 @@
+import { pipe } from 'fp-ts/function'
 import { pick } from 'fp-ts-std/Record'
 
 const prop = <
   Infer,
->(obj: Infer) => <
-  Path extends Paths<Infer>
->(...path: Path) => {
+  Path extends 
+    // necessary to allow inference
+    Paths<Infer> extends (number | string | readonly string[])[] 
+      ? Paths<Infer> 
+      : never
+>(...path: Path) => (obj: Infer) => {
   if ((path as string[]).some(
     p => typeof p === 'number' || (typeof p === 'string' && p.endsWith('?'))
   )) {
@@ -40,20 +44,10 @@ const prop = <
   ) as GiveOpt<AtPath<Infer, Path>, Path>
 }
 
-
-const full: {
-  a?: {
-    one: boolean
-    two: string
-    three: number
-  }[],
-  b: number
-} = {a:[{one: true,two: 'abc',three: 123}],b:2}
-
-const nested: Option<{
-  one: boolean;
-  three: number
-}> = prop(full)('a?', 0, ['one', 'three'])
+const nested = pipe(
+  { c: [{a: 123, b: 'abc'}] }, 
+  prop('c', 0, ['a', 'b'] as const)
+)
 
 console.log(nested)
 
@@ -88,7 +82,7 @@ type Paths<
     ? [A] extends [Array<unknown>]
       ? ArrayPaths<A, Prev>
       : 
-        | [...Prev, Keys[]]
+        | [...Prev, readonly Keys[]]
         | (
           Keys extends unknown
             ? ObjPaths<A, false, Prev, Keys>
@@ -135,7 +129,7 @@ type AtPath<
   Args extends []
     ? A
     : Args extends [infer Key, ...infer Rest]
-      ? Key extends Array<keyof A>
+      ? Key extends readonly (keyof A)[]
         ? { [P in Key[number]]: A[P] }
         : Key extends number
           ? A extends unknown[] ? AtPath<A[number], Rest> : never
