@@ -6,19 +6,21 @@ import type { Paths, GiveOpt, AtPath } from "./types"
 
 export const modifyOption = <
   Infer,
-  Path extends Paths<Infer>,
+  Path extends 
+    Paths<Infer> extends readonly (string | number | readonly string[])[]
+      ? Paths<Infer>
+      : never,
   Val extends AtPath<Infer, Path>
->(path: Path, modFunc: (v: Val) => Val) => 
+>(path: [...Path], modFunc: (v: Val) => Val) => 
   (a: Infer) => {
-  const narrowPath = path as (string | number | readonly string[])[]
-  if (isPathLens(narrowPath)) {
+  if (isPathLens(path)) {
     return pipe(
-      lensFromPath(narrowPath),
+      lensFromPath(path),
       L.modify(modFunc)
     )(a) as GiveOpt<Infer, Path>
   }
   return pipe(
-    optionalFromPath(narrowPath),
+    optionalFromPath(path),
     Op.modifyOption(modFunc)
   )(a) as GiveOpt<Infer, Path>
 }

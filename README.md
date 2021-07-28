@@ -42,7 +42,7 @@ declare const data: Data
 
 const beenSet: Data = pipe(
   data,
-  set(['a', 'b?', 0, ['c', 'd'] as const] as const, {c: 456, d: 'def'})
+  set(['a', 'b?', 0, ['c', 'd'] as const], {c: 456, d: 'def'})
 )
 ```
 
@@ -61,7 +61,7 @@ declare const data: Data
 
 const modified: Data = pipe(
   data,
-  modify(['a', 'b?', 0, 'c'] as const, (j) => j + 4)
+  modify(['a', 'b?', 0, 'c'], (j) => j + 4)
 )
 ```
 
@@ -79,7 +79,7 @@ declare const data: Data
 
 const modifyOpted: Option<Data> = pipe(
   data,
-  modifyOption(['a', 'b?', 0, 'c'] as const, (j: number) => j + 4)
+  modifyOption(['a', 'b?', 0, 'c'], (j: number) => j + 4)
 )
 ```
 

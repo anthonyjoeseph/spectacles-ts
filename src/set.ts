@@ -8,13 +8,12 @@ export const set = <
       ? Paths<Infer>
       : never,
   Val extends AtPath<Infer, Path>
->(path: Path, val: Val) => 
+>(path: [...Path], val: Val) => 
   (obj: Infer) => {
-  const narrowPath = path as (string | number | readonly string[])[]
-  if (isPathLens(narrowPath)) {
-    return lensFromPath(narrowPath)
+  if (isPathLens(path)) {
+    return lensFromPath(path)
       .set(val)(obj) as Infer
   }
-  return optionalFromPath(narrowPath)
+  return optionalFromPath(path)
     .set(val)(obj) as Infer
 }

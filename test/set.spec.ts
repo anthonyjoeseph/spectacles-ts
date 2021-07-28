@@ -4,5 +4,5 @@ import { data } from './shared'
 
 const beenSet = pipe(
   data,
-  set(['a', 'b?', 0, 'c'] as const, 123)
+  set(['a', 'b?', 0, 'c'], 123)
 )
