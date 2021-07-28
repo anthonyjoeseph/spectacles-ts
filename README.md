@@ -84,7 +84,7 @@ declare const data: Data
 
 const modifyOpted: Option<Data> = pipe(
   data,
-  modifyOption(['a', 'b?', 0, 'c'], (j: number) => j + 4)
+  modifyOption(['a', 'b?', 0, 'c'], (j) => j + 4)
 )
 ```
 
