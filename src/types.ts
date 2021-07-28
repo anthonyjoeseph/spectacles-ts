@@ -15,15 +15,15 @@ type HasUndesiredKeys<A> =
 
 export type Paths<
   A, 
-  Prev extends unknown[] = [],
+  Prev extends readonly unknown[] = [],
   Keys = keyof A,
   OptKeys = OptKeyof<A>
 > = 
   HasUndesiredKeys<A> extends false 
-    ? [A] extends [Array<unknown>]
+    ? [A] extends [readonly unknown[]]
       ? ArrayPaths<A, Prev>
       : 
-        | [...Prev, readonly Keys[]]
+        | readonly [...Prev, readonly Keys[]]
         | (
           Keys extends unknown
             ? ObjPaths<A, false, Prev, Keys>
@@ -35,41 +35,41 @@ export type Paths<
     : never
 
 type ArrayPaths<
-  A extends Array<unknown>,
-  Prev extends unknown[] = []
+  A extends readonly unknown[],
+  Prev extends readonly unknown[] = []
 > = 
-  | [...Prev, number]
-  | Paths<A[number], [...Prev, number]>
+  | readonly [...Prev, number]
+  | Paths<A[number], readonly [...Prev, number]>
   // | ObjPaths<A, false, Prev, TupleKeyof<A>>
 
 type ObjPaths<
   A,
   isOpt extends boolean,
-  Prev extends unknown[] = [],
+  Prev extends readonly unknown[] = [],
   Keys = keyof A
 > = 
-  | [...Prev, Keys]
+  | readonly [...Prev, Keys]
   | (
       isOpt extends true 
         ? (
             Unopt<Keys> extends keyof A
-              ? Paths<NonNullable<A[Unopt<Keys>]>, [...Prev, Keys]> 
+              ? Paths<NonNullable<A[Unopt<Keys>]>, readonly [...Prev, Keys]> 
               : never
           )
           : (
               Keys extends keyof A 
-              ? Paths<A[Keys], [...Prev, Keys]> 
+              ? Paths<A[Keys], readonly [...Prev, Keys]> 
               : never
             )
     )
 
 export type AtPath<
   A,
-  Args extends unknown[]
+  Args extends readonly unknown[]
 > = 
-  Args extends []
+  Args extends readonly []
     ? A
-    : Args extends [infer Key, ...infer Rest]
+    : Args extends readonly [infer Key, ...infer Rest]
       ? Key extends readonly (keyof A)[]
         ? { [P in Key[number]]: A[P] }
         : Key extends number
@@ -82,7 +82,7 @@ export type AtPath<
             : never
 
 export type BuildObj<
-  Path extends unknown[],
+  Path extends readonly unknown[],
   Obj
 > = 
   Path extends []
@@ -101,7 +101,7 @@ export type BuildObj<
               : never
             : never
 
-export type GiveOpt<A, Args extends unknown[]> =
+export type GiveOpt<A, Args extends readonly unknown[]> =
   true extends HasOpt<Args[number]> 
     ? Option<A> 
     : true extends HasNum<Args[number]>

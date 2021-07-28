@@ -3,13 +3,13 @@ import * as L from 'monocle-ts/lib/Lens'
 import * as Op from 'monocle-ts/lib/Optional'
 
 export const isPathLens = (
-  path: (number | string | readonly string[])[]
+  path: readonly (number | string | readonly string[])[]
 ): path is (string | readonly string[])[] => !path.some(
   p => typeof p === 'number' || (typeof p === 'string' && p.endsWith('?'))
 )
 
 export const optionalFromPath = (
-  path: (number | string | readonly string[])[]
+  path: readonly (number | string | readonly string[])[]
 ): Op.Optional<any, any> => {
   const opt = path.reduce(
     (acc, cur) => {
@@ -28,7 +28,7 @@ export const optionalFromPath = (
 }
 
 export const lensFromPath = (
-  path: (string | readonly string[])[]
+  path: readonly (string | readonly string[])[]
 ): L.Lens<any, any> => {
   const lens = path.reduce(
     (acc, cur) => {

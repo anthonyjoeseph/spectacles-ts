@@ -1,10 +1,8 @@
 import { pipe } from 'fp-ts/function'
 import { set } from '../src'
+import { data } from './shared'
 
-interface Data { a: {b?: {c: number; d: string; e: boolean }[] } }
-declare const data: Data
-
-const beenSet: Data = pipe(
+const beenSet = pipe(
   data,
-  set({c: 456, d: 'def'})('a', 'b?', 0, ['c', 'd'] as const)
+  set(['a', 'b?', 0, 'c'] as const, 123)
 )

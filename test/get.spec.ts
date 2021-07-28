@@ -5,8 +5,12 @@ import * as O from 'fp-ts/Option'
 
 import { get } from '../src'
 import type { AtPath } from '../src/types'
+import { data } from './shared'
 
-
+const piped = pipe(
+  data,
+  get('a', 'b?', 0, ['c', 'e'] as const)
+)
 const uncurried = get('a', 'b?', 0, ['c', 'e'] as const)({
   a: {
     b: [{ c: 123, e: true }]

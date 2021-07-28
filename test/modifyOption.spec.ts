@@ -1,11 +1,9 @@
 import { pipe } from 'fp-ts/function'
 import type { Option } from 'fp-ts/Option'
 import { modifyOption } from '../src'
-
-interface Data { a: {b?: {c: number; d: string; e: boolean }[] } }
-declare const data: Data
+import { Data, data } from './shared'
 
 const modifyOpted: Option<Data> = pipe(
   data,
-  modifyOption((j: number) => j + 4)('a', 'b?', 0, 'c')
+  modifyOption(['a', 'b?', 0, 'c'] as const, (j) => j + 4)
 )

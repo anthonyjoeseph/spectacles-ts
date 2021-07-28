@@ -1,24 +1,20 @@
 import { isPathLens, lensFromPath, optionalFromPath } from "./monocle"
-import type { Paths, BuildObj } from "./types"
+import type { Paths, BuildObj, AtPath } from "./types"
 
 export const set = <
-  Val
->(
-  val: Val
-) => <
-  Infer extends BuildObj<Path, Val>,
+  Infer,
   Path extends 
-    // necessary to allow inference
-    Paths<Infer> extends (number | string | readonly string[])[] 
-      ? Paths<Infer> 
-      : never
->(...path: Path) => 
-  (obj: Infer) =>
-  {
-  if (isPathLens(path)) {
-    return lensFromPath(path)
+    Paths<Infer> extends readonly (string | number | readonly string[])[]
+      ? Paths<Infer>
+      : never,
+  Val extends AtPath<Infer, Path>
+>(path: Path, val: Val) => 
+  (obj: Infer) => {
+  const narrowPath = path as (string | number | readonly string[])[]
+  if (isPathLens(narrowPath)) {
+    return lensFromPath(narrowPath)
       .set(val)(obj) as Infer
   }
-  return optionalFromPath(path)
+  return optionalFromPath(narrowPath)
     .set(val)(obj) as Infer
 }
