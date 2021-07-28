@@ -1,8 +1,10 @@
 import { pipe } from 'fp-ts/function'
-import { ap } from 'fp-ts/Identity'
-import { pick } from 'fp-ts-std/Record'
 import * as L from 'monocle-ts/lib/Lens'
 import * as Op from 'monocle-ts/lib/Optional'
+
+import * as S from 'fp-ts/string'
+import * as Eq from 'fp-ts/Eq'
+import * as O from 'fp-ts/Option'
 
 const isPathLens = (
   path: (number | string | readonly string[])[]
@@ -44,14 +46,23 @@ const lensFromPath = (
   return lens
 }
 
+
 export const get = <
   Infer,
   Path extends 
-    // necessary to allow inference
-    Paths<Infer> extends (number | string | readonly string[])[] 
-      ? Paths<Infer> 
-      : never
->(...path: Path): (obj: Infer) => GiveOpt<AtPath<Infer, Path>, Path> => {
+    Paths<Infer> extends never
+      ? (number | string | readonly string[])[]
+      // necessary to allow inference
+      : Paths<Infer> extends (number | string | readonly string[])[] 
+        ? Paths<Infer> 
+        : never,
+  Ret
+>(...path: Path): (
+  unknown extends Ret
+    ? <Constructed extends BuildObj<Path, unknown>>(c: Constructed) => GiveOpt<AtPath<Constructed, Path>, Path>
+    : (obj: Paths<Infer> extends never ? BuildObj<Path, Ret> : Infer) => 
+      Paths<Infer> extends never ? Ret : GiveOpt<AtPath<Infer, Path>, Path>
+) => {
   if (isPathLens(path)) {
     return lensFromPath(path)
       .get as any
@@ -59,6 +70,13 @@ export const get = <
   return optionalFromPath(path)
     .getOption as any
 }
+
+const lkj = get('a', 'b?', 0, ['c', 'e'] as const)({
+  a: {
+    b: [{ c: 123, e: true }]
+  }
+})
+const zztop = pipe(O.getEq(S.Eq), Eq.contramap(get('a?', 'b')))
 
 export const set = <
   Val
@@ -183,15 +201,18 @@ interface Some<A> {
 interface None { readonly _tag: 'None' }
 type Option<A> = Some<A> | None
 
-type HasUndesiredKeys<A> = A extends number
-  ? true
-  : A extends string
+type HasUndesiredKeys<A> = 
+  unknown extends A
     ? true
-    : A extends boolean
+    : A extends number
       ? true
-      : A extends Promise<any>
+      : A extends string
         ? true
-        : false
+        : A extends boolean
+          ? true
+          : A extends Promise<any>
+            ? true
+            : false
 
 type Paths<
   A, 
@@ -269,7 +290,9 @@ type BuildObj<
     ? Obj
     : Path extends [...infer Rest, infer Key]
       ? Key extends readonly string[]
-        ? BuildObj<Rest, { [P in Key[number]]: P extends keyof Obj ? Obj[P] : never }>
+        ? unknown extends Obj 
+          ? BuildObj<Rest, { [P in Key[number]]: unknown }>
+          : BuildObj<Rest, Obj>
         : Key extends number
           ? BuildObj<Rest, Obj[]>
           : Key extends string 
