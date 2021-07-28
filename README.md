@@ -26,8 +26,6 @@ const nested: Option<{ c: number; d: string }> = pipe(
 - get rid of need for `as const` assertion in 'Pick' tuple
 - refinements (is this possible?)
 - separate 'immutable-ts/non-fp' module that uses `undefined` (rather than `Option`)
-- `function set(...)`
 - `function insert(...)`
-- `function modify(...)`
 - `function rename(...)`
 - `function omit(...)`

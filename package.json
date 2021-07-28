@@ -10,6 +10,7 @@
     "fp-ts": "^2.10.0-rc.8",
     "fp-ts-std": "^0.8.0",
     "ts-adt": "^2.1.2",
+    "monocle-ts": "^2.3.5",
     "typescript": "^4.3.5"
   },
   "devDependencies": {

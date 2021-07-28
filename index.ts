@@ -1,57 +1,176 @@
 import { pipe } from 'fp-ts/function'
+import { ap } from 'fp-ts/Identity'
 import { pick } from 'fp-ts-std/Record'
+import * as L from 'monocle-ts/lib/Lens'
+import * as Op from 'monocle-ts/lib/Optional'
 
-const prop = <
+const isPathLens = (
+  path: (number | string | readonly string[])[]
+): path is (string | readonly string[])[] => !path.some(
+  p => typeof p === 'number' || (typeof p === 'string' && p.endsWith('?'))
+)
+
+const optionalFromPath = (
+  path: (number | string | readonly string[])[]
+): Op.Optional<any, any> => {
+  const opt = path.reduce(
+    (acc, cur) => {
+      if (Array.isArray(cur)) {
+        return pipe(acc, Op.props(...(cur as [string, string])))
+      } else if (typeof cur === 'number') {
+        return pipe(acc, Op.index(cur))
+      } else if (typeof cur === 'string' && cur.endsWith('?')) {
+        return pipe(acc, Op.prop(cur.slice(0, cur.length - 1)), Op.fromNullable)
+      }
+      return pipe(acc, Op.prop(cur as string))
+    },
+    Op.id<any>()
+  )
+  return opt
+}
+
+const lensFromPath = (
+  path: (string | readonly string[])[]
+): L.Lens<any, any> => {
+  const lens = path.reduce(
+    (acc, cur) => {
+      if (Array.isArray(cur)) {
+        return pipe(acc, L.props(...(cur as [string, string])))
+      }
+      return pipe(acc, L.prop(cur as string))
+    },
+    L.id<any>()
+  )
+  return lens
+}
+
+export const get = <
   Infer,
   Path extends 
     // necessary to allow inference
     Paths<Infer> extends (number | string | readonly string[])[] 
       ? Paths<Infer> 
       : never
->(...path: Path) => (obj: Infer) => {
-  if ((path as string[]).some(
-    p => typeof p === 'number' || (typeof p === 'string' && p.endsWith('?'))
-  )) {
-    const a = (path as string[]).reduce(
-      (acc, cur) => {
-        if (acc.isSome) {
-          if (typeof cur === 'number') {
-            return acc.obj[cur] !== undefined
-              ? { obj: acc.obj[cur], isSome: true }
-              : { obj: undefined, isSome: false }
-          } else if (typeof cur === 'object') {
-            return { obj: pick<any>()(cur)(acc), isSome: true}
-          } else if (typeof cur === 'string' && cur.endsWith('?')) {
-            return acc.obj[cur.slice(0, cur.length - 1)] !== undefined
-              ? { obj: acc.obj[cur.slice(0, cur.length - 1)], isSome: true }
-              : { obj: undefined, isSome: false }
-          }
-          return { obj: acc.obj[cur], isSome: true }
-        }
-        return acc
-      },
-      { obj: obj as any, isSome: true }
-    )
-    return (a.isSome
-      ? { _tag: 'Some', value: a.obj }
-      : { _tag: 'None' }) as GiveOpt<AtPath<Infer, Path>, Path>
+>(...path: Path): (obj: Infer) => GiveOpt<AtPath<Infer, Path>, Path> => {
+  if (isPathLens(path)) {
+    return lensFromPath(path)
+      .get as any
   }
-  return (path as (string | string[])[]).reduce(
-    (acc, cur) => typeof cur === 'string' 
-      ? acc[cur]
-      : pick<any>()(cur)(acc),
-    obj as any
-  ) as GiveOpt<AtPath<Infer, Path>, Path>
+  return optionalFromPath(path)
+    .getOption as any
 }
 
-declare const data: { a: {b?: {c: number; d: string; e: boolean }[] } }
+export const set = <
+  Val
+>(
+  val: Val
+) => <
+  Infer extends BuildObj<Path, Val>,
+  Path extends 
+    // necessary to allow inference
+    Paths<Infer> extends (number | string | readonly string[])[] 
+      ? Paths<Infer> 
+      : never
+>(...path: Path) => 
+  (obj: Infer) =>
+  {
+  if (isPathLens(path)) {
+    return lensFromPath(path)
+      .set(val)(obj) as Infer
+  }
+  return optionalFromPath(path)
+    .set(val)(obj) as Infer
+}
 
-const nested: Option<{ c: number; d: string }> = pipe(
+export const modify = <
+  Val
+>(
+  modFunc: (v: Val) => Val
+) => <
+  Infer extends BuildObj<Path, Val>,
+  Path extends 
+    // necessary to allow inference
+    Paths<Infer> extends (number | string | readonly string[])[] 
+      ? Paths<Infer> 
+      : never
+>(...path: Path) => 
+(a: Infer) => {
+  if (isPathLens(path)) {
+    return pipe(
+      lensFromPath(path),
+      L.modify(modFunc)
+    )(a) as Infer
+  }
+  return pipe(
+    optionalFromPath(path),
+    Op.modify(modFunc)
+  )(a) as Infer
+}
+
+export const modifyOption = <
+  Val
+>(
+  modFunc: (v: Val) => Val
+) => <
+  Infer extends BuildObj<Path, Val>,
+  Path extends 
+    // necessary to allow inference
+    Paths<Infer> extends (number | string | readonly string[])[] 
+      ? Paths<Infer> 
+      : never
+>(...path: Path) => 
+(a: Infer) => {
+  if (isPathLens(path)) {
+    return pipe(
+      lensFromPath(path),
+      L.modify(modFunc)
+    )(a) as GiveOpt<Infer, Path>
+  }
+  return pipe(
+    optionalFromPath(path),
+    Op.modifyOption(modFunc)
+  )(a) as GiveOpt<Infer, Path>
+}
+
+interface Data { a: {b?: {c: number; d: string; e: boolean }[] } }
+const data: Data = {
+  a: {
+    b: [{
+      c: 123,
+      d: 'abc',
+      e: false
+    }]
+  }
+}
+
+const gotten = pipe(
   data, 
-  prop('a', 'b?', 0, ['c', 'd'] as const)
+  get('a', 'b?', 0, ['c', 'e'] as const)
 )
 
-console.log(nested)
+const beenSet = pipe(
+  data,
+  set({c: 456, e: true})('a', 'b?', 0, ['c', 'e'] as const)
+)
+
+const modified = pipe(
+  data,
+  modify((j: number) => j + 4)('a', 'b?', 0, 'c')
+)
+const modifyOpted = pipe(
+  data,
+  modifyOption((j: number) => j + 4)('a', 'b?', 0, 'c')
+)
+const modifyUnopted = pipe(
+  {a: 123},
+  modifyOption((j: number) => j + 4)('a')
+)
+
+console.log(`get: ${JSON.stringify(gotten)}`)
+console.log(`set: ${JSON.stringify(beenSet)}`)
+console.log(`modify: ${JSON.stringify(modified)}`)
+console.log(`modifyOptioned: ${JSON.stringify(modifyOpted)}`)
+console.log(`modifyOptioned (but not): ${JSON.stringify(modifyUnopted)}`)
 
 ///////////
 // types //
@@ -139,6 +258,24 @@ type AtPath<
               ? true extends HasOpt<Key>
                 ? AtPath<NonNullable<A[Unopt<Key>]>, Rest>
                 : AtPath<A[Unopt<Key>], Rest>
+              : never
+            : never
+
+type BuildObj<
+  Path extends unknown[],
+  Obj
+> = 
+  Path extends []
+    ? Obj
+    : Path extends [...infer Rest, infer Key]
+      ? Key extends readonly string[]
+        ? BuildObj<Rest, { [P in Key[number]]: P extends keyof Obj ? Obj[P] : never }>
+        : Key extends number
+          ? BuildObj<Rest, Obj[]>
+          : Key extends string 
+              ? true extends HasOpt<Key>
+                ? BuildObj<Rest, { [k in Unopt<Key>]?: Obj }>
+                : BuildObj<Rest, { [k in Unopt<Key>]: Obj }>
               : never
             : never
 
