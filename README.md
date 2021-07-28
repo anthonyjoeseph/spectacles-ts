@@ -17,12 +17,17 @@ import { pipe } from 'fp-ts/function'
 import type { Option } from 'fp-ts/Option'
 import { get } from 'immutable-ts'
 
-interface Data { a: {b?: {c: number; d: string; e: boolean }[] } }
+interface A { b?: {c: number; d: string; e: boolean }[] }
+interface B { b: 'other' }
+interface Data { a: A | B }
 declare const data: Data
 
-const nested: Option<{ c: number; d: string }> = pipe(
+const nested: O.Option<{
+  c: number;
+  d: string;
+}> = pipe(
   data,
-  get('a', 'b?', 0, ['c', 'd'] as const)
+  get('a', (v): v is A => v.b === 'other', 'b?', 0, ['c', 'd'] as const)
 )
 ```
 
@@ -89,7 +94,6 @@ const modifyOpted: Option<Data> = pipe(
 - `null` support for nullable keys (not just `undefined`)
 - support for `Option` & `Either` chaining (monocle `Optional.some` and `Optional.right` functions)
 - get rid of need for `as const` assertion in 'Pick' tuple
-- refinements (is this possible?)
 - separate 'immutable-ts/non-fp' module that returns `Retval | undefined` (rather than `Option<Retval>`)
 - `function insert(...)`
 - `function rename(...)`
