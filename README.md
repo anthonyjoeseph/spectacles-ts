@@ -27,7 +27,7 @@ const nested: O.Option<{
   d: string;
 }> = pipe(
   data,
-  get('a', (v): v is A => v.b === 'other', 'b?', 0, ['c', 'd'] as const)
+  get('a', (v): v is A => v.b !== 'other', 'b?', 0, ['c', 'd'] as const)
 )
 ```
 
