@@ -8,7 +8,7 @@ Not yet published to npm, but you can experiment with types/inference in [this p
 
 ## Examples
 
-### `get`
+### `get` (formerly `prop`)
 
 [monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gMFsYaKBwTDgwAERMYEykTAC5EBgB+OKg0EwATXloxRA44thYQBgCAbjg0uMoYKGA2AHNStDiGCAhHEzYsAG0AXUVMfjS0BxMUuA5eSrKI2LhwyP5+cbZJiDkPLzgAXmRUNAAKfjgLADpgNIAeOZMAPj2ASgAaQ5OwfDA9ohMiR+fZY9fVh8GN8nkc-ngCAA5Fi0WgmBiOUEnGqDAAeewADD8wWB-m9KB8OEQHsQ0t9+HcFktJmw0JU0OULDpzghnkdcnB8oUSmyyhUqjV6vxMNctnBVjovMdamgYO5eHs0tM7kA)
 
