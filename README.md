@@ -88,6 +88,40 @@ const modifyOpted: Option<Data> = pipe(
 )
 ```
 
+### `insert`
+
+[immutability-helper equivalents](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG4GMIAOwDO8YCM4wA0hnpwAvHG5xEKdBgAUylXADecVAC49cCsYCMAJgDMcAL72ANNpX6XOo3A2oAlAoB8XrruOnAAdBGozqGhfMaElHw8MfY+7nbaafxCogZgHILICkoqSGiYWqH6ngDaVtYAuk7uwSmerSlwACRgCMLMxjUALACsAGwN0TEZoTNwWQIi8GBQGAVFitpl6pU61YP1TXZTriEGxt5+8oHD447hkQ3pmbyLueLCkgCC8JulahUWuc4HV7pZ7tZ7kN7iN7hNmlUzu0ziohsYOp1up8YMZRmMUfYznMVHMfEA)
+
+```ts
+import { pipe } from 'fp-ts/function'
+import type { Option } from 'fp-ts/Option'
+import { insert } from 'immutable-ts'
+
+const insertKey: { a: { b: number; c: string } } = 
+  pipe(
+    { a: { b: 123 } },
+    insert(['a', 'c'], 'abc')
+  )
+
+const append: { a: NonEmptyArray<number> } = 
+  pipe(
+    { a: [123] },
+    insert(['a'], 456)
+  )
+
+const prepend: { a: NonEmptyArray<number> } = 
+  pipe(
+    { a: [123] },
+    insert(['a', 0], 456)
+  )
+
+const insertAt: Option<{ a: NonEmptyArray<number> }> = 
+  pipe(
+    { a: [1, 2, 3, 4, 5, 6] },
+    insert(['a', 4], 456)
+  )
+```
+
 ## TODO
 
 - tuple access (code is written but causes tsc memory overflow)
@@ -95,6 +129,7 @@ const modifyOpted: Option<Data> = pipe(
 - support for `Option` & `Either` chaining (monocle `Optional.some` and `Optional.right` functions)
 - get rid of need for `as const` assertion in 'Pick' tuple
 - separate 'immutable-ts/non-fp' module that returns `Retval | undefined` (rather than `Option<Retval>`)
-- `function insert(...)`
+  - (is that actually a good idea?)
+- generally the implementation is a mess 😅
 - `function rename(...)`
 - `function omit(...)`

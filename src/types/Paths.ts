@@ -11,7 +11,7 @@ export type Paths<
     ? ArrayPaths<A, Prev>
     : 
       | readonly [...Prev, readonly Keys[]]
-      | RefinementPaths<A, Prev>
+      | RefinementPaths<NonNullable<A>, Prev>
       | (
         Keys extends unknown
           ? ObjPaths<A, false, Prev, Keys>

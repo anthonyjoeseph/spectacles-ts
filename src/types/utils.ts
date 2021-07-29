@@ -41,3 +41,6 @@ export type TupleKeyof<A extends unknown[]> =
     keyof A,
     keyof Array<unknown>
   >
+
+export type LastElem<A extends unknown[]> =
+  A extends [...infer _, infer Last] ? Last : never
