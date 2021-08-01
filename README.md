@@ -14,9 +14,9 @@ Not yet published to npm, but you can experiment with types/inference here:
 # Contents
 
 <!-- AUTO-GENERATED-CONTENT:START (TOC) -->
-
+- [Contents](#contents)
 - [Examples](#examples)
-  - [`get` (formerly `prop`)](#get-formerly-prop)
+  - [`get`](#get)
   - [`set`](#set)
   - [`modify`](#modify)
   - [`modifyOption`](#modifyoption)
