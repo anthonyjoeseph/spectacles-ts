@@ -7,20 +7,20 @@ export type BuildObj<Path extends readonly unknown[], Obj> = Path extends []
   ? Key extends (a: any) => boolean
     ? BuildObj<Rest, Obj>
     : Key extends readonly string[]
-      ? unknown extends Obj
-        ? BuildObj<Rest, { [P in Key[number]]: unknown }>
-        : BuildObj<Rest, Obj>
-      : Key extends number
-        ? BuildObj<Rest, Obj[]>
-          : Key extends string
-            ? Key extends '?'
-              ? BuildObj<Rest, Obj | undefined>
-              : Key extends '?some'
-                ? BuildObj<Rest, Option<Obj>>
-                : Key extends '?left'
-                  ? BuildObj<Rest, Either<Obj, unknown>>
-                  : Key extends '?right'
-                    ? BuildObj<Rest, Either<unknown, Obj>>
-                    : BuildObj<Rest, { [k in Key]: Obj }>
-            : never
-        : never
+    ? unknown extends Obj
+      ? BuildObj<Rest, { [P in Key[number]]: unknown }>
+      : BuildObj<Rest, Obj>
+    : Key extends number
+    ? BuildObj<Rest, Obj[]>
+    : Key extends string
+    ? Key extends '?'
+      ? BuildObj<Rest, Obj | undefined>
+      : Key extends '?some'
+      ? BuildObj<Rest, Option<Obj>>
+      : Key extends '?left'
+      ? BuildObj<Rest, Either<Obj, unknown>>
+      : Key extends '?right'
+      ? BuildObj<Rest, Either<unknown, Obj>>
+      : BuildObj<Rest, { [k in Key]: Obj }>
+    : never
+  : never

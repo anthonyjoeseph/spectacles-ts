@@ -6,9 +6,7 @@ import type { Inferable } from './types/utils'
 export const set =
   <
     Infer,
-    Path extends Paths<Infer> extends Inferable
-      ? [...Paths<Infer>]
-      : never,
+    Path extends Paths<Infer> extends Inferable ? [...Paths<Infer>] : never,
     Val extends AtPath<Infer, Path>
   >(
     path: Path,

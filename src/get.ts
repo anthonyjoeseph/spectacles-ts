@@ -9,13 +9,15 @@ export const get = <
   Path extends unknown extends Infer
     ? Inferable
     : Paths<Infer> extends Inferable
-      ? Paths<Infer>
-      : never
+    ? Paths<Infer>
+    : never
 >(
   ...path: Path
-): unknown extends Infer 
-  ? (<Constructed extends BuildObj<Path, unknown>>(obj: Constructed) => GiveOpt<AtPath<Constructed, Path>, Path>)
-  : ((obj: Infer) => GiveOpt<AtPath<Infer, Path>, Path>) => {
+): unknown extends Infer
+  ? <Constructed extends BuildObj<Path, unknown>>(
+      obj: Constructed
+    ) => GiveOpt<AtPath<Constructed, Path>, Path>
+  : (obj: Infer) => GiveOpt<AtPath<Infer, Path>, Path> => {
   if (isPathLens(path)) {
     return lensFromPath(path).get as any
   }

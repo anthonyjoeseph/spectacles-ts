@@ -49,13 +49,11 @@ type ObjectPaths<
   :
       | Prev
       | [...Prev, readonly Key[]]
-      | (
-        Key extends unknown 
-        ? Paths<A[Key], [...Prev, Key]> 
-        : A extends unknown[] 
-          ? Paths<A[number], [...Prev, number]> 
-          : never
-      )
+      | (Key extends never
+          ? A extends unknown[]
+            ? Paths<A[number], [...Prev, number]>
+            : never
+          : Paths<A[Key], [...Prev, Key]>)
 
 type OptionPaths<A, Prev extends unknown[], Else> = [A] extends [
   Option<infer Some>
