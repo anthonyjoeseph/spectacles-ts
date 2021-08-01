@@ -20,94 +20,85 @@ Not yet published to npm, but you can experiment with types/inference in [this p
 
 ## Examples
 
-### `get` (formerly `prop`)
+### `get`
 
-[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gKEG4xszgABSsVWzZ7R2cNJiCoYEoQAUE2GDQoHBMODABBKQYAfgAuOCg0EwATXloxRA4SthYQBnSAbjgKksoYeLYAc3a0EoYICEcTNiwAbQBdLBS0jKyMACF8kqIIGAALdKJ54FT0zOy4ABETGBMpExK8gB84Ncx+CrQHEzK4Dl5ujsvbucAfx+D82H8IHIPF44ABeZCoNAACn4cAsADpgBUADwXK4APiRAEoADSojFgfBgJFEExEUnk2TonDAWiLJFIgBuRJKnLgCTgeVh+LgnPRDDgAEJYfDNjs9gy0UzKZCaQx6WSlWBmcoAHIsWi0EwMRyajGHN4ADyRAAZFRSqZQaRwiCTiBV6fwiSCwX82GhumhOhYdNiEOS0fU4I1mm0Ix0uj1DgN+JgRfDITovOi+mgYO5eEiKgCiUA)
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gP5oAHsLwwGwwaFA4JhwYAIKI-HCiEmgAXMTRAgkmqe68ADwI8QlwHKkA2mwsIAxhADRwlDBQwQDmdQwQEI4mbAC6hQkAJqkNTWzNpX1FcClw7Z1o3YWYAHz8mL4BBnDBoeGRGABCUuLoqUQHRFgbgYmSACImMCZwALxwsQA+cAf8A2gOJigGA4vAacAGjyycAeT34-BBbDBEDkHi8r2QqDQAApCrIAHTAAa5GEmZZYgCUNVxYDxOGAtF2WKxADdyalmdtzLEXss4My8ScMABCF5vIjpSnUvFgfBgLFEExESUJfGUAhoKkqmky5HyjhKzUWPEg-RsNAhLEARkl5LhCLBZoaaCGFh0uRGLV5b2ROi8eOaaBgOTYWIhT3JQA)
 
 ```ts
 import { pipe } from 'fp-ts/function'
 import type { Option } from 'fp-ts/Option'
 import { get } from 'immutable-ts'
 
-interface A {
-  b?: { c: number; d: string; e: boolean }[]
+export interface A {
+  type: 'A'
+  a: O.Option<{
+    c: [number, string, boolean]
+    d: string[]
+    e: boolean
+  }>
 }
-interface B {
-  b: 'other'
-}
-interface Data {
-  a: A | B
-}
+export interface B { type: 'B' }
+export type Data = A | B
 declare const data: Data
 
-const nested: O.Option<{
-  c: number
-  d: string
-}> = pipe(
+const nested: O.Option<string> = pipe(
   data,
-  get('a', (v): v is A => v.b !== 'other', 'b?', 0, ['c', 'd'] as const)
+  get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
+)
+
+const polymorphicFn = get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
+const polymorphicVal: O.Option<string> = polymorphicFn(data)
+
+const pick: { b: number; d: boolean } = pipe(
+  { a: { b: 123, c: 'abc', d: false } },
+  get('a', ['b', 'd'] as const)
 )
 ```
 
 ### `set`
 
-[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcAPJhc+QkRC8IHWmgo16TOd14TaAwWxhooOCRwwARCTAmJJALkQMA-K6hoJAE160AJ6IHK5sLCAM5gDccL6ulDBQwGwA5rForgwQEBoSbFgA2gC6WFj8vmjqEt5wHLyJcfYSrnYO-Pz1bI0QYPpshnAAvMioaAAU-HCyYAB0wL4APG0SAHzjAJQANFMzs2D4YONEEkTbu3L7h8cMZzvTl3gEAHIstLQSDBr3eymVAB7jAAM5wecwOvUoxw4RC2xF8Z34Gw6XUaUTQbAAymgYK1msM4L1+oZZpQceMEKE4AAWACsADY4fF4WgcERMBtxr5mhsgA)
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcADK58hIiF4QOtNBRr0mMtG0oDBbGGig4JHDABEJMCYkkAuBw2dsWIBqaxZ+AEzQ1CSgMDl5KeD9bCWcbO35+MP14dX04AF5kVDQACn44WQA6YD8AHjiJAD4cgEoAGnyisHwwHKIJInrGmULmiFaiBk6GmoSkiLgvPQBlNBhY6Iy4VMpCyjmcsgBGACYAZhqcqLsaoA)
 
-[immutability-helper equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG+ADtMUbKgDGWACLpUcAN5xUALjkUA-MqgZUyCP2r05o5fwQgKnANxxkygM4woAgOZWMyihAjUt-OAF8AbQBdf39uZAxRalRNOFFde2tpZSlyXnj+RP4MewwbOFSZAF5EFHQMAAo0cgAaOW44BWVZBsa4CmbWtrgABk7u7oASVDAwfWUKgDcASjgigD44CpaBgaM4ABYAVgA2Gq7V62VCCOxCfcO2tzhJgDoMA+6-acewp9a-bmegA)
+[immutability-helper equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG+ADtMUbKgDGWACLpUcAN5xUALjlwKy-ghAVOcAL57uyDKOqooWURH4BneGnLKp5XpZvx+GWxmSPpcALyIKOgYABT2qAA0ctxwCsqysXGqCUnJcAAk1hgwyowAjABMAMxpBnG63LoAlEA)
 
 ```ts
 import { pipe } from 'fp-ts/function'
 import { set } from 'immutable-ts'
 
-interface Data {
-  a: { b?: { c: number; d: string; e: boolean }[] }
-}
-declare const data: Data
-
-const beenSet: Data = pipe(
-  data,
-  set(['a', 'b?', 0, ['c', 'd'] as const], { c: 456, d: 'def' })
+const beenSet: { a: { b: number } } = pipe(
+  { a: { b: 123 } },
+  set(['a', 'b'], -123)
 )
 ```
 
 ### `modify`
 
-[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcAPJhc+QkRC8IHWmgo16TOd14TaAodHjipcAJIKCxUlrqNqlgCZo23GAE8Bgj2igcCQ4MABEJGAlESQAuRAYAfjioNAkXXlovRA44thYQBgCAbjgXOMoYKGA2AHMStDiGCAgNCTYsAG0AXSwsfjd1CRS4Dl4K0oiJOPDI-n5RtnGIMH02QzgAXmRUNAAKfjhZMAA6YBcAHhmJAD5dgEoAGgOj47B8MF2iCSJH57lX96fBg-J6Hf54AgAORYtFoEgYGlBL2qbgAHrsAAy-MEnN7LT4cH78O5zBbjFQuYA4YBoMpwK6bbbofaHZarQwPOB-E4UqleXYAK021zgQoA1HAACyPLmHSzHCQfFyTEl3IA)
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcADK58hIiF4QOtNBRr0mMtG0oCh0eOKlwAkvILFSmuo2rmAJnu4wAngMFsYaKDgkODAARCRgJREkALkiGGLYWEAY-LCx+FzUJKAwOXkp4JzCJGNDw-n5c-XgIMG5eCVo4AF5kVDQACn44WQA6YCcAHlKJAD52gEoAGi7esHwwdqIJIimZmR65msWGFenx8sr8uGUnYBxgNCcSoubW9E7umrq2Bsm4NZ6Ts-d2gCtmkZwf4AajgABYpu9uuYehIFoVwvtxkA)
 
-[immutability-helper equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG+ADtMUbKgDGWACLpUcAN5xUALjkUA-MqgZUyCP2r05o5fwQgKnANxxkygM4woAgOZWMyihAjUt-OAF8AbQBdf39uZAxRalRNOFFde2tpZSlyXnj+RP4MewwbOFSZAF5EFHQMAAo0cgAaOW44BWVZBsa4CmbWtrgABk7u7qN6gYGAElQwMH1lCoArAEo4IoA+OFm4AGo4ABYugb89xoPu47C-eaA)
+[immutability-helper equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG+ADtMUbKgDGWACLpUcAN5xUALjlwKy-ghAVOcAL57uyDKOqooWURH4BneGnLKp5XpZvx+GWxmSPpcALyIKOgYABT2qAA0ctxwCsqysXGqCUnJcAAkqGBg1PTKoQBWAJQBAHxwhXAA1HAALGkGcbrcusVAA)
 
 ```ts
 import { pipe } from 'fp-ts/function'
 import { set } from 'immutable-ts'
 
-interface Data {
-  a: { b?: { c: number; d: string; e: boolean }[] }
-}
-declare const data: Data
-
-const modified: Data = pipe(
-  data,
-  modify(['a', 'b?', 0, 'c'], (j) => j + 4)
+const modified: { a: { b: number } } = pipe(
+  { a: { b: 123 } },
+  modify(['a', 'b'], (j) => j + 4)
 )
 ```
 
 ### `modifyOption`
 
-[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gKEG4xszgASSsVUmcNJiCAEzQ2bnEBQXi0KBwTDgwAERMYEykTAC5EBgB+Yqg0E2jeWjFEDmK2FhAGVIBuOGjiyhgoYDYAc060YoYICEcTNiwAbQBdRUx+fg5eXrgIOQ8vOABeZFQ0AAp+OAsAOmBogB4cvIA+Y4BKABozy7B8MGOiEyI3h9ZBcvltfgwAe9zsC8AQAHIsWi0EwMRxQy4DWIAD2OAAZAdCwCDvr8OAD+M8VrEHCZKnA1mwNtFckU4PcTCsGRtbNFgDgxNo0N0LDo7iyHvtDuhTuctjovK84ECiTy+QLtrxjgArfYSnUAajgABY3krzkELiYfsy8pTnkA)
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gKEG4xszgASSsVUmcNJiCAEzQ2bnEBQXi0KBwTDgwAERMYEykTAC44KDQTaN5aMSkGYrYWEAZUrABtAF0sfn4OXkp4CDkPLzgAXmRUNAAKfjgLADpgaIAeHLyAPkmASgAaGfmwfDBJohMiHb3ZBbZYgA9JgAZz2cuDgeOGM93NrtiHE1K4D02H04NFckU4KsTF0gSDbNFgDgxNo0NFiu5eCtwWtRuN0NNZgMdF5tnALmA5vDEcjBrxJgArUY4xkAajgABYdmTZkE5iYjmC8t9NkA)
 
 ```ts
 import { pipe } from 'fp-ts/function'
-import type { Option } from 'fp-ts/Option'
+import * as O from 'fp-ts/Option'
 import { set } from 'immutable-ts'
 
-interface Data {
-  a: { b?: { c: number; d: string; e: boolean }[] }
-}
-declare const data: Data
-
-const modifyOpted: Option<Data> = pipe(
-  data,
-  modifyOption(['a', 'b?', 0, 'c'], (j) => j + 4)
+const modifyOpted: O.Option<{ a: { b: number }[] }> = pipe(
+  { a: [{ b: 123 }] },
+  modifyOption(['a', 0, 'b'], (j) => j + 4)
 )
 ```
 

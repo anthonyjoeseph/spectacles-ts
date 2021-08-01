@@ -17,6 +17,7 @@ export type Paths<A, Prev extends unknown[] = []> =
 type NullPaths<A, Prev extends unknown[], Else> = true extends IsNull<A>
   ?
       | Prev
+      | [...Prev, '?']
       | OptionPaths<
           A,
           [...Prev, '?'],
@@ -49,11 +50,8 @@ type ObjectPaths<
   :
       | Prev
       | [...Prev, readonly Key[]]
-      | (Key extends never
-          ? A extends unknown[]
-            ? Paths<A[number], [...Prev, number]>
-            : never
-          : Paths<A[Key], [...Prev, Key]>)
+      | (A extends unknown[] ? Paths<A[number], [...Prev, number]> : never)
+      | (Key extends unknown ? Paths<A[Key], [...Prev, Key]> : never)
 
 type OptionPaths<A, Prev extends unknown[], Else> = [A] extends [
   Option<infer Some>

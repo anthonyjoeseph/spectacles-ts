@@ -8,9 +8,7 @@ export interface A {
     e: boolean
   }>
 }
-export interface B {
-  type: 'B'
-}
+export interface B { type: 'B' }
 export type Data = A | B
 export const data: Data = {
   type: 'A',

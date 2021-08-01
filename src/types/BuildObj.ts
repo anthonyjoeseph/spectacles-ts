@@ -14,7 +14,7 @@ export type BuildObj<Path extends readonly unknown[], Obj> = Path extends []
     ? BuildObj<Rest, Obj[]>
     : Key extends string
     ? Key extends '?'
-      ? BuildObj<Rest, Obj | undefined>
+      ? BuildObj<Rest, Obj | undefined | null>
       : Key extends '?some'
       ? BuildObj<Rest, Option<Obj>>
       : Key extends '?left'
