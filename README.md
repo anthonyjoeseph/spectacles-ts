@@ -94,6 +94,7 @@ const modifyOpted: Option<Data> = pipe(
 
 ```ts
 import { pipe } from 'fp-ts/function'
+import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import type { Option } from 'fp-ts/Option'
 import { insert } from 'immutable-ts'
 
