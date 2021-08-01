@@ -1,18 +1,20 @@
+import * as O from 'fp-ts/Option'
+
 export interface A { 
   type: 'A'
-  a: {
+  a: O.Option<{
     c: [number, string, boolean]; 
-    d: string; 
+    d: string[]; 
     e: boolean 
-  }[]; 
+  }>; 
 }
 export interface B { type: 'B' }
 export type Data = A | B
 export const data: Data = {
   type: "A",
-  a: [{
+  a: O.some({
     c: [123, 'abc', false],
-    d: 'def',
+    d: ['def'],
     e: false,
-  }]
+  })
 }

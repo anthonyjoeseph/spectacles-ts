@@ -1,5 +1,6 @@
 import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
-import type { HasOpt } from "../utils";
+import type { Option } from 'fp-ts/Option'
+import type { Either } from 'fp-ts/Either'
 
 export type InsertKeyIntoObj<
   Obj,
@@ -16,7 +17,10 @@ export type InsertKeyIntoObj<
                   ? NonEmptyArray<ArrType>
                   : Obj[K]
             }
-          : never
+            : { 
+              [K in keyof Obj]: 
+                K extends K ? Obj[K] | Val : Obj[K] 
+            } 
         : { 
             [K in (keyof Obj) | Key]: 
               K extends keyof Obj ? Obj[K] : Val 
@@ -31,16 +35,28 @@ export type InsertKeyIntoObj<
         ? InsertKeyIntoObj<A, Rest, Val> | Exclude<Obj, A>
         : Key extends '?'
           ? InsertKeyIntoObj<NonNullable<Obj>, Rest, Val> | undefined
-          : { 
-              [K in keyof Obj]: 
-                Key extends K 
-                  ? InsertKeyIntoObj<Obj[Key], Rest, Val> 
-                  : Obj[K] 
-            }
+          : Key extends '?some'
+            ? Obj extends Option<infer Some> 
+              ? Option<InsertKeyIntoObj<Some, Rest, Val>> 
+              : never
+            : Key extends '?right'
+              ? Obj extends Either<infer Left, infer Right> 
+                ? Either<Left, InsertKeyIntoObj<Right, Rest, Val>> 
+                : never
+              : Key extends '?left'
+                ? Obj extends Either<infer Left, infer Right> 
+                  ? Either<InsertKeyIntoObj<Left, Rest, Val>, Right> 
+                  : never
+                : { 
+                  [K in keyof Obj]: 
+                    Key extends K 
+                      ? InsertKeyIntoObj<Obj[Key], Rest, Val> 
+                      : Obj[K] 
+                }
       : never
 
 type test = InsertKeyIntoObj<
-  { a: { b: boolean[] } | {b: string} }, 
+  { a?: { b: boolean[] } | {b: string} }, 
   ['a', '?', (a: unknown) => a is { b: boolean[] }, 'b', 0], 
   Promise<number>
 >

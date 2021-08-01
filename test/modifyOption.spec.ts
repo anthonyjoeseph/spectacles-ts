@@ -5,5 +5,5 @@ import { Data, data, A } from './shared'
 
 const modifyOpted: Option<Data> = pipe(
   data,
-  modifyOption([(v): v is A => v.type === 'A', 'a', 0, 'c', '0'], (j) => j + 4)
+  modifyOption([(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'], (j) => j + 4)
 )

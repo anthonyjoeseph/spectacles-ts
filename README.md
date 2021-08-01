@@ -104,6 +104,12 @@ const insertKey: { a: { b: number; c: string } } =
     insert(['a', 'c'], 'abc')
   )
 
+const expandKey: { a: { b: number | string } } = 
+  pipe(
+    { a: { b: 123 } },
+    insert(['a', 'b'], 'abc')
+  )
+
 const append: { a: NonEmptyArray<number> } = 
   pipe(
     { a: [123] },
@@ -125,7 +131,6 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> =
 
 ## TODO
 
-- support for `Option` & `Either` chaining (monocle `Optional.some` and `Optional.right` functions)
 - get rid of need for `as const` assertion in 'Pick' tuple
 - separate 'immutable-ts/non-fp' module that returns `Retval | undefined` (rather than `Option<Retval>`)
   - (is that actually a good idea?)

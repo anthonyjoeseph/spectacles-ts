@@ -4,5 +4,5 @@ import { Data, data, A } from './shared'
 
 const beenSet: Data = pipe(
   data,
-  set([(v): v is A => v.type === 'A', 'a', 0, 'c', '0'], 123)
+  set([(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'], 123)
 )

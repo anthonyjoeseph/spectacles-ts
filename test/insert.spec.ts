@@ -8,7 +8,13 @@ const insertKey: { a: { b: number; c: string } } =
     { a: { b: 123 } },
     insert(['a', 'c'], 'abc')
   )
- 
+
+const expandKey: { a: { b: number | string } } = 
+  pipe(
+    { a: { b: 123 } },
+    insert(['a', 'b'], 'abc')
+  )
+
 const append: { a: NonEmptyArray<number> } = 
   pipe(
     { a: [123] },

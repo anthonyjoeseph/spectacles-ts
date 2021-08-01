@@ -1,4 +1,5 @@
 import type { Option } from 'fp-ts/Option'
+import { AtPath } from './AtPath'
 
 export type HasUndesiredKeys<A> = 
   unknown extends A
@@ -20,17 +21,28 @@ export type IsNull<A> =
       : never
 
 export type GiveOpt<A, Args extends readonly unknown[]> =
-  true extends HasOpt<Args[number]> 
+  true extends HasNull<Args[number]> 
     ? Option<A> 
     : true extends HasNum<Args[number]>
       ? Option<A> 
       : true extends HasRefinement<Args[number]>
         ? Option<A>
-        : A
+        : true extends HasOptional<Args[number]>
+          ? Option<A>
+          : A
+
+export type HasOptional<Args> = 
+  Args extends '?some' 
+    ? true 
+    : Args extends '?right'
+      ? true
+      : Args extends '?left'
+        ? true
+        : never
 
 export type HasRefinement<K> = K extends (a: any) => boolean ? true : never
 
-export type HasOpt<K> = K extends '?' ? true : never
+export type HasNull<K> = K extends '?' ? true : never
 
 export type HasNum<K> = K extends number ? true : never
 

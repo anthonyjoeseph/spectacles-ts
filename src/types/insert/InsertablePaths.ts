@@ -9,15 +9,19 @@ export type InsertablePaths<
   Prev extends unknown[] = [],
 > = Prev |
   NullPaths<A, Prev, 
-    RefinementPaths<A, Prev,
-      ObjectPaths<A, Prev, never>
+    OptionPaths<A, Prev,
+      RefinementPaths<A, Prev,
+        ObjectPaths<A, Prev, never>
+      >
     >
   >
 
 type NullPaths<A, Prev extends unknown[], Else> =
   true extends IsNull<A>
-    ? Prev | RefinementPaths<NonNullable<A>, [...Prev, '?'],
-        ObjectPaths<NonNullable<A>, [...Prev, '?'], never>
+    ? Prev | OptionPaths<A, Prev,
+        RefinementPaths<NonNullable<A>, [...Prev, '?'],
+          ObjectPaths<NonNullable<A>, [...Prev, '?'], never>
+        >
       >
     : Else
 
@@ -40,12 +44,10 @@ type ObjectPaths<A, Prev extends unknown[], Else, Key extends keyof A = TupleKey
 type OptionPaths<A, Prev extends unknown[], Else> = 
   [A] extends [Option<infer Some>]
     ? InsertablePaths<Some, [...Prev, 'some']>
-    : Else
-
-type EitherPaths<A, Prev extends unknown[], Else> = 
-  [A] extends [Either<infer Left, infer Right>]
-    ? (
-      | InsertablePaths<Left, [...Prev, 'left']>
-      | InsertablePaths<Right, [...Prev, 'right']>
-    )
-    : Else
+    : [A] extends [Either<infer Left, infer Right>]
+      ? (
+        | InsertablePaths<Left, [...Prev, 'left']>
+        | InsertablePaths<Right, [...Prev, 'right']>
+      )
+      : Else
+  

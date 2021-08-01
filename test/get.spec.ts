@@ -8,7 +8,7 @@ import { data, A } from './shared'
 
 const nested: O.Option<string> = pipe(
   data,
-  get((v): v is A => v.type === 'A', 'a', 0, 'c', '1'),
+  get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1'),
 )
 
 /* const uncurried = get('a', 'b?', 0, ['c', 'e'] as const)({

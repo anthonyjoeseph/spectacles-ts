@@ -11,7 +11,9 @@ import type { GiveOpt } from './types/insert/GiveOpt'
 const isPathLens = (
   path: readonly (number | string | readonly string[] | ((a: any) => boolean))[]
 ): path is (string | readonly string[])[] => !path.some(
-  p => typeof p === 'function' || (typeof p === 'number' && p !== 0) || (typeof p === 'string' && p.endsWith('?'))
+  p => typeof p === 'function' 
+    || (typeof p === 'number' && p !== 0) 
+    || (typeof p === 'string' && p.startsWith('?'))
 )
 
 export const insert = <
