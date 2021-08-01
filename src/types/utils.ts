@@ -3,15 +3,21 @@ import type { Option } from 'fp-ts/Option'
 export type HasUndesiredKeys<A> = 
   unknown extends A
     ? true
-    : A extends number
+    : A extends number | string | boolean | Promise<any>
       ? true
-      : A extends string
-        ? true
-        : A extends boolean
+      : null extends A
           ? true
-          : A extends Promise<any>
+          : undefined extends A
             ? true
-            : false
+            : never
+
+
+export type IsNull<A> = 
+  undefined extends A
+    ? true
+    : null extends A
+      ? true
+      : never
 
 export type GiveOpt<A, Args extends readonly unknown[]> =
   true extends HasOpt<Args[number]> 
@@ -22,21 +28,13 @@ export type GiveOpt<A, Args extends readonly unknown[]> =
         ? Option<A>
         : A
 
-export type OptKeyof<A> = {
-  [K in keyof A]-?: undefined extends A[K] 
-    ? K extends string ? `${K}?` : never 
-    : never
-}[keyof A]
-
 export type HasRefinement<K> = K extends (a: any) => boolean ? true : never
 
-export type HasOpt<K> = K extends `${infer _}?` ? true : never
+export type HasOpt<K> = K extends '?' ? true : never
 
 export type HasNum<K> = K extends number ? true : never
 
-export type Unopt<K> = K extends `${infer Key}?` ? Key : K
-
-export type TupleKeyof<A extends unknown[]> =
+export type TupleKeyof<A> =
   Exclude<
     keyof A,
     keyof Array<unknown>

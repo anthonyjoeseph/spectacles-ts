@@ -4,18 +4,11 @@ import * as Eq from 'fp-ts/Eq'
 import * as O from 'fp-ts/Option'
 
 import { get } from '../src'
+import { data, A } from './shared'
 
-interface A { b?: {c: number; d: string; e: boolean }[] }
-interface B { b: 'other' }
-interface Data { a: A | B }
-declare const data: Data
-
-const nested: O.Option<{
-  c: number;
-  d: string;
-}> = pipe(
+const nested: O.Option<string> = pipe(
   data,
-  get('a', (v): v is A => v.b === 'other', 'b?', 0, ['c', 'd'] as const)
+  get((v): v is A => v.type === 'A', 'a', 0, 'c', '1'),
 )
 
 /* const uncurried = get('a', 'b?', 0, ['c', 'e'] as const)({

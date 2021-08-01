@@ -5,7 +5,7 @@ import * as Op from 'monocle-ts/lib/Optional'
 export const isPathLens = (
   path: readonly (number | string | readonly string[] | ((a: any) => boolean))[]
 ): path is (string | readonly string[])[] => !path.some(
-  p => typeof p === 'function' || typeof p === 'number' || (typeof p === 'string' && p.endsWith('?'))
+  p => typeof p === 'function' || typeof p === 'number' || (p === '?')
 )
 
 export const optionalFromPath = (
@@ -19,8 +19,8 @@ export const optionalFromPath = (
         return pipe(acc, Op.props(...(cur as [string, string])))
       } else if (typeof cur === 'number') {
         return pipe(acc, Op.index(cur))
-      } else if (typeof cur === 'string' && cur.endsWith('?')) {
-        return pipe(acc, Op.prop(cur.slice(0, cur.length - 1)), Op.fromNullable)
+      } else if (cur === '?') {
+        return pipe(acc, Op.fromNullable)
       }
       return pipe(acc, Op.prop(cur as string))
     },

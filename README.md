@@ -124,8 +124,6 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> =
 
 ## TODO
 
-- tuple access (code is written but causes tsc memory overflow)
-- `null` support for nullable keys (not just `undefined`)
 - support for `Option` & `Either` chaining (monocle `Optional.some` and `Optional.right` functions)
 - get rid of need for `as const` assertion in 'Pick' tuple
 - separate 'immutable-ts/non-fp' module that returns `Retval | undefined` (rather than `Option<Retval>`)
@@ -133,3 +131,7 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> =
 - generally the implementation is a mess 😅
 - `function rename(...)`
 - `function omit(...)`
+
+## TSC Issues
+- [Restrict the intellisense/auto completion of mapped tuples depending on the first element of the tuple](https://github.com/microsoft/TypeScript/issues/43824)
+- [Increase type instantiation depth limit](https://github.com/microsoft/TypeScript/pull/45025) (maybe would help some cases?)

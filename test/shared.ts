@@ -1,10 +1,18 @@
-export interface Data { a: {b?: {c: number; d: string; e: boolean }[] } }
-export const data: Data = {
+export interface A { 
+  type: 'A'
   a: {
-    b: [{
-      c: 123,
-      d: 'abc',
-      e: false
-    }]
-  }
+    c: [number, string, boolean]; 
+    d: string; 
+    e: boolean 
+  }[]; 
+}
+export interface B { type: 'B' }
+export type Data = A | B
+export const data: Data = {
+  type: "A",
+  a: [{
+    c: [123, 'abc', false],
+    d: 'def',
+    e: false,
+  }]
 }

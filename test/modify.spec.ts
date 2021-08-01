@@ -1,8 +1,8 @@
 import { pipe } from 'fp-ts/function'
 import { modify } from '../src'
-import { Data, data } from './shared'
+import { Data, data, A } from './shared'
 
 const modified: Data = pipe(
   data,
-  modify(['a', 'b?', 0, 'c'], (j) => j + 4)
+  modify([(v): v is A => v.type === 'A', 'a', 0, 'c', '0'], (j) => j + 4)
 )

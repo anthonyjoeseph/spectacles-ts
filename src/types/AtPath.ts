@@ -1,5 +1,3 @@
-import type { HasOpt, Unopt } from "./utils";
-
 export type AtPath<
   A,
   Args extends readonly unknown[]
@@ -13,9 +11,9 @@ export type AtPath<
           ? { [P in Key[number]]: A[P] }
           : Key extends number
             ? A extends unknown[] ? AtPath<A[number], Rest> : never
-            : Unopt<Key> extends keyof A 
-              ? true extends HasOpt<Key>
-                ? AtPath<NonNullable<A[Unopt<Key>]>, Rest>
-                : AtPath<A[Unopt<Key>], Rest>
-              : never
+            : Key extends '?'
+              ? AtPath<NonNullable<A>, Rest>
+              : Key extends keyof A
+                ? AtPath<A[Key], Rest>
+                : never
       : never

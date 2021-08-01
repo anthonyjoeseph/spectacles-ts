@@ -1,63 +1,49 @@
-import type { HasUndesiredKeys, OptKeyof, Unopt } from "./utils"
+import type { Option } from 'fp-ts/Option'
+import type { Either } from 'fp-ts/Either'
+import { HasUndesiredKeys, IsNull, TupleKeyof } from "./utils"
 
 export type Paths<
   A, 
-  Prev extends readonly unknown[] = [],
-  Keys = keyof A,
-  OptKeys = OptKeyof<A>
-> = 
-  HasUndesiredKeys<A> extends false 
-    ? [A] extends [readonly unknown[]]
-    ? ArrayPaths<A, Prev>
-    : 
-      | readonly [...Prev, readonly Keys[]]
-      | RefinementPaths<NonNullable<A>, Prev>
-      | (
-        Keys extends unknown
-          ? ObjPaths<A, false, Prev, Keys>
-            | (OptKeys extends never 
-              ? never 
-              : ObjPaths<A, true, Prev, OptKeys>)
-          : never
-      )
-  : never
+  Prev extends unknown[] = [],
+> = Prev |
+  NullPaths<A, Prev, 
+    RefinementPaths<A, Prev,
+      ObjectPaths<A, Prev, never>
+    >
+  >
 
-export type RefinementPaths<
-  A extends B,
-  Prev extends readonly unknown[],
-  B = A
-> = A extends unknown
-  ? [B] extends [A]
-    ? never
-    : | readonly [...Prev, (b: B) => b is A]
-      | Paths<A, readonly [...Prev, (b: B) => b is A]>
-  : never
+type NullPaths<A, Prev extends unknown[], Else> =
+  true extends IsNull<A>
+    ? Prev | RefinementPaths<NonNullable<A>, [...Prev, '?'],
+        ObjectPaths<NonNullable<A>, [...Prev, '?'], never>
+      >
+    : Else
 
-type ArrayPaths<
-  A extends readonly unknown[],
-  Prev extends readonly unknown[]
-> = 
-  | readonly [...Prev, number]
-  | Paths<A[number], readonly [...Prev, number]>
-  // | ObjPaths<A, false, Prev, TupleKeyof<A>>
+type RefinementPaths<A extends B, Prev extends unknown[], Else, B = A> =
+  A extends unknown
+    ? [B] extends [A]
+      ? Else
+      : Prev 
+        | ObjectPaths<A, [...Prev, (b: B) => b is A], never>
+    : never
 
-type ObjPaths<
-  A,
-  isOpt extends boolean,
-  Prev extends readonly unknown[] = [],
-  Keys = keyof A
-> = 
-  | readonly [...Prev, Keys]
-  | (
-      isOpt extends true 
-        ? (
-            Unopt<Keys> extends keyof A
-              ? Paths<NonNullable<A[Unopt<Keys>]>, readonly [...Prev, Keys]> 
-              : never
-          )
-          : (
-              Keys extends keyof A 
-              ? Paths<A[Keys], readonly [...Prev, Keys]> 
-              : never
-            )
+type ObjectPaths<A, Prev extends unknown[], Else, Key extends keyof A = TupleKeyof<A>> =
+  true extends HasUndesiredKeys<A>
+    ? Else
+    : | Prev
+      | [...Prev, readonly Key[]]
+      | (A extends unknown[] ? Paths<A[number], [...Prev, number]> : never)
+      | (Key extends unknown ? Paths<A[Key], [...Prev, Key]> : never)
+
+type OptionPaths<A, Prev extends unknown[], Else> = 
+  [A] extends [Option<infer Some>]
+    ? Paths<Some, [...Prev, 'some']>
+    : Else
+
+type EitherPaths<A, Prev extends unknown[], Else> = 
+  [A] extends [Either<infer Left, infer Right>]
+    ? (
+      | Paths<Left, [...Prev, 'left']>
+      | Paths<Right, [...Prev, 'right']>
     )
+    : Else

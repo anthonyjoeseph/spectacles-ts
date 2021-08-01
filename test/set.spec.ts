@@ -1,8 +1,8 @@
 import { pipe } from 'fp-ts/function'
 import { set } from '../src'
-import { data } from './shared'
+import { Data, data, A } from './shared'
 
-const beenSet = pipe(
+const beenSet: Data = pipe(
   data,
-  set(['a', 'b?', 0, 'c'], 123)
+  set([(v): v is A => v.type === 'A', 'a', 0, 'c', '0'], 123)
 )

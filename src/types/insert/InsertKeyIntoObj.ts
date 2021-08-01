@@ -1,5 +1,5 @@
 import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
-import type { HasOpt, Unopt } from "../utils";
+import type { HasOpt } from "../utils";
 
 export type InsertKeyIntoObj<
   Obj,
@@ -29,13 +29,8 @@ export type InsertKeyIntoObj<
     : Path extends [infer Key, ...infer Rest]
       ? Key extends (a: any) => a is infer A
         ? InsertKeyIntoObj<A, Rest, Val> | Exclude<Obj, A>
-        : true extends HasOpt<Key>
-          ? {
-              [K in keyof Obj]: 
-                Unopt<Key> extends K 
-                  ? InsertKeyIntoObj<NonNullable<Obj[Unopt<Key>]>, Rest, Val> 
-                  : Obj[K]
-            }
+        : Key extends '?'
+          ? InsertKeyIntoObj<NonNullable<Obj>, Rest, Val> | undefined
           : { 
               [K in keyof Obj]: 
                 Key extends K 
@@ -45,8 +40,8 @@ export type InsertKeyIntoObj<
       : never
 
 type test = InsertKeyIntoObj<
-  { a?: { b: boolean[] } | {b: string} }, 
-  ['a?', (a: unknown) => a is { b: boolean[] }, 'b', 0], 
+  { a: { b: boolean[] } | {b: string} }, 
+  ['a', '?', (a: unknown) => a is { b: boolean[] }, 'b', 0], 
   Promise<number>
 >
 

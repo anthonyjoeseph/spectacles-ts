@@ -1,5 +1,3 @@
-import type { HasOpt, Unopt } from "./utils";
-
 export type BuildObj<
   Path extends readonly unknown[],
   Obj
@@ -14,8 +12,8 @@ export type BuildObj<
         : Key extends number
           ? BuildObj<Rest, Obj[]>
           : Key extends string 
-              ? true extends HasOpt<Key>
-                ? BuildObj<Rest, { [k in Unopt<Key>]?: Obj }>
-                : BuildObj<Rest, { [k in Unopt<Key>]: Obj }>
+              ? Key extends '?'
+                ? BuildObj<Rest, Obj | undefined>
+                : BuildObj<Rest, { [k in Key]: Obj }>
               : never
             : never
