@@ -4,21 +4,17 @@ import * as Op from 'monocle-ts/lib/Optional'
 import { isPathLens, lensFromPath, optionalFromPath } from './monocle'
 import type { Paths } from './types/Paths'
 import type { AtPath } from './types/AtPath'
+import type { Inferable } from './types/utils'
 
 export const modify =
   <
     Infer,
-    Path extends Paths<Infer> extends readonly (
-      | string
-      | number
-      | readonly string[]
-      | ((a: any) => boolean)
-    )[]
-      ? Paths<Infer>
+    Path extends Paths<Infer> extends Inferable
+      ? [...Paths<Infer>]
       : never,
     Val extends AtPath<Infer, Path>
   >(
-    path: readonly [...Path],
+    path: Path,
     modFunc: (v: Val) => Val
   ) =>
   (a: Infer): Infer => {

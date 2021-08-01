@@ -1,17 +1,11 @@
 import { isPathLens, lensFromPath, optionalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
 import type { Paths } from './types/Paths'
-import type { GiveOpt } from './types/utils'
+import type { GiveOpt, Inferable } from './types/utils'
 
 export const get = <
   Infer,
-  Path extends Paths<Infer> extends readonly (
-    | // necessary to allow inference
-    number
-    | string
-    | ((a: any) => boolean)
-    | readonly string[]
-  )[]
+  Path extends Paths<Infer> extends Inferable
     ? Paths<Infer>
     : never
 >(

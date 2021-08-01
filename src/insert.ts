@@ -7,6 +7,7 @@ import { lensFromPath, optionalFromPath } from './monocle'
 import type { InsertablePaths } from './types/insert/InsertablePaths'
 import type { InsertKeyIntoObj } from './types/insert/InsertKeyIntoObj'
 import type { GiveOpt } from './types/insert/GiveOpt'
+import type { Inferable } from './types/utils'
 
 const isPathLens = (
   path: readonly (number | string | readonly string[] | ((a: any) => boolean))[]
@@ -21,17 +22,12 @@ const isPathLens = (
 export const insert =
   <
     Infer,
-    Path extends InsertablePaths<Infer> extends readonly (
-      | string
-      | number
-      | readonly string[]
-      | ((a: any) => boolean)
-    )[]
-      ? InsertablePaths<Infer> | [string]
+    Path extends InsertablePaths<Infer> extends Inferable
+      ? [...InsertablePaths<Infer>]
       : never,
     Val
   >(
-    fullPath: readonly [...Path],
+    fullPath: Path,
     val: Val
   ) =>
   (a: Infer): GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path> => {

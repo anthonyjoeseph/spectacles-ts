@@ -43,3 +43,10 @@ export type HasNull<K> = K extends '?' ? true : never
 export type HasNum<K> = K extends number ? true : never
 
 export type TupleKeyof<A> = Exclude<keyof A, keyof Array<unknown>>
+
+export type Inferable = readonly (
+  number
+  | string
+  | ((a: any) => boolean)
+  | readonly string[]
+)[]
