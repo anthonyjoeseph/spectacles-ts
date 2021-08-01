@@ -17,4 +17,11 @@ describe('get', () => {
     )
     assert.deepStrictEqual(optional, O.some('abc'))
   })
+  it('gets an optional value - uncurried', () => {
+    const func = get('a', '?some', 'c', 1)
+    const optional: O.Option<number> = func({
+      a: O.some({ c: [123, 456] })
+    })
+    assert.deepStrictEqual(optional, O.some(456))
+  })
 })
