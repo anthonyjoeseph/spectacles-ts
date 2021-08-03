@@ -18,10 +18,8 @@ describe('get', () => {
     assert.deepStrictEqual(optional, O.some('abc'))
   })
   it('gets an optional value - unpiped', () => {
-    const func = get('a', '?some', 'c', 1)
-    const optional: O.Option<number> = func({
-      a: O.some({ c: [123, 456] }),
-    })
+    const func = get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
+    const optional: O.Option<string> = func(data)
     assert.deepStrictEqual(optional, O.some(456))
   })
 })
