@@ -5,7 +5,7 @@ export type BuildObj<Path extends readonly unknown[], Obj> = Path extends []
   ? Obj
   : Path extends [...infer Rest, infer Key]
   ? Key extends (a: any) => boolean
-    ? BuildObj<Rest, Obj>
+    ? BuildObj<Rest, Obj | unknown>
     : Key extends readonly string[]
     ? unknown extends Obj
       ? BuildObj<Rest, { [P in Key[number]]: unknown }>
