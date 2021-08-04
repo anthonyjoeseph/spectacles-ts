@@ -58,7 +58,7 @@ const polymorphicVal: O.Option<string> = polymorphicFn(data)
 
 const pick: { b: number; d: boolean } = pipe(
   { a: { b: 123, c: 'abc', d: false } },
-  get('a', ['b', 'd'] as const)
+  get('a', ['b', 'd'])
 )
 ```
 
@@ -147,7 +147,6 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 
 ## TODO
 
-- get rid of need for `as const` assertion in 'Pick' tuple
 - separate 'immutable-ts/non-fp' module that returns `Retval | undefined` (rather than `Option<Retval>`)
   - (is that actually a good idea?)
 - generally the implementation is a mess 😅
