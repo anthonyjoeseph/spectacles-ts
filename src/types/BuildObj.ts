@@ -1,11 +1,14 @@
 import type { Option } from 'fp-ts/Option'
 import type { Either } from 'fp-ts/Either'
 
+
 export type BuildObj<Path extends readonly unknown[], Obj> = Path extends []
   ? Obj
   : Path extends [...infer Rest, infer Key]
-  ? Key extends (a: any) => boolean
-    ? BuildObj<Rest, Obj | unknown>
+  ? Key extends (a: any) => a is infer Ret
+    ? [Ret] extends [Obj] 
+      ? Key extends (a: infer A) => boolean 
+        ? BuildObj<Rest, A> : never : never
     : Key extends readonly string[]
     ? unknown extends Obj
       ? BuildObj<Rest, { [P in Key[number]]: unknown }>

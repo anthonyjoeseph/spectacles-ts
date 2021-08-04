@@ -22,12 +22,16 @@ export const data: Data = {
 export interface SimpleData {
   a: {
     b: [number, string, boolean]
+    c: string
+    d: boolean
   }
-  c: string
+  e: number
 }
 export const simpleData: SimpleData = {
   a: {
     b: [123, 'abc', false],
+    c: 'def',
+    d: false,
   },
-  c: 'def',
+  e: 456,
 }

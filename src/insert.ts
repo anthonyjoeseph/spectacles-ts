@@ -10,7 +10,7 @@ import type { GiveOpt } from './types/insert/GiveOpt'
 import type { Inferable } from './types/utils'
 
 const isPathLens = (
-  path: readonly (number | string | readonly string[] | ((a: any) => boolean))[]
+  path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
 ): path is (string | readonly string[])[] =>
   !path.some(
     (p) =>

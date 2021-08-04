@@ -10,10 +10,7 @@ describe('modify', () => {
       simpleData,
       modify(['a', 'b', '0'], (j) => j + 4)
     )
-    assert.deepStrictEqual(modified, {
-      a: { b: [127, 'abc', false] },
-      c: 'def',
-    })
+    assert.deepStrictEqual(modified, { a: { b: [127, 'abc', false], c: 'def', d: false}, e: 456 })
   })
   it('modifies an optional value', () => {
     const modified: Data = pipe(

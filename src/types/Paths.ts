@@ -49,7 +49,7 @@ type ObjectPaths<
   ? Else
   :
       | Prev
-      | [...Prev, readonly Key[]]
+      | [...Prev, Key[]]
       | (A extends unknown[] ? Paths<A[number], [...Prev, number]> : never)
       | (Key extends unknown ? Paths<A[Key], [...Prev, Key]> : never)
 

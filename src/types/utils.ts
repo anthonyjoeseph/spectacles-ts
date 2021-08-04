@@ -47,6 +47,8 @@ export type TupleKeyof<A> = Exclude<keyof A, keyof Array<unknown>>
 export type Inferable = readonly (
   | number
   | string
-  | ((a: any) => boolean)
+  | ((a: never) => boolean)
   | readonly string[]
 )[]
+
+export type Head<A> = A extends [...infer H, unknown] ? H : never
