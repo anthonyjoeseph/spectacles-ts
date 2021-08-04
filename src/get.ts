@@ -2,7 +2,7 @@ import { isPathLens, lensFromPath, optionalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
 import { BuildObj } from './types/BuildObj'
 import type { Paths } from './types/Paths'
-import type { GiveOpt, Inferable, Head } from './types/utils'
+import type { GiveOpt, Inferable } from './types/utils'
 
 export const get = <
   Infer,
@@ -11,17 +11,19 @@ export const get = <
     : Paths<Infer> extends Inferable
       ? Paths<Infer>
       : never,
-  H extends Head<Path> extends Inferable ? Head<Path> : never,
-  Pick extends Paths<Infer, H> extends string[] ? Paths<Infer, H> : string[],
+  Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
+    ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
+    : string[],
+  Full extends AtPath<Infer, Path> extends Record<string, unknown> 
+    ? [...Path, Pick] | Path
+    : Path
 >(
-  ...path: string[] extends Pick ? Path : [...H, [...Pick]]
-  // this gives autocomplete, but doesn't pipe for some reason:
-  // ...path: Pick extends Paths<Infer, H> ? [...H, [...Pick]] : Path
+  ...path: Full
 ): unknown extends Infer
-  ? <Constructed extends BuildObj<Path, unknown>>(
+  ? <Constructed extends BuildObj<Full, unknown>>(
       obj: Constructed
-    ) => GiveOpt<AtPath<Constructed, Path>, Path>
-  : (obj: Infer) => GiveOpt<AtPath<Infer, Path>, Path> => {
+    ) => GiveOpt<AtPath<Constructed, Full>, Full>
+  : (obj: Infer) => GiveOpt<AtPath<Infer, Full>, Full> => {
   if (isPathLens(path as any)) {
     return lensFromPath(path as any).get as any
   }

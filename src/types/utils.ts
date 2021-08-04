@@ -51,4 +51,3 @@ export type Inferable = readonly (
   | readonly string[]
 )[]
 
-export type Head<A> = A extends [...infer H, unknown] ? H : never

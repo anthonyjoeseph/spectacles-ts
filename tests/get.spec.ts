@@ -4,15 +4,14 @@ import * as assert from 'assert'
 import { get } from '../src'
 import { data, A, B, simpleData } from './shared'
 
-
 describe('get', () => {
   it('gets a definite value', () => {
     const definite = pipe(simpleData, get('a', 'b', '1'))
     assert.deepStrictEqual(definite, 'abc')
   })
   it('can pick', () => {
-    const definite = pipe(simpleData, get('a', ['c', 'd']))
-    assert.deepStrictEqual(definite, { c: 'def', d: false })
+    const picked = pipe(simpleData, get('a', ['c', 'd']))
+    assert.deepStrictEqual(picked, { c: 'def', d: false })
   })
   it('gets an optional value', () => {
     const optional: O.Option<string> = pipe(

@@ -4,28 +4,32 @@ import * as Op from 'monocle-ts/lib/Optional'
 import { isPathLens, lensFromPath, optionalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
 import type { Paths } from './types/Paths'
-import type { GiveOpt, Inferable, Head } from './types/utils'
+import type { GiveOpt, Inferable } from './types/utils'
 
 export const modifyOption =
   <
     Infer,
     Path extends Paths<Infer> extends Inferable ? [...Paths<Infer>] : never,
-    H extends Head<Path> extends Inferable ? Head<Path> : never,
-    Pick extends Paths<Infer, H> extends string[] ? Paths<Infer, H> : string[],
-    Val extends AtPath<Infer, Path>
+    Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
+      ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
+      : string[],
+    Full extends AtPath<Infer, Path> extends Record<string, unknown> 
+      ? [...Path, Pick] | [...Path]
+      : [...Path],
+    Val extends AtPath<Infer, Full>
   >(
-    path: string[] extends Pick ? Path : [...H, [...Pick]],
+    path: Full,
     modFunc: (v: Val) => Val
   ) =>
-  (a: Infer): GiveOpt<Infer, Path> => {
-    if (isPathLens(path)) {
-      return pipe(lensFromPath(path), L.modify(modFunc))(a) as GiveOpt<
+  (a: Infer): GiveOpt<Infer, Full> => {
+    if (isPathLens(path as any)) {
+      return pipe(lensFromPath(path as any), L.modify(modFunc))(a) as GiveOpt<
         Infer,
-        Path
+        Full
       >
     }
-    return pipe(optionalFromPath(path), Op.modifyOption(modFunc))(a) as GiveOpt<
+    return pipe(optionalFromPath(path as any), Op.modifyOption(modFunc))(a) as GiveOpt<
       Infer,
-      Path
+      Full
     >
   }
