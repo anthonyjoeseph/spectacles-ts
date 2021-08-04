@@ -147,6 +147,8 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 
 ## TODO
 
+- support optional `Record<string, ...>` access
+- support traversals (using the `>` operator) for Arrays and Records (excluding other traversables like [Tree](https://github.com/gcanti/fp-ts/blob/master/test/Tree.ts) or [Zipper](https://github.com/gcanti/fp-ts-contrib/blob/master/test/Zipper.ts))
 - separate 'immutable-ts/non-fp' module that returns `Retval | undefined` (rather than `Option<Retval>`)
   - (is that actually a good idea?)
 - generally the implementation is a mess 😅
