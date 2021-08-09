@@ -13,6 +13,15 @@ describe('get', () => {
     const picked = pipe(simpleData, get('a', ['c', 'd']))
     assert.deepStrictEqual(picked, { c: 'def', d: false })
   })
+  it('can traverse', () => {
+    const traverse = pipe([{a: 123}, {a: 456}], get('[]>', 'a'))
+    assert.deepStrictEqual(traverse, [123, 456])
+  })
+  it('has checked record access', () => {
+    const record = { a: 123 } as Record<string, number>
+    const picked: O.Option<number> = pipe(record, get('b', '?'))
+    assert.deepStrictEqual(picked, O.none)
+  })
   it('gets an optional value', () => {
     const optional: O.Option<string> = pipe(
       data,

@@ -1,4 +1,6 @@
-import { isPathLens, lensFromPath, optionalFromPath } from './monocle'
+import { pipe } from 'fp-ts/function'
+import { set as setTr } from 'monocle-ts/Traversal'
+import { isPathLens, lensFromPath, optionalFromPath, isPathTraversal, traversalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
 import type { Paths } from './types/Paths'
 import type { Inferable } from './types/utils'
@@ -19,6 +21,9 @@ export const set =
     val: Val
   ) =>
   (obj: Infer): Infer => {
+    if (isPathTraversal(path as any)) {
+      return pipe(traversalFromPath(path as any), setTr(val))(obj) as Infer
+    }
     if (isPathLens(path as any)) {
       return lensFromPath(path as any).set(val)(obj) as Infer
     }

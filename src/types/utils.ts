@@ -16,9 +16,11 @@ export type IsNull<A> = undefined extends A
   ? true
   : never
 
-export type GiveOpt<A, Args extends readonly unknown[]> = true extends HasNull<
-  Args[number]
->
+export type GiveOpt<A, Args extends readonly unknown[]> = true extends HasTraversal<Args[number]> 
+  ? A 
+  : true extends HasNull<
+    Args[number]
+  >
   ? Option<A>
   : true extends HasNum<Args[number]>
   ? Option<A>
@@ -42,6 +44,8 @@ export type HasNull<K> = K extends '?' ? true : never
 
 export type HasNum<K> = K extends number ? true : never
 
+export type HasTraversal<K> = K extends '[]>' ? true : K extends '{}>' ? true : never
+
 export type TupleKeyof<A> = Exclude<keyof A, keyof Array<unknown>>
 
 export type Inferable = readonly (
@@ -51,3 +55,9 @@ export type Inferable = readonly (
   | readonly string[]
 )[]
 
+export type IsTupleOrRecord<A> = 
+  { [K in keyof A]: A[K] } extends Record<string, unknown>
+    ? true 
+    : A extends [unknown, ...unknown[]]
+      ? true
+      : never

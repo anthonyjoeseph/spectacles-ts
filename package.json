@@ -11,7 +11,8 @@
     "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "test": "yarn run jest tests/*.spec.ts",
     "test:watch": "yarn run jest --watch tests/*.spec.ts",
-    "md": "yarn run markdown"
+    "md": "yarn run markdown",
+    "test:types": "yarn run tsd"
   },
   "dependencies": {
     "fp-ts": "^2.10.0-rc.8",
@@ -31,6 +32,7 @@
     "prettier-plugin-jsdoc": "^0.3.13",
     "ts-jest": "^26.5.3",
     "ts-node": "^9.1.1",
+    "tsd": "^0.17.0",
     "typescript": "^4.3.5"
   }
 }

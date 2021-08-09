@@ -1,7 +1,8 @@
 import { pipe } from 'fp-ts/function'
 import * as L from 'monocle-ts/lib/Lens'
 import * as Op from 'monocle-ts/lib/Optional'
-import { isPathLens, lensFromPath, optionalFromPath } from './monocle'
+import { modify as modifyTr } from 'monocle-ts/Traversal'
+import { isPathLens, isPathTraversal, lensFromPath, optionalFromPath, traversalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
 import type { Paths } from './types/Paths'
 import type { GiveOpt, Inferable } from './types/utils'
@@ -22,6 +23,12 @@ export const modifyOption =
     modFunc: (v: Val) => Val
   ) =>
   (a: Infer): GiveOpt<Infer, Full> => {
+    if (isPathTraversal(path as any)) {
+      return pipe(traversalFromPath(path as any), modifyTr(modFunc))(a) as GiveOpt<
+        Infer,
+        Full
+      >
+    }
     if (isPathLens(path as any)) {
       return pipe(lensFromPath(path as any), L.modify(modFunc))(a) as GiveOpt<
         Infer,

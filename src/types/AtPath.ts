@@ -28,7 +28,14 @@ export type AtPath<A, Args extends readonly unknown[]> = Args extends readonly [
     ? [A] extends [Either<infer Left, unknown>]
       ? AtPath<Left, Rest>
       : never
+    : Key extends '[]>'
+    ? A extends unknown[] ? AtPath<A[number], Rest>[] : never
+    : Key extends '{}>'
+    ? A extends Record<string, infer Val> ? Record<string, AtPath<Val, Rest>> : never
     : Key extends keyof A
-    ? AtPath<A[Key], Rest>
+    ? AtPath<
+        A[Key] | (string extends keyof A ? undefined : never), 
+        Rest
+      >
     : never
   : never

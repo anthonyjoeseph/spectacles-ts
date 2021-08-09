@@ -1,11 +1,21 @@
 import { pipe } from 'fp-ts/function'
 import { fromString } from 'fp-ts-std/Number'
-import * as O from 'fp-ts/Option'
+import { match } from 'fp-ts/Option'
+import { Traversable as ArrayTraversable } from 'fp-ts/ReadonlyArray'
+import { Traversable as RecordTraversable } from 'fp-ts/ReadonlyRecord'
 import * as L from 'monocle-ts/lib/Lens'
 import * as Op from 'monocle-ts/lib/Optional'
+import * as Tr from 'monocle-ts/lib/Traversal'
+import { Inferable } from './types/utils'
+
+export const isPathTraversal = (
+  path: Inferable
+): boolean => path.some(
+  p => typeof p === 'string' && (p === '[]>' || p === '{}>')
+)
 
 export const isPathLens = (
-  path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
+  path: Inferable
 ): path is (string | readonly string[])[] =>
   !path.some(
     (p) =>
@@ -13,6 +23,40 @@ export const isPathLens = (
       typeof p === 'number' ||
       (typeof p === 'string' && p.startsWith('?'))
   )
+
+export const traversalFromPath = (
+  path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
+): Tr.Traversal<any, any> => {
+  const opt = path.reduce((acc, cur) => {
+    if (typeof cur === 'function') {
+      return pipe(acc, Tr.filter(cur as any))
+    } else if (Array.isArray(cur)) {
+      return pipe(acc, Tr.props(...(cur as [string, string])))
+    } else if (typeof cur === 'number') {
+      return pipe(acc, Tr.index(cur))
+    } else if (cur === '?') {
+      return pipe(acc, Tr.fromNullable)
+    } else if (cur === '?some') {
+      return pipe(acc, Tr.some)
+    } else if (cur === '?right') {
+      return pipe(acc, Tr.right)
+    } else if (cur === '?left') {
+      return pipe(acc, Tr.left)
+    } else if (cur === '[]>') {
+      return pipe(acc, Tr.traverse(ArrayTraversable))
+    } else if (cur === '{}>') {
+      return pipe(acc, Tr.traverse(RecordTraversable))
+    }
+    return pipe(
+      fromString(cur as string),
+      match(
+        () => pipe(acc, Tr.prop(cur as string)),
+        (tupleIndex) => pipe(acc, Tr.component(tupleIndex))
+      )
+    )
+  }, Tr.id<any>())
+  return opt
+}
 
 export const optionalFromPath = (
   path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
@@ -35,7 +79,7 @@ export const optionalFromPath = (
     }
     return pipe(
       fromString(cur as string),
-      O.match(
+      match(
         () => pipe(acc, Op.prop(cur as string)),
         (tupleIndex) => pipe(acc, Op.component(tupleIndex))
       )
@@ -53,7 +97,7 @@ export const lensFromPath = (
     }
     return pipe(
       fromString(cur as string),
-      O.match(
+      match(
         () => pipe(acc, L.prop(cur as string)),
         (tupleIndex) => pipe(acc, L.component(tupleIndex))
       )
