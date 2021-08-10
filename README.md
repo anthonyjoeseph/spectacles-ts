@@ -153,7 +153,7 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 |-----|------|------|------|------|
 |`keyof obj`|`get('a')({a: 123}) === 123`| no | works on Record<string, unknown> as well | `prop`/`key`/`atKey` |
 | tuple access |`get([123] as const)('0') === 123`| no | | `component`
-| `(keyof obj)[]` | `get({a: 1, b: 2, c: 3})(['a', 'b']) === { a: 1, b: 2 }` | no | must be at the last operation | N/A |
+| `(keyof obj)[]` | `get({a: 1, b: 2, c: 3})(['a', 'b']) === { a: 1, b: 2 }` | no | must be at the last operation | `props` |
 | `[]>` | `get([{ a: 123 }, { a: 456 }])(['[]>', 'a']) === [123, 456]` | no | | `traverse(ReadonlyArray.Traversable)` |
 | `{}>` | `get({ a: [123], b: [456] })(['{}>', 0]) === { a: 123, b: 456 }` | no | | `traverse(ReadonlyRecord.Traversable)` |
 | `?` | `get(2 as number \| undefined)('?') === O.some(2)` | yes | | `fromNullable` |
