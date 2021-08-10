@@ -155,9 +155,9 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 | `[]>` | `get([{ a: 123 }, { a: 456 }])(['[]>', 'a']) === [123, 456]` | no | | `traverse(ReadonlyArray.Traversable)` |
 | `{}>` | `get({ a: [123], b: [456] })(['{}>', 0]) === { a: 123, b: 456 }` | no | | `traverse(ReadonlyRecord.Traversable)` |
 | `?` | `get(2 as number | undefined)('?') === O.some(2)` | yes | | `fromNullable` |
-| `?some` | `get(O.some({ a: 2 }))('?some', 'a') === O.some(2)` |mudder|
-| `?left` |mudder|
-| `?right` |mudder|
+| `?some` | `get(O.some({ a: 2 }))('?some', 'a') === O.some(2)` |
+| `?left` |`get(E.left({ a: 2 }))('?left', 'a') === E.left(2)`|
+| `?right` |`get(E.right({ a: 2 }))('?some', 'a') === E.right(2)`|
 |number|`get(0)([123]) === O.some(123)`| | index
 
 ## TODO

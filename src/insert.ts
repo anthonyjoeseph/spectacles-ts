@@ -5,7 +5,6 @@ import * as L from 'monocle-ts/lib/Lens'
 import * as Op from 'monocle-ts/lib/Optional'
 import { lensFromPath, optionalFromPath } from './monocle'
 import type { Paths } from './types/Paths'
-import type { InsertKeyIntoObj } from './types/insert/InsertKeyIntoObj'
 import type { Build } from './types/Build'
 import type { Inferable, GiveOpt } from './types/utils'
 
