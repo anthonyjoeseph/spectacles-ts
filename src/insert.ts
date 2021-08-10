@@ -4,10 +4,10 @@ import { insertAt } from 'fp-ts/Array'
 import * as L from 'monocle-ts/lib/Lens'
 import * as Op from 'monocle-ts/lib/Optional'
 import { lensFromPath, optionalFromPath } from './monocle'
-import type { InsertablePaths } from './types/insert/InsertablePaths'
+import type { Paths } from './types/Paths'
 import type { InsertKeyIntoObj } from './types/insert/InsertKeyIntoObj'
-import type { GiveOpt } from './types/insert/GiveOpt'
-import type { Inferable } from './types/utils'
+import type { Build } from './types/Build'
+import type { Inferable, GiveOpt } from './types/utils'
 
 const isPathLens = (
   path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
@@ -22,15 +22,15 @@ const isPathLens = (
 export const insert =
   <
     Infer,
-    Path extends InsertablePaths<Infer> extends Inferable
-      ? [...InsertablePaths<Infer>]
+    Path extends Paths<Infer, 'insert'> extends Inferable
+      ? [...Paths<Infer, 'insert'>]
       : never,
     Val
   >(
     fullPath: Path,
     val: Val
   ) =>
-  (a: Infer): GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path> => {
+  (a: Infer): GiveOpt<Build<Path, Infer, Val, 'insert'>, Path, 'insert'> => {
     const path = fullPath.slice(0, fullPath.length - 1)
     const final = fullPath[fullPath.length - 1]
     if (typeof final === 'number' && final > 0) {
@@ -51,7 +51,7 @@ export const insert =
         )(a),
         O.chain(O.fromPredicate(() => success))
       )
-      return b as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path>
+      return b as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path, 'insert'>
     }
     if (isPathLens(path)) {
       return pipe(
@@ -63,7 +63,7 @@ export const insert =
             ? [val, ...obj]
             : { ...obj, [final as string]: val }
         )
-      )(a) as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path>
+      )(a) as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path, 'insert'>
     }
     return pipe(
       optionalFromPath(path),
@@ -74,5 +74,5 @@ export const insert =
             : { ...obj, [final as string]: [...obj[final], val] }
           : { ...obj, [final as string]: val }
       )
-    )(a) as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path>
+    )(a) as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path, 'insert'>
   }

@@ -16,14 +16,18 @@ export type IsNull<A> = undefined extends A
   ? true
   : never
 
-export type GiveOpt<A, Args extends readonly unknown[]> = true extends HasTraversal<Args[number]> 
+export type GiveOpt<A, Args extends readonly unknown[], Op extends 'static' | 'insert' = 'static'> = true extends HasTraversal<Args[number]> 
   ? A 
   : true extends HasNull<
     Args[number]
   >
   ? Option<A>
   : true extends HasNum<Args[number]>
-  ? Option<A>
+  ? Op extends 'insert'
+    ? 0 extends Args[number]
+      ? A
+      : Option<A>
+    : Option<A>
   : true extends HasRefinement<Args[number]>
   ? Option<A>
   : true extends HasOptional<Args[number]>

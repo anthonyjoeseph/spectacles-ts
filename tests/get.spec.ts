@@ -19,11 +19,11 @@ describe('get', () => {
   })
   it('has checked record access', () => {
     const record = { a: 123 } as Record<string, number>
-    const picked: O.Option<number> = pipe(record, get('b', '?'))
+    const picked = pipe(record, get('b', '?'))
     assert.deepStrictEqual(picked, O.none)
   })
   it('gets an optional value', () => {
-    const optional: O.Option<string> = pipe(
+    const optional = pipe(
       data,
       get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
     )

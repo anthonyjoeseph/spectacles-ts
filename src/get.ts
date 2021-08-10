@@ -2,7 +2,7 @@ import { pipe } from 'fp-ts/function'
 import { getAll } from 'monocle-ts/Traversal'
 import { isPathLens, isPathTraversal, lensFromPath, optionalFromPath, traversalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
-import { BuildObj } from './types/BuildObj'
+import type { Build } from './types/Build'
 import type { Paths } from './types/Paths'
 import type { GiveOpt, Inferable } from './types/utils'
 
@@ -10,8 +10,8 @@ export const get = <
   Infer,
   Path extends unknown extends Infer
     ? Inferable
-    : Paths<Infer, 'insert'> extends Inferable
-      ? Paths<Infer, 'insert'>
+    : Paths<Infer, 'static'> extends Inferable
+      ? Paths<Infer, 'static'>
       : never,
   Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
     ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
@@ -22,7 +22,7 @@ export const get = <
 >(
   ...path: Full
 ): unknown extends Infer
-  ? <Constructed extends BuildObj<Full, unknown>>(
+  ? <Constructed extends Build<Full, unknown, unknown>>(
       obj: Constructed
     ) => GiveOpt<AtPath<Constructed, Full>, Full>
   : (obj: Infer) => GiveOpt<AtPath<Infer, Full>, Full> => {

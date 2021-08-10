@@ -12,12 +12,12 @@ describe('insert', () => {
     )
     assert.deepStrictEqual(insertKey, { a: { b: 123, c: 'abc' } })
   })
-  it('expands an existing key', () => {
-    const expandKey: { a: { b: number | string } } = pipe(
+  it('replaces an existing key', () => {
+    const replaceKey = pipe(
       { a: { b: 123 } },
       insert(['a', 'b'], 'abc')
     )
-    assert.deepStrictEqual(expandKey, { a: { b: 'abc' } })
+    assert.deepStrictEqual(replaceKey, { a: { b: 'abc' } })
   })
   it('appends a value to an array', () => {
     const append: { a: NonEmptyArray<number> } = pipe(

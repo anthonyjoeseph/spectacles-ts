@@ -53,16 +53,20 @@ type ObjectPaths<
   Key extends keyof A = TupleKeyof<A>
 > = true extends IsTupleOrRecord<A>
   ?  (Prev
-    | (A extends Record<string, unknown> ? [...Prev, Key[]] : never)
-    | (Key extends unknown 
-        ? string extends Key
+    | (A extends Array<unknown> 
+        ? never 
+        : Op extends 'static'
+          ? [...Prev, Key[]]
+          : [...Prev, string])
+    | (Key extends never 
+        ? never
+        : string extends Key
           ? Paths<
             A[Key] | undefined, 
             Op,
             [...Prev, Key | '{}>']
           > 
           : Paths<A[Key], Op, [...Prev, Key]> 
-        : never
       ))
   : A extends unknown[] 
     ? Paths<

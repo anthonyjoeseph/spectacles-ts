@@ -145,12 +145,35 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 )
 ```
 
+## Operations
+
+| type | usage  | Optional | notes | monocle |
+|-----|------|------|------|------|
+|`keyof obj`|`get('a')({a: 123}) === 123`| no | works on Record<string, unknown> as well | `prop`/`key`/`atKey` |
+| tuple access |`get([123] as const)('0') === 123`| no | | `component`
+| `(keyof obj)[]` | `get({a: 1, b: 2, c: 3})(['a', 'b']) === { a: 1, b: 2 }` | no | must be at the last operation | N/A |
+| `[]>` | `get([{ a: 123 }, { a: 456 }])(['[]>', 'a']) === [123, 456]` | no | | `traverse(ReadonlyArray.Traversable)` |
+| `{}>` | `get({ a: [123], b: [456] })(['{}>', 0]) === { a: 123, b: 456 }` | no | | `traverse(ReadonlyRecord.Traversable)` |
+| `?` | `get(2 as number | undefined)('?') === O.some(2)` | yes | | `fromNullable` |
+| `?some` | `get(O.some({ a: 2 }))('?some', 'a') === O.some(2)` |mudder|
+| `?left` |mudder|
+| `?right` |mudder|
+|number|`get(0)([123]) === O.some(123)`| | index
+
 ## TODO
 
-- generally the implementation is a mess 😅
-- `function setOption(...)`
-- `function rename(...)`
+- Build:
+  - merge `InsertObjectAtKey` w/ `BuildObj` (= `Build`)
+  - preserve `readonly` fields & arrays
+  - Infer constructed value from return type (e.g. for building `Eq` instances)
+  - traversals
+- implement monocle 'atKey' (is that better than the current solution?)
+- arbitrary traversal instances (is this possible?)
+- `function modifyF(...)`
+- `function insertOption(...)`
 - `function remove(...)`
+- `function removeOption(...)`
+- `function rename(...)`
 
 ## TSC Issues
 

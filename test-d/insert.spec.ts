@@ -11,18 +11,19 @@ const insertKey = pipe(
 )
 expectType<{ a: { b: number, c: string } }>(insertKey)
 
-// expands an existing key
-const expandKey = pipe(
-  { a: { b: 123 } },
+// replaces an existing key
+const replaceKey = pipe(
+  { a: { b: 123, f: false } },
   insert(['a', 'b'], 'abc')
 )
-expectType<{ a: { b: string | number } }>(expandKey)
+expectType<{ a: { b: string; f: boolean } }>(replaceKey)
 
 // appends a value to an array
 const append = pipe(
   { a: [123] },
   insert(['a'], 456)
 )
+
 expectType<{ a: NonEmptyArray<number> }>(append)
 
 // prepends a value to an array
