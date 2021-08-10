@@ -1,6 +1,8 @@
-# immutable-ts - EXPERIMENTAL
+# glasses-ts - EXPERIMENTAL
 
-Non-composable, non-traversable fluent [monocle-ts](https://github.com/gcanti/monocle-ts) facade
+Practical Optics. Unfancy monocles
+
+A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts) 
 
 ![prop video](readme-vid.gif)
 
@@ -154,11 +156,11 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 | `(keyof obj)[]` | `get({a: 1, b: 2, c: 3})(['a', 'b']) === { a: 1, b: 2 }` | no | must be at the last operation | N/A |
 | `[]>` | `get([{ a: 123 }, { a: 456 }])(['[]>', 'a']) === [123, 456]` | no | | `traverse(ReadonlyArray.Traversable)` |
 | `{}>` | `get({ a: [123], b: [456] })(['{}>', 0]) === { a: 123, b: 456 }` | no | | `traverse(ReadonlyRecord.Traversable)` |
-| `?` | `get(2 as number | undefined)('?') === O.some(2)` | yes | | `fromNullable` |
-| `?some` | `get(O.some({ a: 2 }))('?some', 'a') === O.some(2)` |
-| `?left` |`get(E.left({ a: 2 }))('?left', 'a') === E.left(2)`|
-| `?right` |`get(E.right({ a: 2 }))('?some', 'a') === E.right(2)`|
-|number|`get(0)([123]) === O.some(123)`| | index
+| `?` | `get(2 as number \| undefined)('?') === O.some(2)` | yes | | `fromNullable` |
+|number|`get(0)([123]) === O.some(123)`| yes | | `index`
+| `?some` | `get(O.some({ a: 2 }))('?some', 'a') === O.some(2)` | yes | | `some`
+| `?left` |`get(E.left({ a: 2 }))('?left', 'a') === E.left(2)`| yes | | `left`
+| `?right` |`get(E.right({ a: 2 }))('?some', 'a') === E.right(2)`| yes | | `right`
 
 ## TODO
 
