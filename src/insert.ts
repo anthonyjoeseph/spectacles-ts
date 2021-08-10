@@ -50,7 +50,7 @@ export const insert =
         )(a),
         O.chain(O.fromPredicate(() => success))
       )
-      return b as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path, 'insert'>
+      return b as GiveOpt<Build<Path, Infer, Val, 'insert'>, Path, 'insert'>
     }
     if (isPathLens(path)) {
       return pipe(
@@ -62,7 +62,7 @@ export const insert =
             ? [val, ...obj]
             : { ...obj, [final as string]: val }
         )
-      )(a) as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path, 'insert'>
+      )(a) as GiveOpt<Build<Path, Infer, Val, 'insert'>, Path, 'insert'>
     }
     return pipe(
       optionalFromPath(path),
@@ -73,5 +73,5 @@ export const insert =
             : { ...obj, [final as string]: [...obj[final], val] }
           : { ...obj, [final as string]: val }
       )
-    )(a) as GiveOpt<InsertKeyIntoObj<Infer, Path, Val>, Path, 'insert'>
+    )(a) as GiveOpt<Build<Path, Infer, Val, 'insert'>, Path, 'insert'>
   }
