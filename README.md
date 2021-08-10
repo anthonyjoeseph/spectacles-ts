@@ -159,8 +159,8 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 | `?` | `get(2 as number \| undefined)('?') === O.some(2)` | yes | | `fromNullable` |
 |number|`get(0)([123]) === O.some(123)`| yes | | `index`
 | `?some` | `get(O.some({ a: 2 }))('?some', 'a') === O.some(2)` | yes | | `some`
-| `?left` |`get(E.left({ a: 2 }))('?left', 'a') === E.left(2)`| yes | | `left`
-| `?right` |`get(E.right({ a: 2 }))('?some', 'a') === E.right(2)`| yes | | `right`
+| `?left` |`get(E.left({ a: 2 }))('?left', 'a') === O.some(2)`| yes | | `left`
+| `?right` |`get(E.right({ a: 2 }))('?some', 'a') === O.some(2)`| yes | | `right`
 
 ## TODO
 
