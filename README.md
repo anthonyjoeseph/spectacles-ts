@@ -165,13 +165,12 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 ## TODO
 
 - Build:
-  - merge `InsertObjectAtKey` w/ `BuildObj` (= `Build`)
   - preserve `readonly` fields & arrays
   - Infer constructed value from return type (e.g. for building `Eq` instances)
   - traversals
 - implement monocle 'atKey' (is that better than the current solution?)
-- arbitrary traversal instances (is this possible?)
-- `function modifyF(...)`
+  - maybe best to just implement 'key' - 'remove' will cover the 'deletion' case of 'atKey'
+- arbitrary traversal instances (is this possible?) (I don't think so...we need to be able to generate all possible paths ahead of time)
 - `function insertOption(...)`
 - `function remove(...)`
 - `function removeOption(...)`

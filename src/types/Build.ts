@@ -2,6 +2,7 @@ import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import type { Option } from 'fp-ts/Option'
 import type { Either } from 'fp-ts/Either'
 
+
 export type Build<
   Path extends readonly unknown[], 
   Obj,
@@ -11,7 +12,7 @@ export type Build<
   ? Op extends 'insert'
     ? Obj extends (infer ArrType)[]
       ? NonEmptyArray<ArrType>
-      : never
+      : unknown extends Val ? Obj : Val
     : unknown extends Val ? Obj : Val
   : Path extends [infer Key, ...infer Rest]
   ? BuildInternal<Op, Obj, Val, Key, Rest>
