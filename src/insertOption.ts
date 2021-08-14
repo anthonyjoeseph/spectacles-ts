@@ -6,7 +6,7 @@ import * as Op from 'monocle-ts/lib/Optional'
 import { lensFromPath, optionalFromPath } from './monocle'
 import type { Paths } from './types/Paths'
 import type { Build } from './types/Build'
-import type { Inferable } from './types/utils'
+import type { Inferable, GiveOpt } from './types/utils'
 
 const isPathLens = (
   path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
@@ -18,7 +18,7 @@ const isPathLens = (
       (typeof p === 'string' && p.startsWith('?'))
   )
 
-export const insert =
+export const insertOption =
   <
     Infer,
     Path extends Paths<Infer, 'insert'> extends Inferable
@@ -29,21 +29,28 @@ export const insert =
     fullPath: Path,
     val: Val
   ) =>
-  (a: Infer): Build<Path, Infer, Val, 'insert'> => {
+  (a: Infer): GiveOpt<Build<Path, Infer, Val, 'insertOption'>, Path, 'insert'> => {
     const path = fullPath.slice(0, fullPath.length - 1)
     const final = fullPath[fullPath.length - 1]
     if (typeof final === 'number' && final > 0) {
+      let success = true
       const b = pipe(
-        optionalFromPath(path),
-        Op.modify((a) =>
-          pipe(
-            a,
-            insertAt(final as number, val),
-            O.getOrElse(() => a)
+        pipe(
+          optionalFromPath(path),
+          Op.modifyOption((a) =>
+            pipe(
+              a,
+              insertAt(final as number, val),
+              O.getOrElse(() => {
+                success = false
+                return a
+              })
+            )
           )
-        )
-      )(a)
-      return b as Build<Path, Infer, Val>
+        )(a),
+        O.chain(O.fromPredicate(() => success))
+      )
+      return b as GiveOpt<Build<Path, Infer, Val, 'insertOption'>, Path, 'insert'>
     }
     if (isPathLens(path)) {
       return pipe(
@@ -55,7 +62,7 @@ export const insert =
             ? [val, ...obj]
             : { ...obj, [final as string]: val }
         )
-      )(a) as Build<Path, Infer, Val>
+      )(a) as GiveOpt<Build<Path, Infer, Val, 'insertOption'>, Path, 'insert'>
     }
     return pipe(
       optionalFromPath(path),
@@ -66,5 +73,5 @@ export const insert =
             : { ...obj, [final as string]: [...obj[final], val] }
           : { ...obj, [final as string]: val }
       )
-    )(a) as Build<Path, Infer, Val>
+    )(a) as GiveOpt<Build<Path, Infer, Val, 'insertOption'>, Path, 'insert'>
   }

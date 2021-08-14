@@ -170,8 +170,10 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
   - traversals
 - implement monocle 'atKey' (is that better than the current solution?)
   - maybe best to just implement 'key' - 'remove' will cover the 'deletion' case of 'atKey'
-- arbitrary traversal instances (is this possible?) (I don't think so...we need to be able to generate all possible paths ahead of time)
-- `function insertOption(...)`
+  - ":" syntax? Feels kind of arbitrary...
+- insert:
+  - into a Record<string, ...>
+  - into a nested array
 - `function remove(...)`
 - `function removeOption(...)`
 - `function rename(...)`

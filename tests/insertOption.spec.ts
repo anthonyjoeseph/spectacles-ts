@@ -1,48 +1,50 @@
 import { pipe } from 'fp-ts/function'
+import * as O from 'fp-ts/Option'
+import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import * as assert from 'assert'
-import { insert } from '../src'
+import { insertOption } from '../src'
 
 describe('insert', () => {
   it('inserts a key', () => {
     const insertKey: { a: { b: number; c: string } } = pipe(
       { a: { b: 123 } },
-      insert(['a', 'c'], 'abc')
+      insertOption(['a', 'c'], 'abc')
     )
     assert.deepStrictEqual(insertKey, { a: { b: 123, c: 'abc' } })
   })
   it('replaces an existing key', () => {
     const replaceKey = pipe(
       { a: { b: 123 } },
-      insert(['a', 'b'], 'abc')
+      insertOption(['a', 'b'], 'abc')
     )
     assert.deepStrictEqual(replaceKey, { a: { b: 'abc' } })
   })
   it('appends a value to an array', () => {
-    const append: { a: number[] } = pipe(
+    const append: { a: NonEmptyArray<number> } = pipe(
       { a: [123] },
-      insert(['a'], 456)
+      insertOption(['a'], 456)
     )
     assert.deepStrictEqual(append, { a: [123, 456] })
   })
   it('prepends a value to an array', () => {
-    const prepend: { a: number[] } = pipe(
+    const prepend: { a: NonEmptyArray<number> } = pipe(
       { a: [123] },
-      insert(['a', 0], 456)
+      insertOption(['a', 0], 456)
     )
     assert.deepStrictEqual(prepend, { a: [456, 123] })
   })
   it('inserts a value into an array (optionally)', () => {
-    const insertAt: { a: number[] } = pipe(
+    const insertAt: O.Option<{ a: NonEmptyArray<number> }> = pipe(
       { a: [0, 1] },
-      insert(['a', 1], 456)
+      insertOption(['a', 1], 456)
     )
-    assert.deepStrictEqual(insertAt, { a: [0, 456, 1] })
+    assert.deepStrictEqual(insertAt, O.some({ a: [0, 456, 1] }))
   })
   it('inserts a value into an array (optionally) (failure case)', () => {
-    const insertAt: { a: number[] } = pipe(
+    const insertAt: O.Option<{ a: NonEmptyArray<number> }> = pipe(
       { a: [0, 1] },
-      insert(['a', 3], 456)
+      insertOption(['a', 3], 456)
     )
-    assert.deepStrictEqual(insertAt,{ a: [0, 1] })
+    assert.deepStrictEqual(insertAt, O.none)
   })
 })

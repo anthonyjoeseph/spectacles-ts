@@ -2,24 +2,31 @@ import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import type { Option } from 'fp-ts/Option'
 import type { Either } from 'fp-ts/Either'
 
+type Operation = 
+  | 'static' 
+  | 'insert' 
+  | 'insertOption' 
+  | 'remove'
 
 export type Build<
   Path extends readonly unknown[], 
   Obj,
   Val,
-  Op extends 'static' | 'insert' = 'static'
+  Op extends Operation = 'static'
 > = Path extends []
-  ? Op extends 'insert'
-    ? Obj extends (infer ArrType)[]
-      ? NonEmptyArray<ArrType>
-      : unknown extends Val ? Obj : Val
+  ? Obj extends (infer ArrType)[]
+    ? Op extends 'insertOption'
+      ? NonEmptyArray<ArrType | Val>
+      : Op extends 'insert' | 'remove'
+        ? (ArrType | Val)[]
+        : unknown extends Val ? Obj : Val
     : unknown extends Val ? Obj : Val
   : Path extends [infer Key, ...infer Rest]
   ? BuildInternal<Op, Obj, Val, Key, Rest>
   : never
 
 type BuildInternal<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key,
@@ -36,7 +43,7 @@ type BuildInternal<
 >
 
 type BuildRefinement<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key,
@@ -51,7 +58,7 @@ type BuildRefinement<
 : Else
 
 type BuildPick<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key,
@@ -65,11 +72,20 @@ type BuildPick<
           ? Build<Rest, Obj[P], Val, Op>
           : never
     }
-  : Build<Rest, Obj, Val, Op>
+  : Rest extends []
+    ? Op extends 'remove'
+      ? {
+        [P in Exclude<keyof Obj, Key[number]>]:
+          P extends keyof Obj
+            ? Build<Rest, Obj[P], Val, Op>
+            : never
+      }
+      : Build<Rest, Obj, Val, Op>
+    : Build<Rest, Obj, Val, Op>
 : Else
 
 type BuildNumberKey<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key,
@@ -77,16 +93,18 @@ type BuildNumberKey<
   Else,
 > = Key extends number
 ? Obj extends (infer ArrType)[]
-  ? Op extends 'insert'
-    ? Rest extends []
-      ? NonEmptyArray<ArrType>
-      : Build<Rest, ArrType, Val, Op>[]
+  ? Rest extends []
+    ? Op extends 'insertOption'
+      ? NonEmptyArray<ArrType | Val>
+      : Op extends 'insert' | 'remove'
+        ? (ArrType | Val)[]
+        : Build<Rest, ArrType, Val, Op>[]
     : Build<Rest, ArrType, Val, Op>[]
   : Build<Rest, unknown, Val, Op>[]
 : Else
 
 type BuildStringKey<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key,
@@ -103,7 +121,7 @@ type BuildStringKey<
 : Else
 
 type BuildNullable<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key extends string,
@@ -114,7 +132,7 @@ type BuildNullable<
 : Else
 
 type BuildOptional<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key extends string,
@@ -135,13 +153,17 @@ type BuildOptional<
 : Else
 
 type BuildObject<
-  Op extends 'static' | 'insert',
+  Op extends Operation,
   Obj,
   Val,
   Key extends string,
   Rest extends readonly unknown[]
 > = { 
-  [K in Key | keyof Obj]:
+  [K in (Rest extends []
+    ? Op extends 'remove'
+      ? Exclude<keyof Obj, Key>
+      : Key | keyof Obj
+    : Key | keyof Obj)]:
     K extends keyof Obj
       ? K extends Key
         ? Build<Rest, Obj[K], Val, Op>
