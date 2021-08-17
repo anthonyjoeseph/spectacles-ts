@@ -161,7 +161,7 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 | `get('i', '?left')(x)`| `O.none` | yes | `left`
 | `get('i', '?right')(x)`| `O.some(2)` | yes | `right`
 | `get('d', '[]>', 'e')(x)` | `[123, 456]` | never | `traverse`<br />`Array` |
-| `get(['f', '{}>', 0])(x)` | `{ a: 123, b: 456 }` | never | `traverse`<br />`Record` |
+| `get('f', '{}>', 0)(x)` | `{ a: 123, b: 456 }` | never | `traverse`<br />`Record` |
 
 
 Assuming:
