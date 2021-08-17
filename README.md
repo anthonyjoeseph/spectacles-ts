@@ -1,6 +1,6 @@
-# glasses-ts - EXPERIMENTAL
-
-Practical Optics. Unfancy monocles
+# glasses-ts 👓
+ 
+Practical Optics • Unfancy monocles
 
 A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts) 
 
@@ -13,6 +13,7 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
   - [`modify`](#modify)
   - [`modifyOption`](#modifyoption)
   - [`insert`](#insert)
+- [Operations](#operations)
 - [TODO](#todo)
 - [TSC Issues](#tsc-issues)
 <!-- AUTO-GENERATED-CONTENT:END -->
@@ -21,36 +22,16 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
 
 ### `get`
 
-[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gP5oAHsLwwGwwaFA4JhwYAIKI-HCiEmgAXMTRAgkmqe68ADwI8QlwHKkA2mwsIAxhADRwlDBQwQDmdQwQEI4mbAC6hQkAJqkNTWzNpX1FcClw7Z1o3YWYAHz8mL4BBnDBoeGRGABCUuLoqUQHRFgbgYmSACImMCZwALxwsQA+cAf8A2gOJigGA4vAacAGjyycAeT34-BBbDBEDkHi8r2QqDQAApCrIAHTAAa5GEmZZYgCUNVxYDxOGAtF2WKxADdyalmdtzLEXss4My8ScMABCF5vIjpSnUvFgfBgLFEExESUJfGUAhoKkqmky5HyjhKzUWPEg-RsNAhLEARkl5LhCLBZoaaCGFh0uRGLV5b2ROi8eOaaBgOTYWIhT3JQA)
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gP4deleAg5Dy84AF5kVDQACn44CwA6YAATAB4kEwAuKQZsqDQTZN5aMTgAqGA2AHMAbQBdRUwAPmiASgAaOMSwfDBoohMiDq7ZBJ6g-oYhzvjRyuS0AA9ogAZh1v5ff3g2NAC0ZOz3XlTyyqqm8LggnS8EqrQYY7ZojOykXLgagYYOInbiAscEQGthMK0gA)
 
 ```ts
 import { pipe } from 'fp-ts/function'
-import type { Option } from 'fp-ts/Option'
+import * as O from 'fp-ts/Option'
 import { get } from 'immutable-ts'
 
-export interface A {
-  type: 'A'
-  a: O.Option<{
-    c: [number, string, boolean]
-    d: string[]
-    e: boolean
-  }>
-}
-export interface B { type: 'B' }
-export type Data = A | B
-declare const data: Data
-
 const nested: O.Option<string> = pipe(
-  data,
-  get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
-)
-
-const polymorphicFn = get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
-const polymorphicVal: O.Option<string> = polymorphicFn(data)
-
-const pick: { b: number; d: boolean } = pipe(
-  { a: { b: 123, c: 'abc', d: false } },
-  get('a', ['b', 'd'])
+  { a: { b: ['abc', 'def'] } },
+  get('a', 'b', 0)
 )
 ```
 
@@ -103,7 +84,7 @@ const modifyOpted: O.Option<{ a: { b: number }[] }> = pipe(
 
 ### `insert`
 
-[immutability-helper equivalents](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG4GMIAOwDO8YCM4wA0hnpwAvHG5xEKdBgAUylXADecVAC49cCsYCMAJgDMcAL72ANNpX6XOo3A2oAlAoB8XrruOnAAdBGozqGhfMaElHw8MfY+7nbaafxCogZgHILICkoqSGiYWqH6ngDaVtYAuk7uwSmerSlwACRgCMLMxjUALACsAGwN0TEZoTNwWQIi8GBQGAVFitpl6pU61YP1TXZTriEGxt5+8oHD447hkQ3pmbyLueLCkgCC8JulahUWuc4HV7pZ7tZ7kN7iN7hNmlUzu0ziohsYOp1up8YMZRmMUfYznMVHMfEA)
+[immutability-helper equivalents](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG4GMIAOwDO8YCM4wA0hnpwAvHG5xEKdBgAUylXADecVAC49cCsYCMAJgDMcAL72ANNpX6XOo3A2oAlAoB8XrruOnAAdBGozqGhfMaElHw8MfY+7nbaaUA)
 
 ```ts
 import { pipe } from 'fp-ts/function'
@@ -114,26 +95,6 @@ import { insert } from 'immutable-ts'
 const insertKey: { a: { b: number; c: string } } = pipe(
   { a: { b: 123 } },
   insert(['a', 'c'], 'abc')
-)
-
-const expandKey: { a: { b: number | string } } = pipe(
-  { a: { b: 123 } },
-  insert(['a', 'b'], 'abc')
-)
-
-const append: { a: NonEmptyArray<number> } = pipe(
-  { a: [123] },
-  insert(['a'], 456)
-)
-
-const prepend: { a: NonEmptyArray<number> } = pipe(
-  { a: [123] },
-  insert(['a', 0], 456)
-)
-
-const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
-  { a: [1, 2, 3, 4, 5, 6] },
-  insert(['a', 4], 456)
 )
 ```
 
@@ -153,9 +114,6 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 | `get('j', (a): a is number => typeof a === 'number')(x)`| `O.some(2)` | yes | `filter`
 | `get('d', '[]>', 'e')(x)` | `[123, 456]` | never | `traverse`<br />`Array` |
 | `get('f', '{}>', 0)(x)` | `{ a: 123, b: 456 }` | never | `traverse`<br />`Record` |
-
-
-Assuming:
 
 ```ts
 import * as O from 'fp-ts/Option'
@@ -194,5 +152,3 @@ const x: Data = {
 
 - [Restrict the intellisense/auto completion of mapped tuples depending on the first element of the tuple](https://github.com/microsoft/TypeScript/issues/43824)
 - [Increase type instantiation depth limit](https://github.com/microsoft/TypeScript/pull/45025) (maybe would help some cases?)
-
-## [Alternative Names + discussion](NAMES.md)
