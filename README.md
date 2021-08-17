@@ -10,9 +10,15 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
 - [Examples](#examples)
   - [`get`](#get)
   - [`set`](#set)
+  - [`setOption`](#setoption)
+  - [`upsert`](#upsert)
+  - [`remove`](#remove)
+  - [`rename`](#rename)
   - [`modify`](#modify)
   - [`modifyOption`](#modifyoption)
-  - [`insert`](#insert)
+  - [`modifyW`](#modifyw)
+  - [`modifyOptionW`](#modifyoptionw)
+  - [`modifyF`](#modifyf)
 - [Operations](#operations)
 - [TODO](#todo)
 - [TSC Issues](#tsc-issues)
@@ -51,6 +57,60 @@ const beenSet: { a: { b: number } } = pipe(
 )
 ```
 
+### `setOption`
+
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcAPK58hEuSp1G1GWG68BQ6PHFTZYeQWIheEDrTQUa9Jhq1sJtAYLYw0UHBI4YAIhIwEoiSAFxwUGgSACa8tACecJQwUMBsAOYA2gC6WPwxaFYSUXAcvClwMUESEYHB-PzlbJWUaDD1IQC8yKhoABT8cEYAdMAxADydAHz9AJQANEOjYPhg-UQSRIvLGmNshQAe-QCMO8N7bTCOPGwbhwkAXtv8c43NlQxoaGwAyu0RGQjG68KY1aZwHpXTr9arBOZAA)
+
+```ts
+import { pipe } from 'fp-ts/function'
+import { setOption } from 'immutable-ts'
+
+const beenSet: O.Option<{ a: string[] }> = pipe(
+  { a: ['abc', 'def'] },
+  setOption(['a', 1], 'xyz')
+)
+```
+
+### `upsert`
+
+[immutability-helper equivalents](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG4GMIAOwDO8YCM4wA0hnpwAvHG5xEKdBgAUylXADecVAC49cCsYCMAJgDMcAL72ANNpX6XOo3A2oAlAoB8XrruOnAAdBGozqGhfMaElHw8MfY+7nbaaUA)
+
+```ts
+import { pipe } from 'fp-ts/function'
+import { upsert } from 'immutable-ts'
+
+const upsertKey: { a: { b: number; c: string } } = pipe(
+  { a: { b: 123 } },
+  upsert(['a', 'c'], 'abc')
+)
+```
+
+### `remove`
+
+```ts
+import { pipe } from 'fp-ts/function'
+import { remove } from 'immutable-ts'
+
+const removeKey: { a: { b: number } } = pipe(
+  { a: { b: 123, c: false } },
+  remove('a', 'c')
+)
+```
+
+### `rename`
+
+```ts
+import { pipe } from 'fp-ts/function'
+import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
+import type { Option } from 'fp-ts/Option'
+import { rename } from 'immutable-ts'
+
+const rename: { a: { new: number } } = pipe(
+  { a: { old: 123 } },
+  rename(['a', 'old'], 'new')
+)
+```
+
 ### `modify`
 
 [monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcADK58hIiF4QOtNBRr0mMtG0oCh0eOKlwAkvILFSmuo2rmAJnu4wAngMFsYaKDgkODAARCRgJREkALkiGGLYWEAY-LCx+FzUJKAwOXkp4JzCJGNDw-n5c-XgIMG5eCVo4AF5kVDQACn44WQA6YCcAHlKJAD52gEoAGi7esHwwdqIJIimZmR65msWGFenx8sr8uGUnYBxgNCcSoubW9E7umrq2Bsm4NZ6Ts-d2gCtmkZwf4AajgABYpu9uuYehIFoVwvtxkA)
@@ -59,7 +119,7 @@ const beenSet: { a: { b: number } } = pipe(
 
 ```ts
 import { pipe } from 'fp-ts/function'
-import { set } from 'immutable-ts'
+import { modify } from 'immutable-ts'
 
 const modified: { a: { b: number } } = pipe(
   { a: { b: 123 } },
@@ -74,7 +134,7 @@ const modified: { a: { b: number } } = pipe(
 ```ts
 import { pipe } from 'fp-ts/function'
 import * as O from 'fp-ts/Option'
-import { set } from 'immutable-ts'
+import { modifyOption } from 'immutable-ts'
 
 const modifyOpted: O.Option<{ a: { b: number }[] }> = pipe(
   { a: [{ b: 123 }] },
@@ -82,19 +142,41 @@ const modifyOpted: O.Option<{ a: { b: number }[] }> = pipe(
 )
 ```
 
-### `insert`
-
-[immutability-helper equivalents](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG4GMIAOwDO8YCM4wA0hnpwAvHG5xEKdBgAUylXADecVAC49cCsYCMAJgDMcAL72ANNpX6XOo3A2oAlAoB8XrruOnAAdBGozqGhfMaElHw8MfY+7nbaaUA)
+### `modifyW`
 
 ```ts
 import { pipe } from 'fp-ts/function'
-import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
-import type { Option } from 'fp-ts/Option'
-import { insert } from 'immutable-ts'
+import { modifyW } from 'immutable-ts'
 
-const insertKey: { a: { b: number; c: string } } = pipe(
+const modified: { a: { b: string } } = pipe(
   { a: { b: 123 } },
-  insert(['a', 'c'], 'abc')
+  modifyW(['a', 'b'], (j) => `${j + 4}`)
+)
+```
+
+### `modifyOptionW`
+
+```ts
+import { pipe } from 'fp-ts/function'
+import * as O from 'fp-ts/Option'
+import { modifyOptionW } from 'immutable-ts'
+
+const modified: O.Option<{ a: { b: string } }> = pipe(
+  { a: [123, 456] },
+  modifyOptionW(['a', 0], (j) => `${j + 4}`)
+)
+```
+
+### `modifyF`
+
+```ts
+import { pipe } from 'fp-ts/function'
+import * as E from 'fp-ts/Either'
+import { modifyF } from 'immutable-ts'
+
+const modified: E.Either<string, { a: { b: number } }> = pipe(
+  { a: { b: 123 } },
+  modifyF(['a', 'b'], (j) => j > 10 ? E.left('fail') : E.right(j - 10))
 )
 ```
 

@@ -23,9 +23,7 @@ export const modifyOptionW =
     path: Full,
     modFunc: (v: AtPath<Infer, Full>) => RetVal
   ) =>
-  (a: Infer): ([RetVal] extends [AtPath<Infer, Full>]
-    ? Infer
-    : GiveOpt<Build<Full, Infer, RetVal, 'static'>, Full>) => {
+  (a: Infer): GiveOpt<Build<Full, Infer, RetVal, 'static'>, Full> => {
     if (isPathTraversal(path as any)) {
       return pipe(traversalFromPath(path as any), modifyTr(modFunc as any))(a) as any
     }

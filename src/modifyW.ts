@@ -23,9 +23,7 @@ export const modifyW =
     path: Full,
     modFunc: (v: AtPath<Infer, Full>) => RetVal
   ) =>
-  (a: Infer): ([RetVal] extends [AtPath<Infer, Full>]
-    ? Infer
-    : true extends HasOptional<Full>
+  (a: Infer): (true extends HasOptional<Full>
       ? Build<Full, Infer, RetVal | AtPath<Infer, Full>, 'static'>
       : Build<Full, Infer, RetVal, 'static'>) => {
     if (isPathLens(path as any)) {
