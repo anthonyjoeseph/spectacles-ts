@@ -149,7 +149,7 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 
 ## Operations
 
-| usage  | equals | Optional | notes | monocle |
+| usage &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | equals | Optional | notes | monocle |
 |------|-----|-------|------|------|
 |`get('a')(x)`| `123` | no | works on Record<string, unknown> as well | `prop`/`key`/`atKey` |
 |`get('c', '0')(x)`| `123` | no | | `component`
