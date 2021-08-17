@@ -1,6 +1,6 @@
 # glasses-ts 👓
  
-Practical Optics • Unfancy monocles
+Practical Optics • Unfancy monocle-ts 🧐
 
 A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts) 
 
@@ -169,6 +169,8 @@ const modified: O.Option<{ a: { b: string } }> = pipe(
 
 ### `modifyF`
 
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcAKK58hEuSrUZwGAAs0UAUOjxxUuABl5BYiF4QOtNBRr0mxtG0q7w+sZOkBJM4tJ7OkZqHwATF24YAE8BQTYYbRwJDgwAEQkYCURJAC4chny2FhAGbSwsfgibCSgMDl5KeDDMiXyMrP5+Btd4CDBuXglaOABeZFQ0AAp+OBMAOmAwgB4OiQA+KYBKABpZhbB8MCmiCSJd-eN5w-6ThnO9ra6eprhLMOAcYDQw-Jl5tSabTLJpQYBsADmOzga3WYwm6Bmc36gzYw2hl3m70+0QAYlN-rj2FxoFsplMAFZbMZwilwOEARgADHAAPyyea2HAwE7JYC0c5wP7zMEQjQ8ulkODMrYXOY+eYSY4tLJPLZAA)
+
 ```ts
 import { pipe } from 'fp-ts/function'
 import * as E from 'fp-ts/Either'
@@ -176,7 +178,7 @@ import { modifyF } from 'immutable-ts'
 
 const modified: E.Either<string, { a: { b: number } }> = pipe(
   { a: { b: 123 } },
-  modifyF(['a', 'b'], (j) => j > 10 ? E.left('fail') : E.right(j - 10))
+  modifyF(E.Applicative)(['a', 'b'], (j) => j > 10 ? E.left('fail') : E.right(j - 10))
 )
 ```
 
@@ -184,17 +186,17 @@ const modified: E.Either<string, { a: { b: number } }> = pipe(
 
 | usage &nbsp; &nbsp; &nbsp;  | equals | Optional | monocle |
 |------|-----|-------|-------|
-| `get('a')(x)`| `123` | no | `prop` |
-| `get(['a', 'b'])(x)` | `{ a: 1, b: 2 }` | no | `props` |
-| `get('c', '0')(x)`| `123` | no | `component`
-| `get('d', 0)(x)`| `O.some({ e: 123 })` | yes | `index`
-| `get('f', '?key', 'a')(x)` | `O.some([123])` | yes | `key` |
-| `get('g', '?')(x)` | `O.some(2)` | yes | `fromNullable` |
-| `get('h', '?some')(x)` | `O.some(2)` | yes | `some`
-| `get('i', '?left')(x)`| `O.none` | yes | `left`
-| `get('i', '?right')(x)`| `O.some(2)` | yes | `right`
-| `get('j', (a): a is number => typeof a === 'number')(x)`| `O.some(2)` | yes | `filter`
-| `get('d', '[]>', 'e')(x)` | `[123, 456]` | never | `traverse`<br />`Array` |
+| `get('a')(x)`| `123` | no | [prop](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L89) |
+| `get(['a', 'b'])(x)` | `{ a: 1, b: 2 }` | no | [props](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L103) |
+| `get('c', '0')(x)`| `123` | no | [component](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L119)
+| `get('d', 0)(x)`| `O.some({ e: 123 })` | yes | [index](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L107)
+| `get('f', '?key', 'a')(x)` | `O.some([123])` | yes | [key](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L133) |
+| `get('g', '?')(x)` | `O.some(2)` | yes | [fromNullable](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L223) |
+| `get('h', '?some')(x)` | `O.some(2)` | yes | [some](https://github.com/gcanti/monocle-ts/blob/master/src/Optional.ts#L287)
+| `get('i', '?left')(x)`| `O.none` | yes | [left](https://github.com/gcanti/monocle-ts/blob/master/test/Prism.ts#L200)
+| `get('i', '?right')(x)`| `O.some(2)` | yes | [right](https://github.com/gcanti/monocle-ts/blob/master/test/Prism.ts#L192)
+| `get('j', (a): a is number => typeof a === 'number')(x)`| `O.some(2)` | yes | [filter](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L160)
+| `get('d', '[]>', 'e')(x)` | `[123, 456]` | never | [traverse](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L215)<br />`Array` |
 | `get('f', '{}>', 0)(x)` | `{ a: 123, b: 456 }` | never | `traverse`<br />`Record` |
 
 ```ts
