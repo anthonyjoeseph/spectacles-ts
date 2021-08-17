@@ -149,13 +149,13 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 
 ## Operations
 
-| usage &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; | equals | Optional | notes | monocle |
+| usage &nbsp; &nbsp; &nbsp;  | equals | Optional | notes | monocle |
 |------|-----|-------|------|------|
 |`get('a')(x)`| `123` | no | works on Record<string, unknown> as well | `prop`/`key`/`atKey` |
 |`get('c', '0')(x)`| `123` | no | | `component`
 | `get(['a', 'b'])(x)` | `{ a: 1, b: 2 }` | no | must be at the last operation | `props` |
-| `get('d', '[]>', 'e')(x)` | `[123, 456]` | no | | `traverse(ReadonlyArray.Traversable)` |
-| `get(['f', '{}>', 0])(x)` | `{ a: 123, b: 456 }` | no | | `traverse(ReadonlyRecord.Traversable)` |
+| `get('d', '[]>', 'e')(x)` | `[123, 456]` | no | | `traverse`<br />`Array` |
+| `get(['f', '{}>', 0])(x)` | `{ a: 123, b: 456 }` | no | | `traverse`<br />`Record` |
 | `get('g', '?')(x)` | `O.some(2)` | yes | | `fromNullable` |
 | `get('d', 0, 'e')(x)`| O.some(123) | yes | | `index`
 | `get('h', '?some')(x)` | `O.some(2)` | yes | | `some`
