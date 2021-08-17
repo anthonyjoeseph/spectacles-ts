@@ -152,16 +152,16 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 | usage &nbsp; &nbsp; &nbsp;  | equals | Optional | monocle |
 |------|-----|-------|-------|
 | `get('a')(x)`| `123` | no | `prop` |
-| `get('c', '0')(x)`| `123` | no | `component`
 | `get(['a', 'b'])(x)` | `{ a: 1, b: 2 }` | no | `props` |
-| `get('d', '[]>', 'e')(x)` | `[123, 456]` | no | `traverse`<br />`Array` |
-| `get(['f', '{}>', 0])(x)` | `{ a: 123, b: 456 }` | no | `traverse`<br />`Record` |
-| `get('g', '?')(x)` | `O.some(2)` | yes | `fromNullable` |
+| `get('c', '0')(x)`| `123` | no | `component`
 | `get('d', 0)(x)`| `O.some({ e: 123 })` | yes | `index`
 | `get('f', '?key', 'a')(x)` | `O.some([123])` | yes | `key` |
+| `get('g', '?')(x)` | `O.some(2)` | yes | `fromNullable` |
 | `get('h', '?some')(x)` | `O.some(2)` | yes | `some`
 | `get('i', '?left')(x)`| `O.none` | yes | `left`
 | `get('i', '?right')(x)`| `O.some(2)` | yes | `right`
+| `get('d', '[]>', 'e')(x)` | `[123, 456]` | never | `traverse`<br />`Array` |
+| `get(['f', '{}>', 0])(x)` | `{ a: 123, b: 456 }` | never | `traverse`<br />`Record` |
 
 
 Assuming:
