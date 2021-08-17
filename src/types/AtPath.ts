@@ -113,10 +113,17 @@ type AtObjectKey<
   Key,
   Rest extends readonly unknown[],
   Else
-> = Key extends keyof A
-  ? AtPath<
-      A[Key] | (string extends keyof A ? undefined : never), 
-      Rest,
-      Op
+> = Key extends '?key'
+  ? Rest extends [infer RecordKey, ...infer Rest2] 
+    ? AtObjectKey<
+      Op,
+      A,
+      RecordKey,
+      Rest2,
+      Else
     >
+    : never
+  : Key extends keyof A
+  ? AtPath<A[Key], Rest, Op>
   : Else
+

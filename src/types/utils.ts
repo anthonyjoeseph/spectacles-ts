@@ -16,35 +16,44 @@ export type IsNull<A> = undefined extends A
   ? true
   : never
 
-export type GiveOpt<A, Args extends readonly unknown[], Op extends 'static' | 'insert' = 'static'> = true extends HasTraversal<Args[number]> 
+export type HasOptional<
+Args extends readonly unknown[]
+> = true extends HasTraversal<Args[number]> 
+  ? never
+  : true extends (HasNull<Args[number]> 
+    | HasNum<Args[number]> 
+    | HasRefinement<Args[number]>)
+  ? true
+  : never
+
+export type GiveOpt<
+  A, 
+  Args extends readonly unknown[]
+> = true extends HasTraversal<Args[number]> 
   ? A 
   : true extends HasNull<
     Args[number]
   >
   ? Option<A>
   : true extends HasNum<Args[number]>
-  ? Op extends 'insert'
-    ? 0 extends Args[number]
-      ? A
-      : Option<A>
-    : Option<A>
-  : true extends HasRefinement<Args[number]>
   ? Option<A>
-  : true extends HasOptional<Args[number]>
+  : true extends HasRefinement<Args[number]>
   ? Option<A>
   : A
 
-export type HasOptional<Args> = Args extends '?some'
+export type HasNull<Args> = Args extends '?'
+  ? true
+  : Args extends '?some'
   ? true
   : Args extends '?right'
   ? true
   : Args extends '?left'
   ? true
+  : Args extends '?key'
+  ? true
   : never
 
 export type HasRefinement<K> = K extends (a: any) => boolean ? true : never
-
-export type HasNull<K> = K extends '?' ? true : never
 
 export type HasNum<K> = K extends number ? true : never
 
@@ -56,7 +65,7 @@ export type Inferable = readonly (
   | number
   | string
   | ((a: never) => boolean)
-  | readonly string[]
+  | readonly unknown[]
 )[]
 
 export type IsTupleOrRecord<A> = 

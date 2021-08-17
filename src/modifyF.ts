@@ -2,8 +2,7 @@ import { pipe } from 'fp-ts/function'
 import { Applicative, Applicative1, Applicative2, Applicative3 } from 'fp-ts/lib/Applicative'
 import { HKT, Kind, Kind2, Kind3, URIS, URIS2, URIS3 } from 'fp-ts/lib/HKT'
 import * as L from 'monocle-ts/lib/Lens'
-import * as Op from 'monocle-ts/lib/Optional'
-import { isPathLens, isPathTraversal, lensFromPath, optionalFromPath, traversalFromPath } from './monocle'
+import { isPathLens, lensFromPath, traversalFromPath } from './monocle'
 import type { Paths } from './types/Paths'
 import type { AtPath } from './types/AtPath'
 import type { Inferable } from './types/utils'
@@ -60,11 +59,8 @@ export const modifyF: {
     modFunc: (v: any) => any
   ) =>
   (a: any): any => {
-    if (isPathTraversal(path as any)) {
-      return traversalFromPath(path as any).modifyF(F)(modFunc as any)(a) as any
-    }
     if (isPathLens(path as any)) {
       return pipe(lensFromPath(path as any), L.modifyF(F)(modFunc as any))(a) as any
     }
-    return pipe(optionalFromPath(path as any), Op.modifyF(F)(modFunc as any))(a) as any
+    return traversalFromPath(path as any).modifyF(F)(modFunc as any)(a) as any
   }

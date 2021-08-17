@@ -149,34 +149,52 @@ const insertAt: Option<{ a: NonEmptyArray<number> }> = pipe(
 
 ## Operations
 
-| type | usage  | Optional | notes | monocle |
-|-----|------|------|------|------|
-|`keyof obj`|`get('a')({a: 123}) === 123`| no | works on Record<string, unknown> as well | `prop`/`key`/`atKey` |
-| tuple access |`get([123] as const)('0') === 123`| no | | `component`
-| `(keyof obj)[]` | `get({a: 1, b: 2, c: 3})(['a', 'b']) === { a: 1, b: 2 }` | no | must be at the last operation | `props` |
-| `[]>` | `get([{ a: 123 }, { a: 456 }])(['[]>', 'a']) === [123, 456]` | no | | `traverse(ReadonlyArray.Traversable)` |
-| `{}>` | `get({ a: [123], b: [456] })(['{}>', 0]) === { a: 123, b: 456 }` | no | | `traverse(ReadonlyRecord.Traversable)` |
-| `?` | `get(2 as number \| undefined)('?') === O.some(2)` | yes | | `fromNullable` |
-|number|`get(0)([123]) === O.some(123)`| yes | | `index`
-| `?some` | `get(O.some({ a: 2 }))('?some', 'a') === O.some(2)` | yes | | `some`
-| `?left` |`get(E.left({ a: 2 }))('?left', 'a') === O.some(2)`| yes | | `left`
-| `?right` |`get(E.right({ a: 2 }))('?some', 'a') === O.some(2)`| yes | | `right`
+| usage  | equals | Optional | notes | monocle |
+|------|-----|-------|------|------|
+|`get('a')(x)`| `123` | no | works on Record<string, unknown> as well | `prop`/`key`/`atKey` |
+|`get('c', '0')(x)`| `123` | no | | `component`
+| `get(['a', 'b'])(x)` | `{ a: 1, b: 2 }` | no | must be at the last operation | `props` |
+| `get('d', '[]>', 'e')(x)` | `[123, 456]` | no | | `traverse(ReadonlyArray.Traversable)` |
+| `get(['f', '{}>', 0])(x)` | `{ a: 123, b: 456 }` | no | | `traverse(ReadonlyRecord.Traversable)` |
+| `get('g', '?')(x)` | `O.some(2)` | yes | | `fromNullable` |
+| `get('d', 0, 'e')(x)`| O.some(123) | yes | | `index`
+| `get('h', '?some')(x)` | `O.some(2)` | yes | | `some`
+| `get('i', '?left')(x)`| `O.none` | yes | | `left`
+| `get('i', '?right')(x)`| `O.some(2)` | yes | | `right`
 
+
+Assuming:
+
+```ts
+import * as O from 'fp-ts/Option'
+import * as E from 'fp-ts/Either'
+interface Data {
+  a: number
+  b: number
+  c: [number, string]
+  d: { e: number }[]
+  f: Record<string, number[]>
+  g?: number
+  h: O.Option<number>
+  i: E.Either<string, number>
+}
+const x: Data = {
+  a: 1,
+  b: 2,
+  c: [123, 'abc'],
+  d: [{ e: 123 }, { e: 456 }],
+  f: { a: [123], b: [456] },
+  g: 2,
+  h: O.some(2),
+  i: E.right(2)
+}
+```
 ## TODO
 
 - Build:
   - preserve `readonly` fields & arrays
+  - `{}>` traversals
   - Infer constructed value from return type (e.g. for building `Eq` instances)
-  - traversals
-- implement monocle 'atKey' (is that better than the current solution?)
-  - maybe best to just implement 'key' - 'remove' will cover the 'deletion' case of 'atKey'
-  - ":" syntax? Feels kind of arbitrary...
-- insert:
-  - into a Record<string, ...>
-  - into a nested array
-- `function remove(...)`
-- `function removeOption(...)`
-- `function rename(...)`
 
 ## TSC Issues
 

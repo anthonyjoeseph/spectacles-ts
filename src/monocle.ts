@@ -27,7 +27,7 @@ export const isPathLens = (
 export const traversalFromPath = (
   path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
 ): Tr.Traversal<any, any> => {
-  const opt = path.reduce((acc, cur) => {
+  const opt = path.reduce((acc, cur, index) => {
     if (typeof cur === 'function') {
       return pipe(acc, Tr.filter(cur as any))
     } else if (Array.isArray(cur)) {
@@ -46,11 +46,15 @@ export const traversalFromPath = (
       return pipe(acc, Tr.traverse(ArrayTraversable))
     } else if (cur === '{}>') {
       return pipe(acc, Tr.traverse(RecordTraversable))
+    } else if (cur === '?key') {
+      return acc
     }
     return pipe(
       fromString(cur as string),
       match(
-        () => pipe(acc, Tr.prop(cur as string)),
+        () => path[index - 1] === '?key'
+          ? pipe(acc, Tr.key(cur as string))
+          : pipe(acc, Tr.prop(cur as string)),
         (tupleIndex) => pipe(acc, Tr.component(tupleIndex))
       )
     )
@@ -61,7 +65,7 @@ export const traversalFromPath = (
 export const optionalFromPath = (
   path: readonly (number | string | readonly string[] | ((a: never) => boolean))[]
 ): Op.Optional<any, any> => {
-  const opt = path.reduce((acc, cur) => {
+  const opt = path.reduce((acc, cur, index) => {
     if (typeof cur === 'function') {
       return pipe(acc, Op.filter(cur as any))
     } else if (Array.isArray(cur)) {
@@ -76,11 +80,15 @@ export const optionalFromPath = (
       return pipe(acc, Op.right)
     } else if (cur === '?left') {
       return pipe(acc, Op.left)
+    } else if (cur === '?key') {
+      return acc
     }
     return pipe(
       fromString(cur as string),
       match(
-        () => pipe(acc, Op.prop(cur as string)),
+        () => path[index - 1] === '?key'
+        ? pipe(acc, Op.key(cur as string))
+        : pipe(acc, Op.prop(cur as string)),
         (tupleIndex) => pipe(acc, Op.component(tupleIndex))
       )
     )

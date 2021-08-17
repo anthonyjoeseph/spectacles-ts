@@ -13,13 +13,12 @@ const picked = pipe(simpleData, get('a', ['c', 'd']))
 expectType<{ c: string; d: boolean }>(picked)
 
 // can traverse
-
 const traverse = pipe([{a: 123}, {a: 456}], get('[]>', 'a'))
 expectType<number[]>(traverse)
 
 // has checked record access
 const record = { a: 123 } as Record<string, number>
-const picked2 = pipe(record, get('b', '?'))
+const picked2 = pipe(record, get('?key', 'b'))
 expectType<O.Option<number>>(picked2)
 
 // gets an optional value

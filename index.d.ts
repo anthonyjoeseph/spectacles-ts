@@ -1,4 +1,4 @@
 // necessary for tsd
 
-import { get, set, setOption, modify, modifyOption, modifyF, insert } from './dist';
-export { get, set, setOption, modify, modifyOption, modifyF, insert };
+import { get, set, setOption, modify, modifyW, modifyOption, modifyF, upsert, remove, rename } from './dist';
+export { get, set, setOption, modify, modifyW, modifyOption, modifyF, upsert, remove, rename };

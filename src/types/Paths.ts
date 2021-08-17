@@ -2,8 +2,14 @@ import type { Option } from 'fp-ts/Option'
 import type { Either } from 'fp-ts/Either'
 import { IsNull, IsTupleOrRecord, TupleKeyof } from './utils'
 
-export type Paths<A, Op extends 'static' | 'insert' = 'static', Prev extends unknown[] = []> =
-  | Prev
+type Operation = 
+| 'static'
+| 'upsert'
+| 'remove'
+| 'rename'
+
+export type Paths<A, Op extends Operation = 'static', Prev extends unknown[] = []> =
+  | (Op extends 'static' ? Prev : never)
   | NullPaths<
       A,
       Op,
@@ -16,9 +22,9 @@ export type Paths<A, Op extends 'static' | 'insert' = 'static', Prev extends unk
       >
     >
 
-type NullPaths<A, Op extends 'static' | 'insert', Prev extends unknown[], Else> = true extends IsNull<A>
+type NullPaths<A, Op extends Operation, Prev extends unknown[], Else> = true extends IsNull<A>
   ?
-      | Prev
+      | (Op extends 'static' ? Prev : never)
       | [...Prev, '?']
       | OptionPaths<
           A,
@@ -35,7 +41,7 @@ type NullPaths<A, Op extends 'static' | 'insert', Prev extends unknown[], Else> 
 
 type RefinementPaths<
   A extends B,
-  Op extends 'static' | 'insert', 
+  Op extends Operation, 
   Prev extends unknown[],
   Else,
   B = A
@@ -47,26 +53,39 @@ type RefinementPaths<
 
 type ObjectPaths<
   A,
-  Op extends 'static' | 'insert', 
+  Op extends Operation, 
   Prev extends unknown[],
   Else,
   Key extends keyof A = TupleKeyof<A>
 > = true extends IsTupleOrRecord<A>
-  ?  (Prev
+  ?  ((Op extends 'static' ? Prev : never)
     | (A extends Array<unknown> 
         ? never 
-        : Op extends 'static'
-          ? [...Prev, Key[]]
-          : [...Prev, string])
+        : (
+          | (Op extends 'static' | 'remove' ? [...Prev, Key[]] : never)
+          | (Op extends 'upsert' 
+            ? string extends Key
+              ? [...Prev, '?key', string]
+              : [...Prev, string] 
+            : never)
+        ))
     | (Key extends never 
         ? never
         : string extends Key
           ? Paths<
             A[Key] | undefined, 
             Op,
-            [...Prev, Key | '{}>']
+            (
+              | [...Prev, '{}>']
+              | [...Prev, '?key', string]
+            )
           > 
-          : Paths<A[Key], Op, [...Prev, Key]> 
+          : (
+            | Paths<A[Key], Op, [...Prev, Key]> 
+            | (Op extends 'rename' | 'remove'
+              ? [...Prev, Key]
+              : never)
+          )
       ))
   : A extends unknown[] 
     ? Paths<
@@ -76,7 +95,7 @@ type ObjectPaths<
     > 
     : Else
 
-type OptionPaths<A, Op extends 'static' | 'insert', Prev extends unknown[], Else> = [A] extends [
+type OptionPaths<A, Op extends Operation, Prev extends unknown[], Else> = [A] extends [
   Option<infer Some>
 ]
   ? Paths<Some, Op, [...Prev, '?some']>

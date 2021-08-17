@@ -8,7 +8,7 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["--nolazy", "-r", "ts-node/register/transpile-only"],
 
-      "args": ["test/insert.spec.ts"],
+      "args": ["tests/rename.spec.ts"],
 
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart",

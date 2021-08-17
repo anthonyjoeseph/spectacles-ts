@@ -1,12 +1,11 @@
-import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import type { Option } from 'fp-ts/Option'
 import type { Either } from 'fp-ts/Either'
 
 type Operation = 
-  | 'static' 
-  | 'insert' 
-  | 'insertOption' 
+  | 'static'
   | 'remove'
+  | 'rename'
+  | 'modifyW'
 
 export type Build<
   Path extends readonly unknown[], 
@@ -14,13 +13,7 @@ export type Build<
   Val,
   Op extends Operation = 'static'
 > = Path extends []
-  ? Obj extends (infer ArrType)[]
-    ? Op extends 'insertOption'
-      ? NonEmptyArray<ArrType | Val>
-      : Op extends 'insert' | 'remove'
-        ? (ArrType | Val)[]
-        : unknown extends Val ? Obj : Val
-    : unknown extends Val ? Obj : Val
+  ? unknown extends Val ? Obj : Val
   : Path extends [infer Key, ...infer Rest]
   ? BuildInternal<Op, Obj, Val, Key, Rest>
   : never
@@ -91,15 +84,9 @@ type BuildNumberKey<
   Key,
   Rest extends readonly unknown[],
   Else,
-> = Key extends number
+> = Key extends number | '[]>'
 ? Obj extends (infer ArrType)[]
-  ? Rest extends []
-    ? Op extends 'insertOption'
-      ? NonEmptyArray<ArrType | Val>
-      : Op extends 'insert' | 'remove'
-        ? (ArrType | Val)[]
-        : Build<Rest, ArrType, Val, Op>[]
-    : Build<Rest, ArrType, Val, Op>[]
+  ? Build<Rest, ArrType, Val, Op>[]
   : Build<Rest, unknown, Val, Op>[]
 : Else
 
@@ -158,15 +145,35 @@ type BuildObject<
   Val,
   Key extends string,
   Rest extends readonly unknown[]
-> = { 
+> = Key extends '?key'
+? Rest extends [string, ...infer Rest2]
+  ? Obj extends Record<string, infer RecordVal> 
+    ? Record<string, Build<Rest2, RecordVal, Val, Op>>
+    : never
+  : never
+: Obj extends unknown[]
+  ? {
+    [K in keyof Obj]:
+      K extends Key
+        ? Build<Rest, Obj[K], Val, Op>
+        : Obj[K]
+  }
+  : { 
   [K in (Rest extends []
-    ? Op extends 'remove'
-      ? Exclude<keyof Obj, Key>
+    ? Op extends 'remove' | 'rename'
+      ? (
+        | Exclude<keyof Obj, Key>
+        | (Op extends 'rename' ? Val : never)
+      )
       : Key | keyof Obj
     : Key | keyof Obj)]:
     K extends keyof Obj
       ? K extends Key
         ? Build<Rest, Obj[K], Val, Op>
         : Obj[K]
-      : Build<Rest, unknown, Val, Op>
+      : Op extends 'rename'
+        ? K extends Val
+          ? Key extends keyof Obj ? Build<Rest, Obj[Key], unknown, Op> : never
+          : Build<Rest, unknown, Val, Op>
+        : Build<Rest, unknown, Val, Op>
 }

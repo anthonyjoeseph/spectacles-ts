@@ -10,8 +10,8 @@ export const get = <
   Infer,
   Path extends unknown extends Infer
     ? Inferable
-    : Paths<Infer, 'static'> extends Inferable
-      ? Paths<Infer, 'static'>
+    : Paths<Infer> extends Inferable
+      ? Paths<Infer>
       : never,
   Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
     ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
