@@ -1,8 +1,12 @@
-import { expectType } from 'tsd'
+import { expectType, expectError } from 'tsd'
 import { pipe } from 'fp-ts/function'
 import * as O from 'fp-ts/Option'
+import * as Eq from 'fp-ts/Eq'
+import { Eq as StringEq } from 'fp-ts/string'
 import { get } from '../src'
 import { data, A, B, simpleData } from '../tests/shared'
+
+import { BuildObject } from '../src/types/Build'
 
 // gets a definite value
 const definite = pipe(simpleData, get('a', 'b', '1'))
@@ -39,3 +43,31 @@ expectType<O.Option<string>>(optional)
 const func = get((v: A | B): v is A => v.type === 'A', 'a', '?some', 'c', '0')
 const optional2 = func(data)
 expectType<O.Option<number>>(optional2)
+
+const readonlyArr = pipe(
+  [123, 456] as readonly number[],
+  get(0)
+)
+expectType<O.Option<number>>(readonlyArr)
+
+const infersEq = pipe(
+  StringEq,
+  Eq.contramap(get('a', 'b'))
+)
+expectType<Eq.Eq<{ a: { b: string } }>>(infersEq)
+
+const infersOptionalEq = pipe(
+  O.getEq(StringEq),
+  Eq.contramap(get('a', 'b', '?'))
+)
+expectType<Eq.Eq<{ a: { b?: string } }>>(infersOptionalEq)
+
+expectError(pipe(
+  StringEq,
+  Eq.contramap(get('a', 'b', '?'))
+))
+
+expectError(pipe(
+  O.getEq(StringEq),
+  Eq.contramap(get('a', 'b'))
+))
