@@ -230,8 +230,7 @@ const x: Data = {
 ```
 ## TODO
 
-- Build:
-  - preserve `readonly` keys
+- get:
   - Infer constructed value from return type (e.g. for building `Eq` instances)
 
 ## TSC Issues
