@@ -6,8 +6,6 @@ import { Eq as StringEq } from 'fp-ts/string'
 import { get } from '../src'
 import { data, A, B, simpleData } from '../tests/shared'
 
-import { BuildObject } from '../src/types/Build'
-
 // gets a definite value
 const definite = pipe(simpleData, get('a', 'b', '1'))
 expectType<string>(definite)
@@ -33,7 +31,7 @@ const traverseRecord = pipe(
 expectType<Record<string, number>>(traverseRecord)
 
 // gets an optional value
-const optional: O.Option<string> = pipe(
+const optional = pipe(
   data,
   get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
 )
@@ -60,14 +58,14 @@ const infersOptionalEq = pipe(
   O.getEq(StringEq),
   Eq.contramap(get('a', 'b', '?'))
 )
-expectType<Eq.Eq<{ a: { b?: string } }>>(infersOptionalEq)
+expectType<Eq.Eq<{ a: { b: string | undefined | null } }>>(infersOptionalEq)
 
-expectError(pipe(
+expectError<Eq.Eq<{ a: { b: string | undefined | null } }>>(pipe(
   StringEq,
   Eq.contramap(get('a', 'b', '?'))
 ))
 
-expectError(pipe(
+expectError<Eq.Eq<{ a: { b: string } }>>(pipe(
   O.getEq(StringEq),
   Eq.contramap(get('a', 'b'))
 ))

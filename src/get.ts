@@ -1,10 +1,11 @@
 import { pipe } from 'fp-ts/function'
+import type { Option } from 'fp-ts/Option'
 import { getAll } from 'monocle-ts/Traversal'
 import { isPathLens, isPathTraversal, lensFromPath, optionalFromPath, traversalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
 import type { Build } from './types/Build'
 import type { Paths } from './types/Paths'
-import type { GiveOpt, Inferable } from './types/utils'
+import type { GiveOpt, Inferable, HasOptional } from './types/utils'
 
 export const get = <
   Infer,
@@ -22,19 +23,19 @@ export const get = <
   Ret
 >(
   ...path: Full
-): unknown extends Ret
-  ? <Constructed extends Build<Full, unknown, unknown>>(
+): unknown extends Infer
+  ? unknown extends Ret
+    ? <Constructed extends Build<Full, unknown, unknown>>(
       obj: Constructed
     ) => GiveOpt<AtPath<Constructed, Full>, Full>
-  : (
-    obj: unknown extends Infer 
-      ? Build<Full, unknown, Ret> 
-      : Infer
-  ) => unknown extends Infer 
-    ? Ret 
-    : GiveOpt<AtPath<Infer, Full>, Full> => {
+    : true extends HasOptional<Full>
+      ? [Ret] extends [Option<infer OptVal>]
+        ? (obj: Build<Full, unknown, OptVal>) => Ret
+        : (obj: never) => never
+      : (obj: Build<Full, unknown, Ret>) => Ret
+  : (obj: Infer) => /* boolean */ GiveOpt<AtPath<Infer, Full>, Full> => {
   if (isPathTraversal(path as any)) {
-    return (obj: any) => pipe(traversalFromPath(path as any), getAll(obj)) as any
+    return ((obj: any) => pipe(traversalFromPath(path as any), getAll(obj))) as any
   }
   if (isPathLens(path as any)) {
     return lensFromPath(path as any).get as any
