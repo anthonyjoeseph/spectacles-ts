@@ -21,7 +21,7 @@ Args extends readonly unknown[]
 > = true extends HasTraversal<Args[number]> 
   ? never
   : true extends (HasNull<Args[number]> 
-    | HasNum<Args[number]> 
+    | HasCollection<Args[number]> 
     | HasRefinement<Args[number]>)
   ? true
   : never
@@ -35,7 +35,7 @@ export type GiveOpt<
     Args[number]
   >
   ? Option<A>
-  : true extends HasNum<Args[number]>
+  : true extends HasCollection<Args[number]>
   ? Option<A>
   : true extends HasRefinement<Args[number]>
   ? Option<A>
@@ -49,13 +49,15 @@ export type HasNull<Args> = Args extends '?'
   ? true
   : Args extends '?left'
   ? true
-  : Args extends '?key'
-  ? true
   : never
 
 export type HasRefinement<K> = K extends (a: any) => boolean ? true : never
 
-export type HasNum<K> = K extends number ? true : never
+export type HasCollection<K> = K extends number 
+  ? true 
+  : K extends '?key'
+  ? true
+  : never
 
 export type HasTraversal<K> = K extends '[]>' ? true : K extends '{}>' ? true : never
 

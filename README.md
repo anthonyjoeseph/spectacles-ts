@@ -43,7 +43,7 @@ const nested: O.Option<string> = pipe(
 
 ### `set`
 
-[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcADK58hIiF4QOtNBRr0mMtG0oDBbGGig4JHDABEJMCYkkAuBw2dsWIBqaxZ+AEzQ1CSgMDl5KeD9bCWcbO35+MP14dX04AF5kVDQACn44WQA6YD8AHjiJAD4cgEoAGnyisHwwHKIJInrGmULmiFaiBk6GmoSkiLgvPQBlNBhY6Iy4VMpCyjmcsgBGACYAZhqcqLsaoA)
+[monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcAPK58hEuSp1G1GWG68BQ6PHFTZYeQWIheEDrTQUa9Jhq1sJtAYLYw0UHBI4YAIhIwEoiSAFxwUGgSACa8tACecJQwUMBsAOYA2gC6WPwxaFYSUXAcvClwMUESEYHB-PzlbJXVwRpwALzIqGgAFPxwRgB0wDEAPPUSAHx9AJQANIMjYPhgfUQSRIvLGqNshQAefQCMO3ONzZUMaGhsAMpoMHU1XVU1e5RPG4cJAF7bPptCRzIA)
 
 [immutability-helper equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG+ADtMUbKgDGWACLpUcAN5xUALjlwKy-ghAVOcAL57uyDKOqooWURH4BneGnLKp5XpZvx+GWxmSPpcALyIKOgYABT2qAA0ctxwCsqysXGqCUnJcAAk1hgwyowAjABMAMxpBnG63LoAlEA)
 
@@ -51,9 +51,9 @@ const nested: O.Option<string> = pipe(
 import { pipe } from 'fp-ts/function'
 import { set } from 'immutable-ts'
 
-const beenSet: { a: { b: number } } = pipe(
-  { a: { b: 123 } },
-  set(['a', 'b'], -123)
+const beenSet: { a: string[] } = pipe(
+  { a: ['abc', 'def'] },
+  set(['a', 1], 'xyz')
 )
 ```
 
@@ -105,9 +105,9 @@ import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import type { Option } from 'fp-ts/Option'
 import { rename } from 'immutable-ts'
 
-const rename: { a: { new: number } } = pipe(
-  { a: { old: 123 } },
-  rename(['a', 'old'], 'new')
+const rename: { a: { newKey: number } } = pipe(
+  { a: { oldKey: 123 } },
+  rename(['a', 'oldKey'], 'newKey')
 )
 ```
 
@@ -115,15 +115,15 @@ const rename: { a: { new: number } } = pipe(
 
 [monocle-ts equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcADK58hIiF4QOtNBRr0mMtG0oCh0eOKlwAkvILFSmuo2rmAJnu4wAngMFsYaKDgkODAARCRgJREkALkiGGLYWEAY-LCx+FzUJKAwOXkp4JzCJGNDw-n5c-XgIMG5eCVo4AF5kVDQACn44WQA6YCcAHlKJAD52gEoAGi7esHwwdqIJIimZmR65msWGFenx8sr8uGUnYBxgNCcSoubW9E7umrq2Bsm4NZ6Ts-d2gCtmkZwf4AajgABYpu9uuYehIFoVwvtxkA)
 
-[immutability-helper equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAVzAEwIYwKZwGZQiOAclBARlQCNgAbYGATwFoALDasDKQgKG+ADtMUbKgDGWACLpUcAN5xUALjlwKy-ghAVOcAL57uyDKOqooWURH4BneGnLKp5XpZvx+GWxmSPpcALyIKOgYABT2qAA0ctxwCsqysXGqCUnJcAAkqGBg1PTKoQBWAJQBAHxwhXAA1HAALGkGcbrcusVAA)
+[immutability-helper equivalent](https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgwAnukRwA8mG68sufIRLkqdRtVny+g8NHgAqOAENKMsEoLEQvCB1poKNek2082J2gKEG4xszgASSsVUmcNJiCAEzQ2bnEBQXi0KBwTDgwAERMYEykTAC44KDQTaN5aMSkGYrYWEAZUrABtAF0sfn4OXkp4CDkPLzgAXmRUNAAKfjgLADpgaIAeHLyAPkmASgAaGfmwfDBJohMiHb3ZBbZYgA9JgAZz2cuDgeOGM93NrtiHE1K4D02H04NFckU4KsTF0gSDbNFgDhgGhosUoaNxuhprMBjovNs4BcwHN4YixJMAFajNZwKkAajgABYdoTZkE5iYjmC8t9NkA)
 
 ```ts
 import { pipe } from 'fp-ts/function'
 import { modify } from 'immutable-ts'
 
-const modified: { a: { b: number } } = pipe(
-  { a: { b: 123 } },
-  modify(['a', 'b'], (j) => j + 4)
+const modifyOpted: { a: { b: number }[] } = pipe(
+  { a: [{ b: 123 }] },
+  modify(['a', 0, 'b'], (j) => j + 4)
 )
 ```
 
@@ -148,9 +148,9 @@ const modifyOpted: O.Option<{ a: { b: number }[] }> = pipe(
 import { pipe } from 'fp-ts/function'
 import { modifyW } from 'immutable-ts'
 
-const modified: { a: { b: string } } = pipe(
-  { a: { b: 123 } },
-  modifyW(['a', 'b'], (j) => `${j + 4}`)
+const modified: { a: number | string | undefined } = pipe(
+  { a: 123 } as { a: number | undefined },
+  modifyW(['a', '?'], (j) => `${j + 2}`)
 )
 ```
 
@@ -161,9 +161,9 @@ import { pipe } from 'fp-ts/function'
 import * as O from 'fp-ts/Option'
 import { modifyOptionW } from 'immutable-ts'
 
-const modified: O.Option<{ a: { b: string } }> = pipe(
-  { a: [123, 456] },
-  modifyOptionW(['a', 0], (j) => `${j + 4}`)
+const modified: O.Option<{ a: string | undefined }> = pipe(
+  { a: 123 } as { a: number | undefined },
+  modifyOptionW(['a', '?'], (j) => `${j + 2}`)
 )
 ```
 
@@ -178,7 +178,10 @@ import { modifyF } from 'immutable-ts'
 
 const modified: E.Either<string, { a: { b: number } }> = pipe(
   { a: { b: 123 } },
-  modifyF(E.Applicative)(['a', 'b'], (j) => j > 10 ? E.left('fail') : E.right(j - 10))
+  modifyF(E.Applicative)(
+    ['a', 'b'], 
+    (j) => j > 10 ? E.left('fail') : E.right(j - 10)
+  )
 )
 ```
 
@@ -229,7 +232,6 @@ const x: Data = {
 
 - Build:
   - preserve `readonly` fields & arrays
-  - `{}>` traversals
   - Infer constructed value from return type (e.g. for building `Eq` instances)
 
 ## TSC Issues

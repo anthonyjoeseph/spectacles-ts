@@ -4,7 +4,8 @@ import * as Tr from 'monocle-ts/lib/Traversal'
 import { lensFromPath, traversalFromPath, isPathLens } from './monocle'
 import type { Paths } from './types/Paths'
 import type { Build } from './types/Build'
-import type { Inferable } from './types/utils'
+import type { AtPath } from './types/AtPath'
+import type { Inferable, HasCollection } from './types/utils'
 
 export const upsert =
   <
@@ -17,17 +18,19 @@ export const upsert =
     fullPath: Path,
     val: Val
   ) =>
-  (a: Infer): Build<Path, Infer, Val> => {
+  (a: Infer): (true extends HasCollection<Path[number]>
+    ? Build<Path, Infer, Val | AtPath<Infer, Path, 'unpack'>>
+    : Build<Path, Infer, Val>) => {
     const path = fullPath.slice(0, fullPath.length - 1)
     const final = fullPath[fullPath.length - 1]
     if (isPathLens(path)) {
       return pipe(
         lensFromPath(path as any),
         L.modify((obj) => ({ ...obj, [final as string]: val }))
-      )(a) as Build<Path, Infer, Val>
+      )(a) as any
     }
     return pipe(
       traversalFromPath(path as any),
       Tr.modify((obj) => ({ ...obj, [final as string]: val }))
-    )(a) as Build<Path, Infer, Val>
+    )(a) as any
   }

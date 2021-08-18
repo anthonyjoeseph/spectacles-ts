@@ -15,3 +15,10 @@ const replaceKey = pipe(
   upsert(['a', 'b'], 'abc')
 )
 expectType<{ a: { b: string; f: boolean } }>(replaceKey)
+
+// insert into record type
+const insertInsideCollection = pipe(
+  { a: { x: { b: 123 }, y: { b: 456 } } as Record<string, { b: number }> },
+  upsert(['a', '?key', 'z', 'b'], '789')
+)
+expectType<{ a: Record<string, { b: string | number }> }>(insertInsideCollection)

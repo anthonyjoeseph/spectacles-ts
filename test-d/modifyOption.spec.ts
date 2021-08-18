@@ -5,14 +5,14 @@ import { modifyOption } from '../src'
 import { Data, data, A, SimpleData, simpleData } from '../tests/shared'
 
 // modifies a definite value (definitely)', () => {
-const modified: SimpleData = pipe(
+const modified = pipe(
   simpleData,
   modifyOption(['a', 'b', '0'], (j) => j + 4)
 )
 expectType<SimpleData>(modified)
 
 // modifies an optional value (optionally)', () => {
-const modifyOpted: O.Option<Data> = pipe(
+const modifyOpted = pipe(
   data,
   modifyOption(
     [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
@@ -20,3 +20,13 @@ const modifyOpted: O.Option<Data> = pipe(
   )
 )
 expectType<O.Option<Data>>(modifyOpted)
+
+// modifies a traversal (un-optionally)', () => {
+const modifyTraversal = pipe(
+  [{ a: O.some(123) }, { a: O.some(456) }],
+  modifyOption(
+    ['[]>', 'a', '?some'],
+    (j) => j + 4
+  )
+)
+expectType<{ a: O.Option<number>; }[]>(modifyTraversal)

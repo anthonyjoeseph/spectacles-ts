@@ -65,7 +65,7 @@ type ObjectPaths<
           | (Op extends 'static' | 'remove' ? [...Prev, Key[]] : never)
           | (Op extends 'upsert' 
             ? string extends Key
-              ? [...Prev, '?key', string]
+              ? never
               : [...Prev, string] 
             : never)
         ))
@@ -73,7 +73,7 @@ type ObjectPaths<
         ? never
         : string extends Key
           ? Paths<
-            A[Key] | undefined, 
+            A[Key], 
             Op,
             (
               | [...Prev, '{}>']

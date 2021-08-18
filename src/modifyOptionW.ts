@@ -6,7 +6,7 @@ import { isPathLens, isPathTraversal, lensFromPath, optionalFromPath, traversalF
 import type { Paths } from './types/Paths'
 import type { Build } from './types/Build'
 import type { AtPath } from './types/AtPath'
-import type { GiveOpt, Inferable } from './types/utils'
+import type { GiveOpt, HasCollection, Inferable } from './types/utils'
 
 export const modifyOptionW =
   <
@@ -21,9 +21,11 @@ export const modifyOptionW =
     RetVal,
   >(
     path: Full,
-    modFunc: (v: AtPath<Infer, Full>) => RetVal
+    modFunc: (v: AtPath<Infer, Full, 'unpack'>) => RetVal
   ) =>
-  (a: Infer): GiveOpt<Build<Full, Infer, RetVal, 'static'>, Full> => {
+  (a: Infer): (true extends HasCollection<Full[number]>
+      ? GiveOpt<Build<Full, Infer, RetVal | AtPath<Infer, Full, 'unpack'>, 'static'>, Full>
+      : GiveOpt<Build<Full, Infer, RetVal, 'static'>, Full>) => {
     if (isPathTraversal(path as any)) {
       return pipe(traversalFromPath(path as any), modifyTr(modFunc as any))(a) as any
     }

@@ -18,7 +18,7 @@ export type Build<
   ? BuildInternal<Op, Obj, Val, Key, Rest>
   : never
 
-type BuildInternal<
+export type BuildInternal<
   Op extends Operation,
   Obj,
   Val,
@@ -35,7 +35,7 @@ type BuildInternal<
   >
 >
 
-type BuildRefinement<
+export type BuildRefinement<
   Op extends Operation,
   Obj,
   Val,
@@ -50,7 +50,7 @@ type BuildRefinement<
   : never
 : Else
 
-type BuildPick<
+export type BuildPick<
   Op extends Operation,
   Obj,
   Val,
@@ -77,20 +77,26 @@ type BuildPick<
     : Build<Rest, Obj, Val, Op>
 : Else
 
-type BuildNumberKey<
+export type BuildNumberKey<
   Op extends Operation,
   Obj,
   Val,
   Key,
   Rest extends readonly unknown[],
   Else,
-> = Key extends number | '[]>'
+> = Key extends number
 ? Obj extends (infer ArrType)[]
   ? Build<Rest, ArrType, Val, Op>[]
   : Build<Rest, unknown, Val, Op>[]
-: Else
+: Key extends '[]>'
+  ? Obj extends (infer ArrType)[]
+    ? Val extends (infer ValType)[]
+      ? Build<Rest, ArrType, ValType, Op>[]
+      : Build<Rest, ArrType, Val, Op>[]
+    : Build<Rest, unknown, Val, Op>[]
+  : Else
 
-type BuildStringKey<
+export type BuildStringKey<
   Op extends Operation,
   Obj,
   Val,
@@ -107,7 +113,7 @@ type BuildStringKey<
 >
 : Else
 
-type BuildNullable<
+export type BuildNullable<
   Op extends Operation,
   Obj,
   Val,
@@ -115,10 +121,14 @@ type BuildNullable<
   Rest extends readonly unknown[],
   Else,
 > = Key extends '?'
-? Build<Rest, NonNullable<Obj>, Val, Op> | undefined | null
+? (
+  | Build<Rest, NonNullable<Obj>, Val, Op> 
+  | (undefined extends Obj ? undefined : never)
+  | (null extends Obj ? null : never)
+)
 : Else
 
-type BuildOptional<
+export type BuildOptional<
   Op extends Operation,
   Obj,
   Val,
@@ -126,20 +136,20 @@ type BuildOptional<
   Rest extends readonly unknown[],
   Else,
 > = Key extends '?some'
-? Obj extends Option<infer Some>
+? [Obj] extends [Option<infer Some>]
   ? Option<Build<Rest, Some, Val, Op>>
   : Option<Build<Rest, unknown, Val, Op>>
 : Key extends '?left'
-? Obj extends Either<infer Left, infer Right>
+? [Obj] extends [Either<infer Left, infer Right>]
   ? Either<Build<Rest, Left, Val, Op>, Right>
   : Either<Build<Rest, unknown, Val, Op>, unknown>
 : Key extends '?right'
-? Obj extends Either<infer Left, infer Right>
+? [Obj] extends [Either<infer Left, infer Right>]
   ? Either<Left, Build<Rest, Right, Val, Op>> 
   : Either<unknown, Build<Rest, unknown, Val, Op>>
 : Else
 
-type BuildObject<
+export type BuildObject<
   Op extends Operation,
   Obj,
   Val,
@@ -151,7 +161,13 @@ type BuildObject<
     ? Record<string, Build<Rest2, RecordVal, Val, Op>>
     : never
   : never
-: Obj extends unknown[]
+: Key extends '{}>'
+  ? Obj extends Record<string, infer RecType>
+    ? [Val] extends [Record<string, infer ValType>]
+      ? Record<string, Build<Rest, RecType, ValType, Op>>
+      : Record<string, Build<Rest, RecType, Val, Op>>
+    : Record<string, Build<Rest, unknown, Val, Op>>
+  : Obj extends unknown[]
   ? {
     [K in keyof Obj]:
       K extends Key

@@ -4,8 +4,7 @@ import * as O from 'fp-ts/Option'
 import { modifyOptionW } from '../src'
 import { data, A, B, simpleData } from '../tests/shared'
 
-// modifies a definite value
-const modified = pipe(
+const modifiesDefinite = pipe(
   simpleData,
   modifyOptionW(['a', 'b', '0'], (j) => `${j + 2}`)
 )
@@ -16,10 +15,9 @@ expectType<{
       d: boolean;
   };
   e: number;
-}>(modified)
+}>(modifiesDefinite)
 
-// modifies an optional value
-const modified2 = pipe(
+const modifiesOptional = pipe(
   data,
   modifyOptionW(
     [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
@@ -28,13 +26,40 @@ const modified2 = pipe(
 )
 expectType<O.Option<B | {
   type: "A";
-  a: O.None | O.Some<{
-      c: {
-          0: string | number;
-      };
-  }> | O.Some<{
-      c: [string | number, string, boolean];
+  a: O.Option<{
+      c: [string, string, boolean];
       d: string[];
       e: boolean;
   }>;
-}>>(modified2)
+}>>(modifiesOptional)
+
+const modifyArrayTraversal = pipe(
+  [{ a: O.some(123) }, { a: O.some(456) }],
+  modifyOptionW(
+    ['[]>', 'a', '?some'],
+    (j) => `${j + 4}`
+  )
+)
+expectType<{ a: O.Option<string>; }[]>(modifyArrayTraversal)
+
+const modifyRecordTraversal = pipe(
+  { a: 123, b: 456 } as Record<string, number>,
+  modifyOptionW(
+    ['{}>'],
+    (j) => `${j + 4}`
+  )
+)
+expectType<Record<string, string>>(modifyRecordTraversal)
+
+const optionalReplacesType = pipe(
+  { a: 123 } as { a: number | undefined },
+  modifyOptionW(['a', '?'], (j) => `${j + 2}`)
+)
+expectType<O.Option<{ a: string | undefined }>>(optionalReplacesType)
+
+
+const collectionWidensType = pipe(
+  { a: [123, 456] },
+  modifyOptionW(['a', 0], (j) => `${j + 2}`)
+)
+expectType<O.Option<{ a: (string | number)[] }>>(collectionWidensType)

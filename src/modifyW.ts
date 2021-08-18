@@ -21,10 +21,10 @@ export const modifyW =
     RetVal,
   >(
     path: Full,
-    modFunc: (v: AtPath<Infer, Full>) => RetVal
+    modFunc: (v: AtPath<Infer, Full, 'unpack'>) => RetVal
   ) =>
   (a: Infer): (true extends HasOptional<Full>
-      ? Build<Full, Infer, RetVal | AtPath<Infer, Full>, 'static'>
+      ? Build<Full, Infer, RetVal | AtPath<Infer, Full, 'unpack'>, 'static'>
       : Build<Full, Infer, RetVal, 'static'>) => {
     if (isPathLens(path as any)) {
       return pipe(lensFromPath(path as any), L.modify(modFunc as any))(a) as any

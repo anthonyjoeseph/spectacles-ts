@@ -4,7 +4,7 @@ import type { Either } from 'fp-ts/Either'
 export type AtPath<
   A, 
   Args extends readonly unknown[],
-  Op extends 'static' | 'insert' = 'static'
+  Op extends 'static' | 'unpack' = 'static'
 > = Args extends readonly []
   ? A
   : Args extends readonly [infer Key, ...infer Rest]
@@ -12,7 +12,7 @@ export type AtPath<
   : never
 
 type AtPathInternal<
-  Op extends 'static' | 'insert',
+  Op extends 'static' | 'unpack',
   A,
   Key,
   Rest extends readonly unknown[]
@@ -37,7 +37,7 @@ type AtPathInternal<
 >
 
 type AtRefinement<
-  Op extends 'static' | 'insert',
+  Op extends 'static' | 'unpack',
   Key,
   Rest extends readonly unknown[],
   Else
@@ -54,7 +54,7 @@ type AtPick<
   : Else
 
 type AtArray<
-  Op extends 'static' | 'insert',
+  Op extends 'static' | 'unpack',
   A,
   Key,
   Rest extends readonly unknown[],
@@ -66,7 +66,7 @@ type AtArray<
   : Else
 
 type AtNullable<
-  Op extends 'static' | 'insert',
+  Op extends 'static' | 'unpack',
   A,
   Key,
   Rest extends readonly unknown[],
@@ -76,7 +76,7 @@ type AtNullable<
   : Else
 
 type AtOption<
-  Op extends 'static' | 'insert',
+  Op extends 'static' | 'unpack',
   A,
   Key,
   Rest extends readonly unknown[],
@@ -96,19 +96,27 @@ type AtOption<
 : Else
 
 type AtTraversal<
-  Op extends 'static' | 'insert',
+  Op extends 'static' | 'unpack',
   A,
   Key,
   Rest extends readonly unknown[],
   Else
 > = Key extends '[]>'
-  ? A extends unknown[] ? AtPath<A[number], Rest, Op>[] : never
+  ? A extends unknown[] 
+    ? Op extends 'unpack' 
+      ? AtPath<A[number], Rest, Op>
+      : AtPath<A[number], Rest, Op>[] 
+    : never
   : Key extends '{}>'
-  ? A extends Record<string, infer Val> ? Record<string, AtPath<Val, Rest, Op>> : never
+  ? A extends Record<string, infer Val> 
+    ? Op extends 'unpack'
+      ? AtPath<Val, Rest, Op> 
+      : Record<string, AtPath<Val, Rest, Op>> 
+    : never
   : Else
 
 type AtObjectKey<
-  Op extends 'static' | 'insert',
+  Op extends 'static' | 'unpack',
   A,
   Key,
   Rest extends readonly unknown[],

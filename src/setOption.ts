@@ -1,7 +1,7 @@
 import { pipe } from 'fp-ts/function'
 import { setOption as setOptionOp } from 'monocle-ts/Optional'
 import { set as setTr } from 'monocle-ts/Traversal'
-import { isPathLens, lensFromPath, optionalFromPath, traversalFromPath } from './monocle'
+import { isPathLens, isPathTraversal, lensFromPath, optionalFromPath, traversalFromPath } from './monocle'
 import type { AtPath } from './types/AtPath'
 import type { Paths } from './types/Paths'
 import type { GiveOpt, Inferable } from './types/utils'
@@ -16,7 +16,7 @@ export const setOption =
     Full extends AtPath<Infer, Path> extends Record<string, unknown> 
       ? [...Path, Pick] | [...Path]
       : [...Path],
-    Val extends AtPath<Infer, Full>
+    Val extends AtPath<Infer, Full, 'unpack'>
   >(
     path: Full,
     val: Val

@@ -16,7 +16,7 @@ export const modify =
     Full extends AtPath<Infer, Path> extends Record<string, unknown> 
       ? [...Path, Pick] | [...Path]
       : [...Path],
-    Val extends AtPath<Infer, Full>,
+    Val extends AtPath<Infer, Full, 'unpack'>,
   >(
     path: Full,
     modFunc: (v: Val) => Val

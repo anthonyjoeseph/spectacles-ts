@@ -18,7 +18,7 @@ export const modifyF: {
     Full extends AtPath<Infer, Path> extends Record<string, unknown> 
       ? [...Path, Pick] | [...Path]
       : [...Path],
-    Val extends AtPath<Infer, Full>
+    Val extends AtPath<Infer, Full, 'unpack'>
   >(path: Full, modFunc: (v: Val) => Kind3<F, R, E, Val>) => (a: Infer) => Kind3<F, R, E, Infer>
   <F extends URIS2>(F: Applicative2<F>): <
     E,
@@ -30,7 +30,7 @@ export const modifyF: {
     Full extends AtPath<Infer, Path> extends Record<string, unknown> 
       ? [...Path, Pick] | [...Path]
       : [...Path],
-    Val extends AtPath<Infer, Full>
+    Val extends AtPath<Infer, Full, 'unpack'>
   >(path: Full, modFunc: (v: Val) => Kind2<F, E, Val>) => (a: Infer) => Kind2<F, E, Infer>
   <F extends URIS>(F: Applicative1<F>): <
     Infer,
@@ -41,7 +41,7 @@ export const modifyF: {
     Full extends AtPath<Infer, Path> extends Record<string, unknown> 
       ? [...Path, Pick] | [...Path]
       : [...Path],
-    Val extends AtPath<Infer, Full>,
+    Val extends AtPath<Infer, Full, 'unpack'>,
   >(path: Full, modFunc: (v: Val) => Kind<F, Val>) => (a: Infer) => Kind<F, Infer>
   <F>(F: Applicative<F>): <
     Infer,
@@ -52,7 +52,7 @@ export const modifyF: {
     Full extends AtPath<Infer, Path> extends Record<string, unknown> 
       ? [...Path, Pick] | [...Path]
       : [...Path],
-    Val extends AtPath<Infer, Full>,
+    Val extends AtPath<Infer, Full, 'unpack'>,
   >(path: Full, modFunc: (v: Val) => HKT<F, Val>) => (a: Infer) => HKT<F, Infer>
 } = (F: any) => (
     path: any,
