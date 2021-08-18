@@ -7,7 +7,7 @@ const insertKey = pipe(
   { a: { b: 123 } },
   upsert(['a', 'c'], 'abc')
 )
-expectType<{ a: { b: number; readonly c: string } }>(insertKey)
+expectType<{ a: { b: number } & { readonly c: string } }>(insertKey)
 
 // replaces an existing key
 const replaceKey = pipe(
@@ -17,10 +17,10 @@ const replaceKey = pipe(
 expectType<{ a: { b: string; f: boolean } }>(replaceKey)
 
 const preservesReadonlyKeys = pipe(
-  { a: { b: 123, f: false } as { readonly b: number; readonly f: boolean } },
-  upsert(['b'], true)
+  { a: { b: 123, f: false } as { readonly b: number; f: boolean } },
+  upsert(['a', 'b'], true)
 )
-expectType<{ a: { readonly b: number; readonly f: boolean } }>(preservesReadonlyKeys)
+expectType<{ a: { readonly b: boolean; f: boolean } }>(preservesReadonlyKeys)
 
 // insert into record type
 const insertInsideCollection = pipe(

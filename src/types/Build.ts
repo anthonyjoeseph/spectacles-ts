@@ -212,22 +212,33 @@ export type BuildObject<
   Val,
   Key extends string,
   Rest extends readonly unknown[]
-> = { 
-  [K in (Rest extends []
+> = BuildObjectKey<
+  Op, Obj, Val, Key, Rest,
+  Rest extends []
     ? Op extends 'remove' | 'rename'
-      ? (
-        | Exclude<keyof Obj, Key>
-        | (Op extends 'rename' ? Val : never)
-      )
-      : Key | keyof Obj
-    : Key | keyof Obj)]:
-    K extends keyof Obj
-      ? K extends Key
-        ? Build<Rest, Obj[K], Val, Op>
-        : Obj[K]
-      : Op extends 'rename'
-        ? K extends Val
-          ? Key extends keyof Obj ? Build<Rest, Obj[Key], unknown, Op> : never
-          : Build<Rest, unknown, Val, Op>
+      ? Exclude<keyof Obj, Key>
+      : keyof Obj
+    : keyof Obj
+> & (Key extends keyof Obj ? unknown : {
+  readonly [K in (Key | (Op extends 'rename' ? Val extends string ? Val : never : never))]: 
+    Op extends 'rename'
+      ? K extends Val
+        ? Key extends keyof Obj 
+          ? Build<Rest, Obj[Key], unknown, Op> 
+          : never
         : Build<Rest, unknown, Val, Op>
+      : Build<Rest, unknown, Val, Op>
+})
+
+type BuildObjectKey<
+  Op extends Operation,
+  Obj,
+  Val,
+  Key extends string,
+  Rest extends readonly unknown[],
+  Keys extends keyof Obj
+> = { 
+[K in Keys]: K extends Key
+  ? Build<Rest, Obj[K], Val, Op>
+  : Obj[K]
 }
