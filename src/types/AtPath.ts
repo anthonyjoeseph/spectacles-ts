@@ -60,7 +60,7 @@ type AtArray<
   Rest extends readonly unknown[],
   Else
 > = Key extends number
-  ? A extends unknown[]
+  ? A extends readonly unknown[]
     ? AtPath<A[number], Rest, Op>
     : never
   : Else

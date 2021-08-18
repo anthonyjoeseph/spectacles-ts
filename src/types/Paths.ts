@@ -87,7 +87,7 @@ type ObjectPaths<
               : never)
           )
       ))
-  : A extends unknown[] 
+  : A extends readonly unknown[] 
     ? Paths<
       A[number], 
       Op,

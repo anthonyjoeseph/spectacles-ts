@@ -44,3 +44,9 @@ const collectionWidensType = pipe(
   modifyW(['a', 0], (j) => `${j + 2}`)
 )
 expectType<{ a: (string | number)[] }>(collectionWidensType)
+
+const preservesReadonlyArr = pipe(
+  [123, 456] as readonly number[],
+  modifyW([0], (j) => `${j + 2}`)
+)
+expectType<readonly (number | string)[]>(preservesReadonlyArr)

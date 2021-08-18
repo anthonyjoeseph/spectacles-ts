@@ -85,14 +85,20 @@ export type BuildNumberKey<
   Rest extends readonly unknown[],
   Else,
 > = Key extends number
-? Obj extends (infer ArrType)[]
-  ? Build<Rest, ArrType, Val, Op>[]
+? Obj extends readonly (infer ArrType)[]
+  ? Obj extends unknown[]
+    ? Build<Rest, ArrType, Val, Op>[]
+    : readonly Build<Rest, ArrType, Val, Op>[]
   : Build<Rest, unknown, Val, Op>[]
 : Key extends '[]>'
-  ? Obj extends (infer ArrType)[]
+  ? Obj extends readonly (infer ArrType)[]
     ? Val extends (infer ValType)[]
-      ? Build<Rest, ArrType, ValType, Op>[]
-      : Build<Rest, ArrType, Val, Op>[]
+      ? Obj extends unknown[]
+        ? Build<Rest, ArrType, ValType, Op>[]
+        : readonly Build<Rest, ArrType, ValType, Op>[]
+      : Obj extends unknown[]
+        ? Build<Rest, ArrType, Val, Op>[]
+        : readonly Build<Rest, ArrType, Val, Op>[]
     : Build<Rest, unknown, Val, Op>[]
   : Else
 
@@ -108,7 +114,21 @@ export type BuildStringKey<
   Op, Obj, Val, Key, Rest,
   BuildOptional<
     Op, Obj, Val, Key, Rest,
-    BuildObject<Op, Obj, Val, Key, Rest>
+    BuildRecord<
+      Op,
+      Obj,
+      Val,
+      Key,
+      Rest,
+      BuildTuple<
+        Op,
+        Obj,
+        Val,
+        Key,
+        Rest,
+        BuildObject<Op, Obj, Val, Key, Rest>
+      >
+    >
   >
 >
 : Else
@@ -149,12 +169,13 @@ export type BuildOptional<
   : Either<unknown, Build<Rest, unknown, Val, Op>>
 : Else
 
-export type BuildObject<
+export type BuildRecord<
   Op extends Operation,
   Obj,
   Val,
   Key extends string,
-  Rest extends readonly unknown[]
+  Rest extends readonly unknown[],
+  Else
 > = Key extends '?key'
 ? Rest extends [string, ...infer Rest2]
   ? Obj extends Record<string, infer RecordVal> 
@@ -162,19 +183,36 @@ export type BuildObject<
     : never
   : never
 : Key extends '{}>'
-  ? Obj extends Record<string, infer RecType>
-    ? [Val] extends [Record<string, infer ValType>]
-      ? Record<string, Build<Rest, RecType, ValType, Op>>
-      : Record<string, Build<Rest, RecType, Val, Op>>
-    : Record<string, Build<Rest, unknown, Val, Op>>
-  : Obj extends unknown[]
-  ? {
-    [K in keyof Obj]:
-      K extends Key
-        ? Build<Rest, Obj[K], Val, Op>
-        : Obj[K]
-  }
-  : { 
+? Obj extends Record<string, infer RecType>
+  ? [Val] extends [Record<string, infer ValType>]
+    ? Record<string, Build<Rest, RecType, ValType, Op>>
+    : Record<string, Build<Rest, RecType, Val, Op>>
+  : Record<string, Build<Rest, unknown, Val, Op>>
+: Else
+
+export type BuildTuple<
+  Op extends Operation,
+  Obj,
+  Val,
+  Key extends string,
+  Rest extends readonly unknown[],
+  Else
+> = Obj extends unknown[]
+? {
+  [K in keyof Obj]:
+    K extends Key
+      ? Build<Rest, Obj[K], Val, Op>
+      : Obj[K]
+}
+: Else
+
+export type BuildObject<
+  Op extends Operation,
+  Obj,
+  Val,
+  Key extends string,
+  Rest extends readonly unknown[]
+> = { 
   [K in (Rest extends []
     ? Op extends 'remove' | 'rename'
       ? (
