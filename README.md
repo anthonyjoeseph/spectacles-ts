@@ -1,4 +1,4 @@
-# glasses-ts 👓
+# spectacles-ts 👓
  
 Practical Optics • Unfancy monocle-ts 🧐
 
