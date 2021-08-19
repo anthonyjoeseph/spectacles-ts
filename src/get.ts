@@ -20,20 +20,21 @@ export const get = <
   Full extends AtPath<Infer, Path> extends Record<string, unknown> 
     ? [...Path, Pick] | Path
     : Path,
-  Ret
->(
-  ...path: Full
-): unknown extends Infer
-  ? unknown extends Ret
-    ? <Constructed extends Build<Full, unknown, unknown>>(
-      obj: Constructed
-    ) => GiveOpt<AtPath<Constructed, Full>, Full>
-    : true extends HasOptional<Full>
-      ? [Ret] extends [Option<infer OptVal>]
-        ? (obj: Build<Full, unknown, OptVal>) => Ret
-        : (obj: never) => never
-      : (obj: Build<Full, unknown, Ret>) => Ret
-  : (obj: Infer) => /* boolean */ GiveOpt<AtPath<Infer, Full>, Full> => {
+  Ret extends unknown extends Infer
+    ? unknown
+    : GiveOpt<AtPath<Infer, Full>, Full>
+>(...path: Full): unknown extends Infer
+? unknown extends Ret
+  ? <Constructed extends Build<Full, unknown, unknown>>(
+    obj: Constructed
+  ) => GiveOpt<AtPath<Constructed, Full>, Full>
+  : true extends HasOptional<Full>
+    ? [Ret] extends [Option<infer OptVal>]
+      ? (obj: Build<Full, unknown, OptVal>) => Ret
+      : (obj: never) => never
+    : (obj: Build<Full, unknown, Ret>) => Ret
+: (obj: Infer) => Ret => 
+{
   if (isPathTraversal(path as any)) {
     return ((obj: any) => pipe(traversalFromPath(path as any), getAll(obj))) as any
   }

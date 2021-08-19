@@ -4,8 +4,8 @@ import { rename } from '../src'
 
 // rename a key
 const renamed = pipe(
-  { a: { old: 123, b: 'abc' } },
-  rename(['a', 'old'], 'new')
+  { a: { oldKey: 123, b: 'abc' } },
+  rename(['a', 'oldKey'], 'newKey')
 )
-renamed.a.new
-expectType<{ a: { new: number, b: string } }>(renamed)
+
+expectType<{ a: { b: string } & { readonly newKey: number } }>(renamed)

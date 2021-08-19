@@ -52,13 +52,13 @@ const infersEq = pipe(
   StringEq,
   Eq.contramap(get('a', 'b'))
 )
-expectType<Eq.Eq<{ a: { b: string } }>>(infersEq)
+expectType<Eq.Eq<{ readonly a: { readonly b: string } }>>(infersEq)
 
 const infersOptionalEq = pipe(
   O.getEq(StringEq),
   Eq.contramap(get('a', 'b', '?'))
 )
-expectType<Eq.Eq<{ a: { b: string | undefined | null } }>>(infersOptionalEq)
+expectType<Eq.Eq<{ readonly a: { readonly b: string | undefined | null } }>>(infersOptionalEq)
 
 expectError<Eq.Eq<{ a: { b: string | undefined | null } }>>(pipe(
   StringEq,
@@ -69,6 +69,3 @@ expectError<Eq.Eq<{ a: { b: string } }>>(pipe(
   O.getEq(StringEq),
   Eq.contramap(get('a', 'b'))
 ))
-
-// reference:
-// https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAbzmYYCmcC+cBmUIhwDkOYAtDAM4D0ANsAEbU4CuAdgMYzARtEBQoSLDgAqOAENKcAMq58hEuSp1G1SjCjA2AcwFDo8cVLgBRAI7yCxUhRr0mFgfzQAPYfA68NyfGDgAvHAAPPxwcAAKEjAAFnBuMGhsACbSANZoAJ4QOHAAkmw4aFDxrokp0mxoAG7FcAD8cBpaunAAXHAZ2bkFRVAANHBh+YXF-cMASmgw-AB8ABRg0TEdUbEAlIGzcPPzEAwAVh1IANoA0nDakcsAuh3saWwQAO5sWJsB2-sHJ0uxN5sTMMHk9XqVyqk4FMZuFwo1ghEILRMuCkpDTmlLm81jE7nAQS83pgFt9VkjMh9tojkSccTchrD2jthozSZ0sjkRn1URU4FVaiVGhisdd-h1oVgmb1iiy4JTRXEEmj0hyeqNBVzirTbkzofx+F42D43ABGQLIVBoeYyAB0FkGFhths0EhAEjAiz88yIbFdaCI60DcGo1FKJo6FmCSF9IDQHWa2h0WFmBu88DcACZzWAvT6-QHg6HMx0EeSeei+X77mxHoTk3tDmTkfLqZkTnnY0QbqmjenXABmbOW+YIGNxuD9zCDHMQD0d-1BkOSFgwCBecC0aYYHDQYhj5w942uAAsQ-Q83bO4gXck0kNGmnuYADAHNku3MeOgAiK9foA

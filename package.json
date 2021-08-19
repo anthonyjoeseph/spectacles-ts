@@ -12,7 +12,7 @@
     "test": "yarn run jest tests/*.spec.ts",
     "test:watch": "yarn run jest --watch tests/*.spec.ts",
     "md": "yarn run markdown",
-    "test:types": "yarn run tsd"
+    "test:types": "NODE_OPTIONS='--max-old-space-size=4096' yarn run tsd"
   },
   "dependencies": {
     "fp-ts": "^2.10.0-rc.8",

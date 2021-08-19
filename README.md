@@ -228,10 +228,6 @@ const x: Data = {
   j: 2
 }
 ```
-## TODO
-
-- get:
-  - Infer constructed value from return type (e.g. for building `Eq` instances)
 
 ## TSC Issues
 
