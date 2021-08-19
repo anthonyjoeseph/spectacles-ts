@@ -3,7 +3,7 @@ import * as O from 'fp-ts/Option'
 export interface A {
   type: 'A'
   a: O.Option<{
-    c: [number, string, boolean]
+    c: [{ a: number }, string, boolean]
     d: string[]
     e: boolean
   }>

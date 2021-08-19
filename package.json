@@ -12,7 +12,8 @@
     "test": "yarn run jest tests/*.spec.ts",
     "test:watch": "yarn run jest --watch tests/*.spec.ts",
     "md": "yarn run markdown",
-    "test:types": "NODE_OPTIONS='--max-old-space-size=4096' yarn run tsd"
+    "test:types": "NODE_OPTIONS='--max-old-space-size=8192' yarn run tsd",
+    "tsc:watch": "NODE_OPTIONS='--max-old-space-size=8192' yarn run tsc --watch"
   },
   "dependencies": {
     "fp-ts": "^2.10.0-rc.8",
