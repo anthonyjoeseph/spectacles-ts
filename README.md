@@ -78,7 +78,7 @@ const beenSet: O.Option<{ a: string[] }> = pipe(
 import { pipe } from 'fp-ts/function'
 import { upsert } from 'immutable-ts'
 
-const upsertKey: { a: { b: number; c: string } } = pipe(
+const upsertKey: { a: { b: number; readonly c: string } } = pipe(
   { a: { b: 123 } },
   upsert(['a', 'c'], 'abc')
 )
@@ -104,7 +104,7 @@ import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import type { Option } from 'fp-ts/Option'
 import { rename } from 'immutable-ts'
 
-const rename: { a: { newKey: number } } = pipe(
+const rename: { a: { readonly newKey: number } } = pipe(
   { a: { oldKey: 123 } },
   rename(['a', 'oldKey'], 'newKey')
 )

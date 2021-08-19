@@ -61,4 +61,14 @@ describe('modifyOptionW', () => {
       ]
     )
   })
+  it('widens a collection\'s type', () => {
+    const collectionWidensType = pipe(
+      { a: [123, 456] },
+      modifyOptionW(['a', 0], (j) => `${j + 2}`)
+    )
+    assert.deepStrictEqual(
+      collectionWidensType, 
+      ['125', 456]
+    )
+  })
 })
