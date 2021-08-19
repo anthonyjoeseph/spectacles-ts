@@ -188,7 +188,7 @@ const modified: E.Either<string, { a: { b: number } }> = pipe(
 
 | usage &nbsp; &nbsp; &nbsp;  | equals | Optional | monocle |
 |------|-----|-------|-------|
-| `get('a')(x)`| `123` | no | [prop](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L89) |
+| `get('a')(x)`| `1` | no | [prop](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L89) |
 | `get(['a', 'b'])(x)` | `{ a: 1, b: 2 }` | no | [props](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L103) |
 | `get('c', '0')(x)`| `123` | no | [component](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L119)
 | `get('d', 0)(x)`| `O.some({ e: 123 })` | yes | [index](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L107)
