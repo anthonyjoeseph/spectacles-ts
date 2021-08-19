@@ -20,7 +20,6 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
   - [`modifyOptionW`](#modifyoptionw)
   - [`modifyF`](#modifyf)
 - [Operations](#operations)
-- [TODO](#todo)
 - [TSC Issues](#tsc-issues)
 <!-- AUTO-GENERATED-CONTENT:END -->
 
