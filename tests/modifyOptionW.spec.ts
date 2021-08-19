@@ -23,7 +23,7 @@ describe('modifyOptionW', () => {
     assert.deepStrictEqual(modified, O.some({
       type: 'A',
       a: O.some({
-        c: [127, 'abc', false],
+        c: ['127', 'abc', false],
         d: ['def'],
         e: false,
       }),
@@ -55,10 +55,7 @@ describe('modifyOptionW', () => {
     )
     assert.deepStrictEqual(
       modifyRecordTraversal, 
-      [
-        { a: O.some('127') },
-        { a: O.some('460') }
-      ]
+      { a: '127', b: '460' }
     )
   })
   it('widens a collection\'s type', () => {
@@ -68,7 +65,7 @@ describe('modifyOptionW', () => {
     )
     assert.deepStrictEqual(
       collectionWidensType, 
-      ['125', 456]
+      O.some({ a: ['125', 456]})
     )
   })
 })

@@ -21,14 +21,14 @@ expectType<O.Option<number>>(picked2)
 
 // can traverse arrays
 const traverseArray = pipe([{a: 123}, {a: 456}], get('[]>', 'a'))
-expectType<number[]>(traverseArray)
+expectType<readonly number[]>(traverseArray)
 
 // can traverse records
 const traverseRecord = pipe(
   { a: [123], b: [456] } as Record<string, number[]>, 
   get('{}>', 0)
 )
-expectType<Record<string, number>>(traverseRecord)
+expectType<readonly number[]>(traverseRecord)
 
 // gets an optional value
 const optional = pipe(

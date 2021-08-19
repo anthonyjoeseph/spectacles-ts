@@ -27,7 +27,7 @@ describe('get', () => {
       { a: [123], b: [456] } as Record<string, number[]>, 
       get('{}>', 0)
     )
-    assert.deepStrictEqual(traverseRecord, { a: 123, b: 456 })
+    assert.deepStrictEqual(traverseRecord, [123, 456])
   })
   it('gets an optional value', () => {
     const optional = pipe(

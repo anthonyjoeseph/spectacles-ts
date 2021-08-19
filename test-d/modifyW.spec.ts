@@ -4,7 +4,7 @@ import * as O from 'fp-ts/Option'
 import { modifyW } from '../src'
 import { data, A, B, simpleData } from '../tests/shared'
 
-const modified = pipe(
+const modifiedDefinite = pipe(
   simpleData,
   modifyW(['a', 'b', '0'], (j) => `${j + 2}`)
 )
@@ -15,9 +15,9 @@ expectType<{
       d: boolean;
   };
   e: number;
-}>(modified)
+}>(modifiedDefinite)
 
-const modified2 = pipe(
+const modifyOptional = pipe(
   data,
   modifyW(
     [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
@@ -31,7 +31,7 @@ expectType<B | {
       d: string[];
   }>;
   type: "A";
-}>(modified2)
+}>(modifyOptional)
 
 const optionalWidensType = pipe(
   { a: 123 } as { a: number | undefined },

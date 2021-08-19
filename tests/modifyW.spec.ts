@@ -23,10 +23,20 @@ describe('modifyW', () => {
     assert.deepStrictEqual(modified, {
       type: 'A',
       a: O.some({
-        c: [127, 'abc', false],
+        c: ['127', 'abc', false],
         d: ['def'],
         e: false,
       }),
     })
+  })
+  it('widens a collection\'s type', () => {
+    const collectionWidensType = pipe(
+      { a: [123, 456] },
+      modifyW(['a', 0], (j) => `${j + 2}`)
+    )
+    assert.deepStrictEqual(
+      collectionWidensType, 
+      { a: ['125', 456] }
+    )
   })
 })

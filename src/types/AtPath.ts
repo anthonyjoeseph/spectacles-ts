@@ -105,13 +105,13 @@ type AtTraversal<
   ? A extends unknown[] 
     ? Op extends 'unpack' 
       ? AtPath<A[number], Rest, Op>
-      : AtPath<A[number], Rest, Op>[] 
+      : readonly AtPath<A[number], Rest, Op>[] 
     : never
   : Key extends '{}>'
   ? A extends Record<string, infer Val> 
     ? Op extends 'unpack'
       ? AtPath<Val, Rest, Op> 
-      : Record<string, AtPath<Val, Rest, Op>> 
+      : readonly AtPath<Val, Rest, Op>[]
     : never
   : Else
 
