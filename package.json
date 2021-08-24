@@ -1,12 +1,11 @@
 {
   "name": "spectacles-ts",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -w -p tsconfig.build.json",
-    "prepublish": "yarn run build",
     "pretty": "yarn run prettier --check .",
     "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "test": "yarn run jest tests/*.spec.ts",
