@@ -16,7 +16,7 @@ describe('modifyOption', () => {
     const modifyOpted: O.Option<Data> = pipe(
       data,
       modifyOption(
-        [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
+        [(v): v is A => v.type === 'A', 'a', '?some', 'c'],
         (j) => j + 4
       )
     )
@@ -25,7 +25,7 @@ describe('modifyOption', () => {
       O.some({
         type: 'A',
         a: O.some({
-          c: [127, 'abc', false],
+          c: 127,
           d: ['def'],
           e: false,
         }),

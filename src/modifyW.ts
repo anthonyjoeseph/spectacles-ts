@@ -11,21 +11,15 @@ import type { HasOptional, Inferable } from './types/utils'
 export const modifyW =
   <
     Infer,
-    Path extends Paths<Infer> extends Inferable ? [...Paths<Infer>] : never,
-    Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
-      : string[],
-    Full extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? [...Path, Pick] | [...Path]
-      : [...Path],
+    Path extends Paths<Infer> & Inferable,
     RetVal,
   >(
-    path: Full,
-    modFunc: (v: AtPath<Infer, Full, 'unpack'>) => RetVal
+    path: [...Path],
+    modFunc: (v: AtPath<Infer, Path, 'unpack'>) => RetVal
   ) =>
-  (a: Infer): (true extends HasOptional<Full>
-      ? Build<Full, Infer, RetVal | AtPath<Infer, Full, 'unpack'>, 'static'>
-      : Build<Full, Infer, RetVal, 'static'>) => {
+  (a: Infer): (true extends HasOptional<Path>
+      ? Build<Path, Infer, RetVal | AtPath<Infer, Path, 'unpack'>, 'static'>
+      : Build<Path, Infer, RetVal, 'static'>) => {
     if (isPathLens(path as any)) {
       return pipe(lensFromPath(path as any), L.modify(modFunc as any))(a) as any
     }

@@ -33,12 +33,12 @@ expectType<readonly number[]>(traverseRecord)
 // gets an optional value
 const optional = pipe(
   data,
-  get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
+  get((v): v is A => v.type === 'A', 'a', '?some', 'c')
 )
-expectType<O.Option<string>>(optional)
+expectType<O.Option<number>>(optional)
 
 // gets an optional value - unpiped
-const func = get((v: A | B): v is A => v.type === 'A', 'a', '?some', 'c', '0')
+const func = get((v: A | B): v is A => v.type === 'A', 'a', '?some', 'c')
 const optional2 = func(data)
 expectType<O.Option<number>>(optional2)
 

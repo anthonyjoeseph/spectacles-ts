@@ -10,33 +10,29 @@ import type { GiveOpt, Inferable } from './types/utils'
 export const modifyOption =
   <
     Infer,
-    Path extends Paths<Infer> extends Inferable ? [...Paths<Infer>] : never,
-    Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
-      : string[],
-    Full extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? [...Path, Pick] | [...Path]
-      : [...Path],
-    Val extends AtPath<Infer, Full, 'unpack'>
+    Path extends Paths<Infer> & Inferable,
   >(
-    path: Full,
-    modFunc: (v: Val) => Val
+    path: [...Path],
+    modFunc: <
+      InferBuffer extends AtPath<Infer, Path, 'unpack'>, 
+      Val extends InferBuffer
+    >(v: Val) => Val | AtPath<Infer, Path, 'unpack'>
   ) =>
-  (a: Infer): GiveOpt<Infer, Full> => {
+  (a: Infer): GiveOpt<Infer, Path> => {
     if (isPathTraversal(path as any)) {
       return pipe(traversalFromPath(path as any), modifyTr(modFunc))(a) as GiveOpt<
         Infer,
-        Full
+        Path
       >
     }
     if (isPathLens(path as any)) {
       return pipe(lensFromPath(path as any), L.modify(modFunc))(a) as GiveOpt<
         Infer,
-        Full
+        Path
       >
     }
     return pipe(optionalFromPath(path as any), Op.modifyOption(modFunc))(a) as GiveOpt<
       Infer,
-      Full
+      Path
     >
   }

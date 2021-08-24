@@ -7,7 +7,7 @@ import { Data, data, A, SimpleData, simpleData } from '../tests/shared'
 // modifies a definite value (definitely)
 const modified = pipe(
   simpleData,
-  modifyOption(['a', 'b', '0'], (j) => j + 4)
+  modifyOption(['a', 'b', '0'], (j: number) => j + 4)
 )
 expectType<SimpleData>(modified)
 
@@ -15,7 +15,7 @@ expectType<SimpleData>(modified)
 const modifyOpted = pipe(
   data,
   modifyOption(
-    [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
+    [(v): v is A => v.type === 'A', 'a', '?some', 'c'],
     (j) => j + 4
   )
 )

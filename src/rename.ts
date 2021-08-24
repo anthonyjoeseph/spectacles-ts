@@ -9,12 +9,10 @@ import type { Inferable } from './types/utils'
 export const rename =
   <
     Infer,
-    Path extends Paths<Infer, 'rename'> extends Inferable
-      ? [...Paths<Infer, 'rename'>]
-      : never,
+    Path extends Paths<Infer, 'rename'> & Inferable,
     NewKey extends string
   >(
-    fullPath: Path,
+    fullPath: [...Path],
     newKey: NewKey
   ) =>
   (a: Infer): Build<Path, Infer, NewKey, 'rename'> => {

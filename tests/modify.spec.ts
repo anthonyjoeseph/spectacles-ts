@@ -16,14 +16,14 @@ describe('modify', () => {
     const modified: Data = pipe(
       data,
       modify(
-        [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
+        [(v): v is A => v.type === 'A', 'a', '?some', 'c'],
         (j) => j + 4
       )
     )
     assert.deepStrictEqual(modified, {
       type: 'A',
       a: O.some({
-        c: [127, 'abc', false],
+        c: 127,
         d: ['def'],
         e: false,
       }),

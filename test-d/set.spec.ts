@@ -10,6 +10,6 @@ expectType<SimpleData>(defSet)
 // modifies an optional value
 const optSet: Data = pipe(
   data,
-  set([(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'], -123)
+  set([(v): v is A => v.type === 'A', 'a', '?some', 'c'], -123)
 )
 expectType<Data>(optSet)

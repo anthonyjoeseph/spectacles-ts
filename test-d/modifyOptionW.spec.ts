@@ -20,14 +20,14 @@ expectType<{
 const modifiesOptional = pipe(
   data,
   modifyOptionW(
-    [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
+    [(v): v is A => v.type === 'A', 'a', '?some', 'c'],
     (j) => `${j + 4}`
   )
 )
 expectType<O.Option<B | {
   type: "A";
   a: O.Option<{
-      c: [string, string, boolean];
+      c: string;
       d: string[];
       e: boolean;
   }>;

@@ -10,12 +10,10 @@ import type { Inferable, HasCollection } from './types/utils'
 export const upsert =
   <
     Infer,
-    Path extends Paths<Infer, 'upsert'> extends Inferable
-      ? [...Paths<Infer, 'upsert'>]
-      : never,
+    Path extends Paths<Infer, 'upsert'> & Inferable,
     Val
   >(
-    fullPath: Path,
+    fullPath: [...Path],
     val: Val
   ) =>
   (a: Infer): (true extends HasCollection<Path[number]>
@@ -23,7 +21,7 @@ export const upsert =
     : Build<Path, Infer, Val>) => {
     const path = fullPath.slice(0, fullPath.length - 1)
     const final = fullPath[fullPath.length - 1]
-    if (isPathLens(path)) {
+    if (isPathLens(path as any)) {
       return pipe(
         lensFromPath(path as any),
         L.modify((obj) => ({ ...obj, [final as string]: val }))

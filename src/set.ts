@@ -8,16 +8,10 @@ import type { Inferable } from './types/utils'
 export const set =
   <
     Infer,
-    Path extends Paths<Infer> extends Inferable ? [...Paths<Infer>] : never,
-    Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
-      : string[],
-    Full extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? [...Path, Pick] | [...Path]
-      : [...Path],
-    Val extends AtPath<Infer, Full, 'unpack'>
+    Path extends Paths<Infer> & Inferable,
+    Val extends AtPath<Infer, Path, 'unpack'>
   >(
-    path: Full,
+    path: [...Path],
     val: Val
   ) =>
   (obj: Infer): Infer => {

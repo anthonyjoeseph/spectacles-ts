@@ -11,21 +11,15 @@ import type { GiveOpt, HasCollection, Inferable } from './types/utils'
 export const modifyOptionW =
   <
     Infer,
-    Path extends Paths<Infer> extends Inferable ? [...Paths<Infer>] : never,
-    Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
-      : string[],
-    Full extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? [...Path, Pick] | [...Path]
-      : [...Path],
+    Path extends Paths<Infer> & Inferable,
     RetVal,
   >(
-    path: Full,
-    modFunc: (v: AtPath<Infer, Full, 'unpack'>) => RetVal
+    path: [...Path],
+    modFunc: (v: AtPath<Infer, Path, 'unpack'>) => RetVal
   ) =>
-  (a: Infer): (true extends HasCollection<Full[number]>
-      ? GiveOpt<Build<Full, Infer, RetVal | AtPath<Infer, Full, 'unpack'>, 'static'>, Full>
-      : GiveOpt<Build<Full, Infer, RetVal, 'static'>, Full>) => {
+  (a: Infer): (true extends HasCollection<Path[number]>
+      ? GiveOpt<Build<Path, Infer, RetVal | AtPath<Infer, Path, 'unpack'>, 'static'>, Path>
+      : GiveOpt<Build<Path, Infer, RetVal, 'static'>, Path>) => {
     if (isPathTraversal(path as any)) {
       return pipe(traversalFromPath(path as any), modifyTr(modFunc as any))(a) as any
     }

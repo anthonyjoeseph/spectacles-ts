@@ -9,21 +9,17 @@ import type { Inferable } from './types/utils'
 export const modify =
   <
     Infer,
-    Path extends Paths<Infer> extends Inferable ? [...Paths<Infer>] : never,
-    Pick extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? (keyof AtPath<Infer, Path>)[] | keyof AtPath<Infer, Path> 
-      : string[],
-    Full extends AtPath<Infer, Path> extends Record<string, unknown> 
-      ? [...Path, Pick] | [...Path]
-      : [...Path],
-    Val extends AtPath<Infer, Full, 'unpack'>,
+    Path extends Paths<Infer> & Inferable
   >(
-    path: Full,
-    modFunc: (v: Val) => Val
+    path: [...Path],
+    modFunc: <
+      InferBuffer extends AtPath<Infer, Path, 'unpack'>, 
+      Val extends InferBuffer,
+    >(v: Val) => Val | AtPath<Infer, Path, 'unpack'>
   ) =>
   (a: Infer): Infer => {
     if (isPathLens(path as any)) {
-      return pipe(lensFromPath(path as any), L.modify(modFunc))(a) as Infer
+      return pipe(lensFromPath(path as any), L.modify(modFunc as any))(a) as Infer
     }
-    return pipe(traversalFromPath(path as any), modifyTr(modFunc))(a) as Infer
+    return pipe(traversalFromPath(path as any), modifyTr(modFunc as any))(a) as Infer
   }

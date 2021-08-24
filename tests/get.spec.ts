@@ -32,12 +32,12 @@ describe('get', () => {
   it('gets an optional value', () => {
     const optional = pipe(
       data,
-      get((v): v is A => v.type === 'A', 'a', '?some', 'c', '1')
+      get((v): v is A => v.type === 'A', 'a', '?some', 'c')
     )
-    assert.deepStrictEqual(optional, O.some('abc'))
+    assert.deepStrictEqual(optional, O.some(123))
   })
   it('gets an optional value - unpiped', () => {
-    const func = get((v: A | B): v is A => v.type === 'A', 'a', '?some', 'c', '0')
+    const func = get((v: A | B): v is A => v.type === 'A', 'a', '?some', 'c')
     const optional = func(data)
     assert.deepStrictEqual(optional, O.some(123))
   })

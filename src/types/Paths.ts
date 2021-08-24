@@ -9,7 +9,7 @@ type Operation =
 | 'rename'
 
 export type Paths<A, Op extends Operation = 'static', Prev extends unknown[] = []> =
-  | (Op extends 'static' ? Prev : never)
+  Prev['length'] extends 5 ? [] : ((Op extends 'static' ? Prev : [])
   | NullPaths<
       A,
       Op,
@@ -18,13 +18,13 @@ export type Paths<A, Op extends Operation = 'static', Prev extends unknown[] = [
         A,
         Op,
         Prev,
-        RefinementPaths<A, Op, Prev, ObjectPaths<A, Op, Prev, never>>
+        RefinementPaths<A, Op, Prev, ObjectPaths<A, Op, Prev, []>>
       >
-    >
+    >)
 
 type NullPaths<A, Op extends Operation, Prev extends unknown[], Else> = true extends IsNull<A>
   ?
-      | (Op extends 'static' ? Prev : never)
+      | (Op extends 'static' ? Prev : [])
       | [...Prev, '?']
       | OptionPaths<
           A,
@@ -34,7 +34,7 @@ type NullPaths<A, Op extends Operation, Prev extends unknown[], Else> = true ext
             NonNullable<A>,
             Op,
             [...Prev, '?'],
-            ObjectPaths<NonNullable<A>, Op, [...Prev, '?'], never>
+            ObjectPaths<NonNullable<A>, Op, [...Prev, '?'], []>
           >
         >
   : Else
@@ -48,8 +48,8 @@ type RefinementPaths<
 > = A extends unknown
   ? [B] extends [A]
     ? Else
-    : Prev | ObjectPaths<A, Op, [...Prev, (b: B) => b is A], never>
-  : never
+    : Prev | ObjectPaths<A, Op, [...Prev, (b: B) => b is A], []>
+  : []
 
 type ObjectPaths<
   A,
@@ -58,19 +58,19 @@ type ObjectPaths<
   Else,
   Key extends keyof A = TupleKeyof<A>
 > = true extends IsTupleOrRecord<A>
-  ?  ((Op extends 'static' ? Prev : never)
+  ?  ((Op extends 'static' ? Prev : [])
     | (A extends Array<unknown> 
-        ? never 
+        ? [] 
         : (
-          | (Op extends 'static' | 'remove' ? [...Prev, Key[]] : never)
+          | (Op extends 'static' | 'remove' ? [...Prev, Key[]] : [])
           | (Op extends 'upsert' 
             ? string extends Key
-              ? never
+              ? []
               : [...Prev, string] 
-            : never)
+            : [])
         ))
     | (Key extends never 
-        ? never
+        ? []
         : string extends Key
           ? Paths<
             A[Key], 
@@ -84,7 +84,7 @@ type ObjectPaths<
             | Paths<A[Key], Op, [...Prev, Key]> 
             | (Op extends 'rename' | 'remove'
               ? [...Prev, Key]
-              : never)
+              : [])
           )
       ))
   : A extends readonly unknown[] 

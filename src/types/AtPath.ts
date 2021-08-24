@@ -9,7 +9,7 @@ export type AtPath<
   ? A
   : Args extends readonly [infer Key, ...infer Rest]
   ? AtPathInternal<Op, A, Key, Rest>
-  : never
+  : unknown
 
 type AtPathInternal<
   Op extends 'static' | 'unpack',
@@ -28,7 +28,7 @@ type AtPathInternal<
           Op, A, Key, Rest,
           AtTraversal<
             Op, A, Key, Rest,
-            AtObjectKey<Op, A, Key, Rest, never>
+            AtObjectKey<Op, A, Key, Rest>
           >
         >
       >
@@ -62,7 +62,7 @@ type AtArray<
 > = Key extends number
   ? A extends readonly unknown[]
     ? AtPath<A[number], Rest, Op>
-    : never
+    : unknown
   : Else
 
 type AtNullable<
@@ -72,7 +72,9 @@ type AtNullable<
   Rest extends readonly unknown[],
   Else
 > = Key extends '?'
-  ? AtPath<NonNullable<A>, Rest, Op>
+  ? [A] extends [null | undefined | infer NonNullable]
+    ? AtPath<NonNullable, Rest, Op>
+    : unknown
   : Else
 
 type AtOption<
@@ -84,15 +86,15 @@ type AtOption<
 > = Key extends '?some'
 ? [A] extends [Option<infer Some>]
   ? AtPath<Some, Rest>
-  : never
+  : unknown
 : Key extends '?right'
 ? [A] extends [Either<unknown, infer Right>]
   ? AtPath<Right, Rest, Op>
-  : never
+  : unknown
 : Key extends '?left'
 ? [A] extends [Either<infer Left, unknown>]
   ? AtPath<Left, Rest, Op>
-  : never
+  : unknown
 : Else
 
 type AtTraversal<
@@ -106,32 +108,28 @@ type AtTraversal<
     ? Op extends 'unpack' 
       ? AtPath<A[number], Rest, Op>
       : readonly AtPath<A[number], Rest, Op>[] 
-    : never
+    : unknown
   : Key extends '{}>'
   ? A extends Record<string, infer Val> 
     ? Op extends 'unpack'
       ? AtPath<Val, Rest, Op> 
       : readonly AtPath<Val, Rest, Op>[]
-    : never
+    : unknown
   : Else
 
 type AtObjectKey<
   Op extends 'static' | 'unpack',
   A,
   Key,
-  Rest extends readonly unknown[],
-  Else
+  Rest extends readonly unknown[]
 > = Key extends '?key'
   ? Rest extends [infer RecordKey, ...infer Rest2] 
     ? AtObjectKey<
       Op,
       A,
       RecordKey,
-      Rest2,
-      Else
+      Rest2
     >
-    : never
-  : Key extends keyof A
-  ? AtPath<A[Key], Rest, Op>
-  : Else
+    : unknown
+  : AtPath<A[Key & keyof A], Rest, Op>
 

@@ -14,7 +14,7 @@ expectType<SimpleData>(modified)
 const modified2: Data = pipe(
   data,
   modify(
-    [(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'],
+    [(v): v is A => v.type === 'A', 'a', '?some', 'c'],
     (j) => j + 4
   )
 )

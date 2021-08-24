@@ -12,12 +12,12 @@ describe('setOption', () => {
   it('modifies an optional value', () => {
     const optSet = pipe(
       data,
-      setOption([(v): v is A => v.type === 'A', 'a', '?some', 'c', '0'], -123)
+      setOption([(v): v is A => v.type === 'A', 'a', '?some', 'c'], -123)
     )
     assert.deepStrictEqual(optSet, O.some({
       type: 'A',
       a: O.some({
-        c: [-123, 'abc', false],
+        c: -123,
         d: ['def'],
         e: false,
       }),
