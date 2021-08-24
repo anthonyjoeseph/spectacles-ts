@@ -240,21 +240,17 @@ You can nest functions instead:
 import { pipe } from 'fp-ts/function'
 import { get, set, modify } from 'spectacles-ts'
 
-const deep = {
-  a: { b: { c: { d: { e: 123 } } } }
-}
-
 const getDeep: number = pipe(
-  deep,
+  { a: { b: { c: { d: { e: 123 } } } } },
   get('a', 'b', 'c', 'd'),
   get('e')
 )
 
 const setDeep = pipe(
-  deep,
+  { a: { b: { c: { d: { e: 123 } } } } },
   modify(
     ['a', 'b', 'c', 'd'],
-    set(['e', 'f'], 321)
+    set(['e'], 321)
   )
 )
 ```
