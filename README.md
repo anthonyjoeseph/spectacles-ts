@@ -258,7 +258,7 @@ const setDeep = pipe(
 Nesting functions that change their output type looks a little uglier atm (it's an [open issue](https://github.com/anthonyjoeseph/spectacles-ts/issues/4)):
 
 ```ts
-const upsertDeep = pipe(
+const upsertDeep: { a: { b: { c: { d: { e: number; e2: string } } } } } = pipe(
   { a: { b: { c: { d: { e: 123 } } } } },
   modifyW(
     ['a', 'b', 'c', 'd'],
