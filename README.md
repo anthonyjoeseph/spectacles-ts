@@ -4,6 +4,8 @@ Practical Optics • Unfancy monocle-ts 🧐
 
 A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts) 
 
+[Blog post](https://dev.to/anthonyjoeseph/simple-immutable-data-w-spectacles-4nb5)
+
 ![prop video](readme-vid.gif)
 
 <!-- AUTO-GENERATED-CONTENT:START (TOC) -->
