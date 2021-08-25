@@ -7,6 +7,7 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
 ![prop video](readme-vid.gif)
 
 <!-- AUTO-GENERATED-CONTENT:START (TOC) -->
+- [Installation](#installation)
 - [Examples](#examples)
   - [`get`](#get)
   - [`set`](#set)
@@ -23,6 +24,12 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
 - [Limitation](#limitation)
 - [TSC Issues](#tsc-issues)
 <!-- AUTO-GENERATED-CONTENT:END -->
+
+## Installation
+
+```shell
+yarn add spectacles-ts
+```
 
 ## Examples
 
