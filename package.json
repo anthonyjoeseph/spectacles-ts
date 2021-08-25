@@ -1,6 +1,6 @@
 {
   "name": "spectacles-ts",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "./index.js",
   "types": "./index.d.ts",
   "license": "MIT",
@@ -16,7 +16,6 @@
     "tsc:watch": "NODE_OPTIONS='--max-old-space-size=8192' yarn run tsc --watch"
   },
   "dependencies": {
-    "fp-ts": "^2.10.0-rc.8",
     "fp-ts-std": "^0.10.1",
     "monocle-ts": "^2.3.5"
   },
@@ -35,5 +34,8 @@
     "ts-node": "^9.1.1",
     "tsd": "^0.17.0",
     "typescript": "^4.3.5"
+  },
+  "peerDependencies": {
+    "fp-ts": "^2.10.0-rc.8"
   }
 }
