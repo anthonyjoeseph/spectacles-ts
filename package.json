@@ -1,7 +1,8 @@
 {
   "name": "spectacles-ts",
-  "version": "0.0.2",
-  "main": "dist/index.js",
+  "version": "0.0.3",
+  "main": "./index.js",
+  "types": "./index.d.ts",
   "license": "MIT",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
