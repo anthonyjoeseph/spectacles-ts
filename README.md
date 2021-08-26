@@ -30,7 +30,7 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
 ## Installation
 
 ```shell
-yarn add spectacles-ts
+yarn add fp-ts spectacles-ts
 ```
 
 ## Examples
