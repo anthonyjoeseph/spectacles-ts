@@ -2,7 +2,8 @@ import { pipe } from 'fp-ts/function'
 import { fromString } from 'fp-ts-std/Number'
 import { match } from 'fp-ts/Option'
 import { Traversable as ArrayTraversable } from 'fp-ts/ReadonlyArray'
-import { Traversable as RecordTraversable } from 'fp-ts/ReadonlyRecord'
+import { getTraversable as getRecordTraversable } from 'fp-ts/ReadonlyRecord'
+import { Ord as StringOrd } from 'fp-ts/string'
 import * as L from 'monocle-ts/lib/Lens'
 import * as Op from 'monocle-ts/lib/Optional'
 import * as Tr from 'monocle-ts/lib/Traversal'
@@ -45,7 +46,7 @@ export const traversalFromPath = (
     } else if (cur === '[]>') {
       return pipe(acc, Tr.traverse(ArrayTraversable))
     } else if (cur === '{}>') {
-      return pipe(acc, Tr.traverse(RecordTraversable))
+      return pipe(acc, Tr.traverse(getRecordTraversable(StringOrd)))
     } else if (cur === '?key') {
       return acc
     }

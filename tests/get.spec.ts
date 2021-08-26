@@ -22,9 +22,9 @@ describe('get', () => {
     const traverse = pipe([{a: 123}, {a: 456}], get('[]>', 'a'))
     assert.deepStrictEqual(traverse, [123, 456])
   })
-  it('can traverse records', () => {
+  it('can traverse records (sorting keys)', () => {
     const traverseRecord = pipe(
-      { a: [123], b: [456] } as Record<string, number[]>, 
+      { b: [456], a: [123] } as Record<string, number[]>, 
       get('{}>', 0)
     )
     assert.deepStrictEqual(traverseRecord, [123, 456])

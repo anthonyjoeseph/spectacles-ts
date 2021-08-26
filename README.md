@@ -209,7 +209,7 @@ const modified: E.Either<string, { a: { b: number } }> = pipe(
 | `get('i', '?right')(x)`| `O.some(2)` | yes | [right](https://github.com/gcanti/monocle-ts/blob/master/test/Prism.ts#L192)
 | `get('j', (a): a is number => typeof a === 'number')(x)`| `O.some(2)` | yes | [filter](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L160)
 | `get('d', '[]>', 'e')(x)` | `[123, 456]` | never | [traverse](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L215)<br />`Array` |
-| `get('f', '{}>', 0)(x)` | `{ a: 123, b: 456 }` | never | `traverse`<br />`Record` |
+| `get('f', '{}>', 0)(x)` | `[123, 456]` | never | `traverse`<br />`Record`<br/> (keys sorted alpha-<br/>betically) |
 
 ```ts
 import * as O from 'fp-ts/Option'
@@ -230,7 +230,7 @@ const x: Data = {
   b: 2,
   c: [123, 'abc'],
   d: [{ e: 123 }, { e: 456 }],
-  f: { a: [123], b: [456] },
+  f: { b: [456], a: [123] },
   g: 2,
   h: O.some(2),
   i: E.right(2),
