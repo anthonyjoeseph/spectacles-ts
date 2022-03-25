@@ -19,21 +19,16 @@ expectType<{
 
 const modifyOptional = pipe(
   data,
-  modifyW("type:A.a._tag:Some.value.c", (j) => `${j + 4}`)
+  modifyW("type:A.a.?some.c", (j) => `${j + 4}`)
 );
 expectType<
   | B
   | {
-      a:
-        | O.None
-        | {
-            _tag: "Some";
-            value: {
-              c: string | number;
-              d: string[];
-              e: boolean;
-            };
-          };
+      a: O.Option<{
+        c: string | number;
+        d: string[];
+        e: boolean;
+      }>;
       type: "A";
     }
 >(modifyOptional);

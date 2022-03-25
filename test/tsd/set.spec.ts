@@ -8,5 +8,5 @@ const defSet: SimpleData = pipe(simpleData, set("a.b.0", -123));
 expectType<SimpleData>(defSet);
 
 // modifies an optional value
-const optSet: Data = pipe(data, set("type:A.a._tag:Some.value.c", -123));
+const optSet: Data = pipe(data, set("type:A.a.?some.c", -123));
 expectType<Data>(optSet);

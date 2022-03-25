@@ -10,11 +10,11 @@ describe("get", () => {
     assert.deepStrictEqual(definite, "abc");
   });
   it("gets an optional value", () => {
-    const optional = pipe(data, get("type:A.a._tag:Some.value.c"));
+    const optional = pipe(data, get("type:A.a.?some.c"));
     assert.deepStrictEqual(optional, O.some(123));
   });
   it("gets an optional value - unpiped", () => {
-    const func = get("type:A.a._tag:Some.value.c");
+    const func = get("type:A.a.?some.c");
     const optional = func(data);
     assert.deepStrictEqual(optional, O.some(123));
   });
