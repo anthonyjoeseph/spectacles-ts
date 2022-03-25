@@ -15,7 +15,7 @@ describe("modify", () => {
   it("modifies an optional value", () => {
     const modified: Data = pipe(
       data,
-      modify("type:A.a._tag:Some.value.c", (j) => j + 4)
+      modify("type:A.a.?some.c", (j) => j + 4)
     );
     assert.deepStrictEqual(modified, {
       type: "A",

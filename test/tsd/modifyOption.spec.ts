@@ -14,6 +14,6 @@ expectType<SimpleData>(modified);
 // modifies an optional value (optionally)
 const modifyOpted = pipe(
   data,
-  modifyOption("type:A.a._tag:Some.value.c", (j) => j + 4)
+  modifyOption("type:A.a.?some.c", (j) => j + 4)
 );
 expectType<O.Option<Data>>(modifyOpted);

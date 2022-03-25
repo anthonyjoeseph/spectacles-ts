@@ -10,7 +10,7 @@ describe("setOption", () => {
     assert.deepStrictEqual(defSet, { a: { b: [-123, "abc", false], c: "def", d: false }, e: 456 });
   });
   it("modifies an optional value", () => {
-    const optSet = pipe(data, setOption("type:A.a._tag:Some.value.c", -123));
+    const optSet = pipe(data, setOption("type:A.a.?some.c", -123));
     assert.deepStrictEqual(
       optSet,
       O.some({

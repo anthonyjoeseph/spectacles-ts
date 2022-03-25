@@ -11,12 +11,12 @@ const definite = pipe(simpleData, get("a.b.1"));
 expectType<string>(definite);
 
 // gets an optional value
-const optional = pipe(data, get("type:A.a._tag:Some.value.c"));
+const optional = pipe(data, get("type:A.a.?some.c"));
 expectType<O.Option<number>>(optional);
 expectError<O.Option<never>>(optional);
 
 // gets an optional value - unpiped
-const func = get("type:A.a._tag:Some.value.c");
+const func = get("type:A.a.?some.c");
 const optional2 = func(data);
 expectType<O.Option<number>>(optional2);
 

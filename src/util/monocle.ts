@@ -4,12 +4,23 @@ import { match } from "fp-ts/Option";
 import * as L from "monocle-ts/lib/Lens";
 import * as Op from "monocle-ts/lib/Optional";
 
-export const isPathLens = (path: string): boolean => !path.includes("?") && !path.includes(":");
+export const isPathLens = (path: string): boolean =>
+  !path.includes("?") &&
+  !path.includes(":") &&
+  !path.includes("?some") &&
+  !path.includes("?left") &&
+  !path.includes("?right");
 
 export const optionalFromPath = (path: string): Op.Optional<any, any> => {
   const opt = path.split(".").reduce((acc, cur, index) => {
     if (cur === "?") {
       return pipe(acc, Op.fromNullable);
+    } else if (cur === "?some") {
+      return pipe(acc, Op.some);
+    } else if (cur === "?left") {
+      return pipe(acc, Op.left);
+    } else if (cur === "?right") {
+      return pipe(acc, Op.left);
     } else if (cur.includes(":")) {
       const i = cur.indexOf(":");
       const discriminant = cur.substring(0, i);

@@ -34,7 +34,7 @@ expectType<{
   };
 }>(setDeep);
 
-const modifyOptionDeep = pipe({ a: { b: { c: O.some({ d: 123 }) } } }, setOption("a.b.c._tag:Some.value.d", 321));
+const modifyOptionDeep = pipe({ a: { b: { c: O.some({ d: 123 }) } } }, setOption("a.b.c.?some.d", 321));
 expectType<
   O.Option<{
     a: { b: { c: O.Option<{ d: number }> } };

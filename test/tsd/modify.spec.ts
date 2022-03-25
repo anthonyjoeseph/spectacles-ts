@@ -13,6 +13,6 @@ expectType<SimpleData>(modified);
 // modifies an optional value
 const modified2: Data = pipe(
   data as Data,
-  modify("type:A.a._tag:Some.value.c", (j) => j + 4)
+  modify("type:A.a.?some.c", (j) => j + 4)
 );
 expectType<Data>(modified2);

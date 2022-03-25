@@ -1,3 +1,5 @@
+import type { Option, Some } from "fp-ts/Option";
+import type { Either, Left, Right } from "fp-ts/Either";
 import type { IsNull, IsRecord } from "./predicates";
 import { LastSegment } from "./segments";
 import type { Cases, Discriminant } from "./sum";
@@ -29,7 +31,22 @@ type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
       };
     }[RecordChildren<A>]
   | {
-      [K in SumChildren<A>]: Record<K, BubbleSum<A[K]>>;
+      [K in SumChildren<A>]: Option<any> extends A[K]
+        ? Record<
+            K,
+            {
+              "?some": Extract<A[K], Some<unknown>>["value"];
+            }
+          >
+        : Either<any, any> extends A[K]
+        ? Record<
+            K,
+            {
+              "?left": Extract<A[K], Left<unknown>>["left"];
+              "?right": Extract<A[K], Right<unknown>>["right"];
+            }
+          >
+        : Record<K, BubbleSum<A[K]>>;
     }[SumChildren<A>]
   | {
       [K in NullableChildren<A>]-?: {

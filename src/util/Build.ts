@@ -1,3 +1,5 @@
+import { Option } from "fp-ts/Option";
+import { Either, Left, Right } from "fp-ts/Either";
 import type { AtPath } from "./AtPath";
 import { IsRecord } from "./predicates";
 import { InitSegment, LastSegment } from "./segments";
@@ -33,27 +35,15 @@ type FromScratch<Segment extends string, New> = OnSegment<
   Segment,
   {
     null: New | undefined | null;
+    option: Option<New>;
+    left: Either<New, never>;
+    right: Either<never, New>;
     sum: Segment extends `${infer Discriminant}:${string}`
       ? {
           [K in Exclude<keyof New, Discriminant>]+?: New[K];
         } & { [K in Discriminant]: string }
       : never;
     record: Segment extends LessThanAThousand ? New[] & { [K in Segment]: New } : { readonly [K in Segment]: New };
-  }
->;
-
-type Augment<Segment extends string, Old, New, NewKey extends string, Op extends Operation> = OnSegment<
-  Segment,
-  {
-    null: New | (undefined extends Old ? undefined : never) | (null extends Old ? null : never);
-    sum: Segment extends `${infer Discriminant}:${infer Member}`
-      ?
-          | {
-              [K in Discriminant | keyof New]: K extends keyof New ? New[K] : Member;
-            }
-          | Exclude<Old, Record<Discriminant, Member>>
-      : never;
-    record: true extends IsRecord<Old> ? AugmentRecord<Segment, Old, New, NewKey, Op> : never;
   }
 >;
 
@@ -79,10 +69,23 @@ type OnSegment<
   S extends string,
   Handler extends {
     null: unknown;
+    option: unknown;
+    left: unknown;
+    right: unknown;
     sum: unknown;
     record: unknown;
   }
-> = S extends "?" ? Handler["null"] : S extends `${string}:${string}` ? Handler["sum"] : Handler["record"];
+> = S extends "?"
+  ? Handler["null"]
+  : S extends "?some"
+  ? Handler["option"]
+  : S extends "?left"
+  ? Handler["left"]
+  : S extends "?right"
+  ? Handler["right"]
+  : S extends `${string}:${string}`
+  ? Handler["sum"]
+  : Handler["record"];
 
 type RecordSegment<
   NewKey extends string,
@@ -93,3 +96,21 @@ type RecordSegment<
     upsert: unknown;
   }
 > = Op extends "remove" ? Handler["remove"] : string extends NewKey ? Handler["upsert"] : Handler["rename"];
+
+type Augment<Segment extends string, Old, New, NewKey extends string, Op extends Operation> = OnSegment<
+  Segment,
+  {
+    null: New | (undefined extends Old ? undefined : never) | (null extends Old ? null : never);
+    option: Option<New>;
+    left: Either<New, Extract<Old, Right<unknown>>["right"]>;
+    right: Either<Extract<Old, Left<unknown>>["left"], New>;
+    sum: Segment extends `${infer Discriminant}:${infer Member}`
+      ?
+          | {
+              [K in Discriminant | keyof New]: K extends keyof New ? New[K] : Member;
+            }
+          | Exclude<Old, Record<Discriminant, Member>>
+      : never;
+    record: true extends IsRecord<Old> ? AugmentRecord<Segment, Old, New, NewKey, Op> : never;
+  }
+>;
