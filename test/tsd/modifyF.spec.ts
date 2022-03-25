@@ -7,6 +7,6 @@ import { SimpleData, simpleData } from "../shared";
 // modifies a definite value
 const modified = pipe(
   simpleData,
-  modifyF(E.Applicative)("a.b.0", (b) => (b > 30 ? E.right(40) : E.left("never mind")))
+  modifyF(E.Applicative)("a.b.[0]", (b) => (b > 30 ? E.right(40) : E.left("never mind")))
 );
 expectType<E.Either<string, SimpleData>>(modified);

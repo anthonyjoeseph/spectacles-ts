@@ -6,7 +6,7 @@ import { data, simpleData } from "../shared";
 
 describe("setOption", () => {
   it("modifies a definite value", () => {
-    const defSet = pipe(simpleData, setOption("a.b.0", -123));
+    const defSet = pipe(simpleData, setOption("a.b.[0]", -123));
     assert.deepStrictEqual(defSet, { a: { b: [-123, "abc", false], c: "def", d: false }, e: 456 });
   });
   it("modifies an optional value", () => {

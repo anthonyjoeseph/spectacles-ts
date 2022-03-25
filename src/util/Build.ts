@@ -3,11 +3,6 @@ import { Either, Left, Right } from "fp-ts/Either";
 import type { AtPath } from "./AtPath";
 import { IsRecord } from "./predicates";
 import { InitSegment, LastSegment } from "./segments";
-// credit to Joe Calzaretta
-// from https://stackoverflow.com/a/70526775
-type Digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "";
-type NonZero = Exclude<Digit, "0" | "">;
-type LessThanAThousand = "0" | `${NonZero}${Digit}${Digit}`;
 
 type Operation = "augment" | "remove";
 
@@ -43,7 +38,27 @@ type FromScratch<Segment extends string, New> = OnSegment<
           [K in Exclude<keyof New, Discriminant>]+?: New[K];
         } & { [K in Discriminant]: string }
       : never;
-    record: Segment extends LessThanAThousand ? New[] & { [K in Segment]: New } : { readonly [K in Segment]: New };
+    tuple: New[] & { [K in Segment]: New };
+    record: { readonly [K in Segment]: New };
+  }
+>;
+
+type Augment<Segment extends string, Old, New, NewKey extends string, Op extends Operation> = OnSegment<
+  Segment,
+  {
+    null: New | (undefined extends Old ? undefined : never) | (null extends Old ? null : never);
+    option: Option<New>;
+    left: Either<New, Extract<Old, Right<unknown>>["right"]>;
+    right: Either<Extract<Old, Left<unknown>>["left"], New>;
+    sum: Segment extends `${infer Discriminant}:${infer Member}`
+      ?
+          | {
+              [K in Discriminant | keyof New]: K extends keyof New ? New[K] : Member;
+            }
+          | Exclude<Old, Record<Discriminant, Member>>
+      : never;
+    tuple: Segment extends `[${infer TupleKey}]` ? AugmentRecord<TupleKey, Old, New, NewKey, Op> : never;
+    record: true extends IsRecord<Old> ? AugmentRecord<Segment, Old, New, NewKey, Op> : never;
   }
 >;
 
@@ -73,6 +88,7 @@ type OnSegment<
     left: unknown;
     right: unknown;
     sum: unknown;
+    tuple: unknown;
     record: unknown;
   }
 > = S extends "?"
@@ -85,6 +101,8 @@ type OnSegment<
   ? Handler["right"]
   : S extends `${string}:${string}`
   ? Handler["sum"]
+  : S extends `[${string}]`
+  ? Handler["tuple"]
   : Handler["record"];
 
 type RecordSegment<
@@ -96,21 +114,3 @@ type RecordSegment<
     upsert: unknown;
   }
 > = Op extends "remove" ? Handler["remove"] : string extends NewKey ? Handler["upsert"] : Handler["rename"];
-
-type Augment<Segment extends string, Old, New, NewKey extends string, Op extends Operation> = OnSegment<
-  Segment,
-  {
-    null: New | (undefined extends Old ? undefined : never) | (null extends Old ? null : never);
-    option: Option<New>;
-    left: Either<New, Extract<Old, Right<unknown>>["right"]>;
-    right: Either<Extract<Old, Left<unknown>>["left"], New>;
-    sum: Segment extends `${infer Discriminant}:${infer Member}`
-      ?
-          | {
-              [K in Discriminant | keyof New]: K extends keyof New ? New[K] : Member;
-            }
-          | Exclude<Old, Record<Discriminant, Member>>
-      : never;
-    record: true extends IsRecord<Old> ? AugmentRecord<Segment, Old, New, NewKey, Op> : never;
-  }
->;

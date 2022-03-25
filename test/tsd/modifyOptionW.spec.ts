@@ -6,7 +6,7 @@ import { data, B, simpleData } from "../shared";
 
 const modifiesDefinite = pipe(
   simpleData,
-  modifyOptionW("a.b.0", (j) => `${j + 2}`)
+  modifyOptionW("a.b.[0]", (j) => `${j + 2}`)
 );
 expectType<{
   a: {

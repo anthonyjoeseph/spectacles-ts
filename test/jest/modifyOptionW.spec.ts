@@ -8,7 +8,7 @@ describe("modifyOptionW", () => {
   it("modifies a definite value", () => {
     const modified = pipe(
       simpleData,
-      modifyOptionW("a.b.0", (j) => `${j + 4}`)
+      modifyOptionW("a.b.[0]", (j) => `${j + 4}`)
     );
     assert.deepStrictEqual(modified, { a: { b: ["127", "abc", false], c: "def", d: false }, e: 456 });
   });

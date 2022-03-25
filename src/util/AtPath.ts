@@ -17,6 +17,8 @@ type ApplySegment<A, Seg extends string> = Seg extends "?"
   ? Extract<A, Left<unknown>>["left"]
   : Seg extends "?right"
   ? Extract<A, Right<unknown>>["right"]
+  : Seg extends `[${infer TupleIndex}]`
+  ? A[Extract<TupleIndex, keyof A>]
   : Seg extends `${infer Discriminant}:${infer Member}`
   ? Extract<A, { [K in Discriminant]: Member }> extends never
     ? A[Extract<Seg, keyof A>]

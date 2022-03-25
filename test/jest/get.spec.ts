@@ -6,7 +6,7 @@ import { data, simpleData } from "../shared";
 
 describe("get", () => {
   it("gets a definite value", () => {
-    const definite = pipe(simpleData, get("a.b.1"));
+    const definite = pipe(simpleData, get("a.b.[1]"));
     assert.deepStrictEqual(definite, "abc");
   });
   it("gets an optional value", () => {

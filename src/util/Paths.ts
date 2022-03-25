@@ -27,6 +27,8 @@ type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
       [K in RecordChildren<A>]: {
         [K2 in TupleKeyof<A[K]> as K extends ""
           ? Extract<K2, string>
+          : A[K] extends unknown[]
+          ? `${Extract<K, string>}.[${Extract<K2, string>}]`
           : `${Extract<K, string>}.${Extract<K2, string>}`]: A[K][K2];
       };
     }[RecordChildren<A>]

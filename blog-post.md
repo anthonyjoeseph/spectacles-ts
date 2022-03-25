@@ -4,7 +4,25 @@ Do you want to love [immutable data](https://imfaber.me/javascript-functional-pr
 
 Are you perplexed by the syntax of [immutability-helper](https://github.com/kolodny/immutability-helper)? Repulsed by [immer.js](https://immerjs.github.io/immer/produce#example)'s use of assignment? Alarmed by [lodash's](https://lodash.com/docs/4.17.15#set) lack of type safety?
 
-Looking for something a little more intuitive, powerful & flexible? Get some clarity w/ `spectacles-ts` ([github repo](https://github.com/anthonyjoeseph/spectacles-ts))!
+Looking for something a little more intuitive, powerful & flexible? Clear up your data w/ `spectacles-ts` ([github repo](https://github.com/anthonyjoeseph/spectacles-ts))!
+
+## IDEAS
+
+## setOption as motivation for Option
+
+let's say we want to clear out the value of 'a'
+
+```ts
+declare const data: { a: number } | undefined
+const f = pipe(data, setOption('?.a.?', 2))
+// f: Option<{ a: number } | undefined>
+```
+
+if f is `Some`, then we know that `data.a` had previously contained a number. If it's `None`, that means that `data.a` had contained 'undefined'
+
+if we used `undefined`, 'f' would have the type `number | undefined`
+
+this would leave us no way to know if the operation had failed, or if 
 
 ## Installation
 

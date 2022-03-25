@@ -4,7 +4,7 @@ import { set } from "../../src";
 import { Data, data, SimpleData, simpleData } from "../shared";
 
 // modifies a definite value
-const defSet: SimpleData = pipe(simpleData, set("a.b.0", -123));
+const defSet: SimpleData = pipe(simpleData, set("a.b.[0]", -123));
 expectType<SimpleData>(defSet);
 
 // modifies an optional value

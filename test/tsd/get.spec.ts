@@ -7,7 +7,7 @@ import { get } from "../../src/values/get";
 import { data, simpleData } from "../shared";
 
 // gets a definite value
-const definite = pipe(simpleData, get("a.b.1"));
+const definite = pipe(simpleData, get("a.b.[1]"));
 expectType<string>(definite);
 
 // gets an optional value

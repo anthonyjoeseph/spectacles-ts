@@ -6,7 +6,7 @@ import { Data, data, SimpleData, simpleData } from "../shared";
 // modifies a definite value
 const modified: SimpleData = pipe(
   simpleData,
-  modify("a.b.0", (j) => j + 4)
+  modify("a.b.[0]", (j) => j + 4)
 );
 expectType<SimpleData>(modified);
 
