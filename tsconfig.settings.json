@@ -13,7 +13,6 @@
     "esModuleInterop": true,
 
     /* Advanced Options */
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   }
 }
