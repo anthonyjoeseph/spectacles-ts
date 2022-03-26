@@ -15,10 +15,30 @@ export const isPathLens = (path: string): boolean =>
   !path.includes("[]>") &&
   !path.includes("{}>");
 
+const splitIntoSegments = (path: string): string[] => {
+  const segments = path.split(".");
+  return segments.flatMap((segment) => {
+    if (
+      segment.includes("?some") ||
+      segment.includes("?left") ||
+      segment.includes("?right") ||
+      !segment.includes("?")
+    ) {
+      return [segment];
+    } else {
+      const before = segment.substring(0, segment.length - 1);
+      if (before.length > 0) {
+        return [before, "?"];
+      }
+      return ["?"];
+    }
+  });
+};
+
 export const isPathTraversal = (path: string): boolean => path.includes("[]>") || path.includes("{}>");
 
 export const optionalFromPath = (path: string): Op.Optional<any, any> => {
-  const opt = path.split(".").reduce((acc, cur) => {
+  const opt = splitIntoSegments(path).reduce((acc, cur) => {
     if (cur === "?") {
       return pipe(acc, Op.fromNullable);
     } else if (cur === "?some") {
@@ -45,7 +65,7 @@ export const optionalFromPath = (path: string): Op.Optional<any, any> => {
 };
 
 export const traversalFromPath = (path: string): Tr.Traversal<any, any> => {
-  const opt = path.split(".").reduce((acc, cur) => {
+  const opt = splitIntoSegments(path).reduce((acc, cur) => {
     if (cur === "?") {
       return pipe(acc, Tr.fromNullable);
     } else if (cur === "?some") {
@@ -78,7 +98,7 @@ export const traversalFromPath = (path: string): Tr.Traversal<any, any> => {
 };
 
 export const lensFromPath = (path: string): L.Lens<any, any> => {
-  const lens = path.split(".").reduce((acc, cur) => {
+  const lens = splitIntoSegments(path).reduce((acc, cur) => {
     if (cur.includes("[") && cur.includes("]") && cur.indexOf("[") < cur.indexOf("]")) {
       const component = cur.substring(cur.indexOf("[") + 1, cur.indexOf("]"));
       return pipe(acc, L.component(Number.parseInt(component, 10)));

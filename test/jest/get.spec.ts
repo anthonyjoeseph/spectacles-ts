@@ -18,6 +18,11 @@ describe("get", () => {
     assert.deepStrictEqual(traverseRecord, [123, 456]);
   });
   it("gets an optional value", () => {
+    const a = { a: 123 } as { a: number | undefined };
+    const optional = pipe(a, get("a?"));
+    assert.deepStrictEqual(optional, O.some(123));
+  });
+  it("narrows a sum type value", () => {
     const optional = pipe(data, get("type:A.a.?some.c"));
     assert.deepStrictEqual(optional, O.some(123));
   });

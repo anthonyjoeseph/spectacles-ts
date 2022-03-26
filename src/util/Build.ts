@@ -2,7 +2,7 @@ import { Option } from "fp-ts/Option";
 import { Either, Left, Right } from "fp-ts/Either";
 import type { AtPath } from "./AtPath";
 import { IsRecord } from "./predicates";
-import { InitSegment, LastSegment } from "./segments";
+import { AddDots, InitSegment, LastSegment } from "./segments";
 
 type Operation = "augment" | "remove";
 
@@ -12,9 +12,11 @@ export type Build<
   Original = unknown,
   NewKey extends string = string,
   Op extends Operation = "augment"
-> = Path extends ""
+> = _Build<AddDots<Path>, Output, Original, NewKey, Op>;
+
+type _Build<Path extends string, Output, Original, NewKey extends string, Op extends Operation> = Path extends ""
   ? Output
-  : Build<
+  : _Build<
       InitSegment<Path>,
       BuildSegment<LastSegment<Path>, AtPath<Original, InitSegment<Path>, "no-traversals">, Output, NewKey, Op>,
       Original,

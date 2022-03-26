@@ -27,9 +27,9 @@ expectType<O.Option<number>>(optional2);
 const infersEq = pipe(StringEq, Eq.contramap(get("a.b")));
 expectType<Eq.Eq<{ readonly a: { readonly b: string } }>>(infersEq);
 
-const infersOptionalEq = pipe(O.getEq(StringEq), Eq.contramap(get("a.b.?")));
+const infersOptionalEq = pipe(O.getEq(StringEq), Eq.contramap(get("a.b?")));
 expectType<Eq.Eq<{ readonly a: { readonly b: string | undefined | null } }>>(infersOptionalEq);
 
-expectError<Eq.Eq<{ a: { b: string | undefined | null } }>>(pipe(StringEq, Eq.contramap(get("a.b.?"))));
+expectError<Eq.Eq<{ a: { b: string | undefined | null } }>>(pipe(StringEq, Eq.contramap(get("a.b?"))));
 
 expectError<Eq.Eq<{ a: { b: string } }>>(pipe(O.getEq(StringEq), Eq.contramap(get("a.b"))));

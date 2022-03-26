@@ -19,6 +19,6 @@ expectType<{ a: { readonly b: boolean; f: boolean } }>(preservesReadonlyKeys);
 
 // don't suggest non-record 'leaves'
 declare const nullable: { a?: { b: number; c: string } };
-expectType<typeof nullable>(pipe(nullable, upsert("a.?", "b", 123)));
+expectType<typeof nullable>(pipe(nullable, upsert("a?", "b", 123)));
 expectError(pipe(nullable, upsert("a", "a", 123)));
-expectError(pipe(nullable, upsert("a.?.c", "a", 123)));
+expectError(pipe(nullable, upsert("a?.c", "a", 123)));

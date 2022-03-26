@@ -35,6 +35,6 @@ expectType<
 
 const optionalWidensType = pipe(
   { a: 123 } as { a: number | undefined },
-  modifyW("a.?", (j) => `${j + 2}`)
+  modifyW("a?", (j) => `${j + 2}`)
 );
 expectType<{ a: string | number | undefined }>(optionalWidensType);

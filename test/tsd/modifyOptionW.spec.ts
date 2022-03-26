@@ -37,7 +37,7 @@ expectType<
 
 const optionalReplacesType = pipe(
   { a: 123 } as { a: number | undefined },
-  modifyOptionW("a.?", (j) => `${j + 2}`)
+  modifyOptionW("a?", (j) => `${j + 2}`)
 );
 expectType<O.Option<{ a: string | undefined }>>(optionalReplacesType);
 

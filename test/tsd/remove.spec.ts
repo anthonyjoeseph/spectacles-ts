@@ -9,8 +9,8 @@ expectType<{ a: { c: string } }>(omitKey);
 
 // don't suggest nullable-narrowing 'leaves'
 declare const nullable: { a?: { b: number; c: string } };
-expectType<{ a?: { c: string } }>(pipe(nullable, remove("a.?.b")));
-expectError(pipe(nullable, remove("a.?")));
+expectType<{ a?: { c: string } }>(pipe(nullable, remove("a?.b")));
+expectError(pipe(nullable, remove("a?")));
 
 // don't suggest sum narrowing leaves
 declare const data: Data;
