@@ -29,4 +29,18 @@ describe("modifyOption", () => {
       })
     );
   });
+  it("modifies a traversal (un-optionally)", () => {
+    const modifyTraversal = pipe(
+      [{ a: O.some(123) }, { a: O.some(456) }],
+      modifyOption("[]>.a.?some", (j) => j + 4)
+    );
+    assert.deepStrictEqual(modifyTraversal, [
+      {
+        a: O.some(127),
+      },
+      {
+        a: O.some(460),
+      },
+    ]);
+  });
 });

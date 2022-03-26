@@ -27,7 +27,7 @@
         "jest",
         "--runInBand",
         "--watchAll=false",
-        "test/jest/set.spec.ts"
+        "test/jest/get.spec.ts"
       ]
     },
   ]

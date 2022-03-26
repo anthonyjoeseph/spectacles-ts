@@ -4,19 +4,34 @@ import type { Paths } from "../util/Paths";
 import type { AtPath } from "../util/AtPath";
 
 export type ModifyF = {
-  <F extends URIS3>(F: Applicative3<F>): <R, E, Infer, Path extends Paths<Infer>, Val extends AtPath<Infer, Path>>(
+  <F extends URIS3>(F: Applicative3<F>): <
+    R,
+    E,
+    Infer,
+    Path extends Paths<Infer>,
+    Val extends AtPath<Infer, Path, "no-traversals">
+  >(
     path: Path & string,
     modFunc: (v: Val) => Kind3<F, R, E, Val>
   ) => (a: Infer) => Kind3<F, R, E, Infer>;
-  <F extends URIS2>(F: Applicative2<F>): <E, Infer, Path extends Paths<Infer>, Val extends AtPath<Infer, Path>>(
+  <F extends URIS2>(F: Applicative2<F>): <
+    E,
+    Infer,
+    Path extends Paths<Infer>,
+    Val extends AtPath<Infer, Path, "no-traversals">
+  >(
     path: Path & string,
     modFunc: (v: Val) => Kind2<F, E, Val>
   ) => (a: Infer) => Kind2<F, E, Infer>;
-  <F extends URIS>(F: Applicative1<F>): <Infer, Path extends Paths<Infer>, Val extends AtPath<Infer, Path>>(
+  <F extends URIS>(F: Applicative1<F>): <
+    Infer,
+    Path extends Paths<Infer>,
+    Val extends AtPath<Infer, Path, "no-traversals">
+  >(
     path: Path & string,
     modFunc: (v: Val) => Kind<F, Val>
   ) => (a: Infer) => Kind<F, Infer>;
-  <F>(F: Applicative<F>): <Infer, Path extends Paths<Infer>, Val extends AtPath<Infer, Path>>(
+  <F>(F: Applicative<F>): <Infer, Path extends Paths<Infer>, Val extends AtPath<Infer, Path, "no-traversals">>(
     path: Path & string,
     modFunc: (v: Val) => HKT<F, Val>
   ) => (a: Infer) => HKT<F, Infer>;

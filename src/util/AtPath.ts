@@ -1,13 +1,28 @@
 import { Some } from "fp-ts/Option";
 import { Left, Right } from "fp-ts/Either";
 
-export type AtPath<A, Args extends string> = unknown extends A
+type Operation = "apply-traversals" | "no-traversals";
+
+export type AtPath<A, Args extends string, Op extends Operation = "apply-traversals"> = unknown extends A
   ? unknown
   : Args extends ""
   ? A
+  : Op extends "apply-traversals"
+  ? ApplyTraversals<
+      Args extends `${infer Key}.${infer Rest}`
+        ? AtPath<ApplySegment<A, Key>, Rest, "no-traversals">
+        : ApplySegment<A, Args>,
+      Args
+    >
   : Args extends `${infer Key}.${infer Rest}`
-  ? AtPath<ApplySegment<A, Key>, Rest>
+  ? AtPath<ApplySegment<A, Key>, Rest, Op>
   : ApplySegment<A, Args>;
+
+export type ApplyTraversals<A, Args extends string> = Args extends ""
+  ? A
+  : Args extends `${string}[]>${infer Tail}`
+  ? ApplyTraversals<A[], Tail>
+  : A;
 
 type ApplySegment<A, Seg extends string> = Seg extends "?"
   ? NonNullable<A>
@@ -17,6 +32,8 @@ type ApplySegment<A, Seg extends string> = Seg extends "?"
   ? Extract<A, Left<unknown>>["left"]
   : Seg extends "?right"
   ? Extract<A, Right<unknown>>["right"]
+  : Seg extends "[]>"
+  ? Extract<A, unknown[]>[number]
   : Seg extends `[${infer TupleIndex}]`
   ? A[Extract<TupleIndex, keyof A>]
   : Seg extends `${infer Discriminant}:${infer Member}`

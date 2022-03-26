@@ -16,7 +16,7 @@ export type Build<
   ? Output
   : Build<
       InitSegment<Path>,
-      BuildSegment<LastSegment<Path>, AtPath<Original, InitSegment<Path>>, Output, NewKey, Op>,
+      BuildSegment<LastSegment<Path>, AtPath<Original, InitSegment<Path>, "no-traversals">, Output, NewKey, Op>,
       Original,
       string,
       "augment"
@@ -33,12 +33,13 @@ type FromScratch<Segment extends string, New> = OnSegment<
     option: Option<New>;
     left: Either<New, never>;
     right: Either<never, New>;
+    arrayTraversal: New;
     sum: Segment extends `${infer Discriminant}:${string}`
       ? {
-          [K in Exclude<keyof New, Discriminant>]+?: New[K];
-        } & { [K in Discriminant]: string }
+          readonly [K in Exclude<keyof New, Discriminant>]+?: New[K];
+        } & { readonly [K in Discriminant]: string }
       : never;
-    tuple: New[] & { [K in Segment]: New };
+    tuple: New[] & { readonly [K in Segment]: New };
     record: { readonly [K in Segment]: New };
   }
 >;
@@ -50,6 +51,7 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
     option: Option<New>;
     left: Either<New, Extract<Old, Right<unknown>>["right"]>;
     right: Either<Extract<Old, Left<unknown>>["left"], New>;
+    arrayTraversal: New;
     sum: Segment extends `${infer Discriminant}:${infer Member}`
       ?
           | {
@@ -87,6 +89,7 @@ type OnSegment<
     option: unknown;
     left: unknown;
     right: unknown;
+    arrayTraversal: unknown;
     sum: unknown;
     tuple: unknown;
     record: unknown;
@@ -101,6 +104,8 @@ type OnSegment<
   ? Handler["right"]
   : S extends `${string}:${string}`
   ? Handler["sum"]
+  : S extends "[]>"
+  ? Handler["arrayTraversal"]
   : S extends `[${string}]`
   ? Handler["tuple"]
   : Handler["record"];

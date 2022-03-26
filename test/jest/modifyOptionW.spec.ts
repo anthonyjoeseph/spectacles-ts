@@ -29,4 +29,18 @@ describe("modifyOptionW", () => {
       })
     );
   });
+  it("modifies an array traversal", () => {
+    const modifyArrayTraversal = pipe(
+      [{ a: O.some(123) }, { a: O.some(456) }],
+      modifyOptionW("[]>.a.?some", (j) => `${j + 4}`)
+    );
+    assert.deepStrictEqual(modifyArrayTraversal, [{ a: O.some("127") }, { a: O.some("460") }]);
+  });
+  /* it("modifies a record traversal", () => {
+    const modifyRecordTraversal = pipe(
+      { a: 123, b: 456 } as Record<string, number>,
+      modifyOptionW(["{}>"], (j) => `${j + 4}`)
+    );
+    assert.deepStrictEqual(modifyRecordTraversal, { a: "127", b: "460" });
+  }); */
 });

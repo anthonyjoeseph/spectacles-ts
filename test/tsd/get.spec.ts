@@ -15,6 +15,10 @@ const optional = pipe(data, get("type:A.a.?some.c"));
 expectType<O.Option<number>>(optional);
 expectError<O.Option<never>>(optional);
 
+// can traverse arrays
+const traverseArray = pipe([{ a: 123 }, { a: 456 }], get("[]>.a"));
+expectType<number[]>(traverseArray);
+
 // gets an optional value - unpiped
 const func = get("type:A.a.?some.c");
 const optional2 = func(data);

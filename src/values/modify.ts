@@ -1,12 +1,12 @@
 import { pipe } from "fp-ts/function";
 import * as L from "monocle-ts/lib/Lens";
-import { modify as modifyOp } from "monocle-ts/Optional";
-import { isPathLens, lensFromPath, optionalFromPath } from "../util/monocle";
+import { modify as modifyTr } from "monocle-ts/Traversal";
+import { isPathLens, lensFromPath, traversalFromPath } from "../util/monocle";
 import { Modify } from "../types/modify";
 
 export const modify: Modify = (path: string, modFunc: (v: any) => unknown) => (a: unknown) => {
-  if (isPathLens(path as any)) {
-    return pipe(lensFromPath(path as any), L.modify(modFunc as any))(a);
+  if (isPathLens(path)) {
+    return pipe(lensFromPath(path), L.modify(modFunc))(a);
   }
-  return pipe(optionalFromPath(path as any), modifyOp(modFunc as any))(a);
+  return pipe(traversalFromPath(path), modifyTr(modFunc))(a);
 };

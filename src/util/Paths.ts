@@ -1,6 +1,6 @@
 import type { Option, Some } from "fp-ts/Option";
 import type { Either, Left, Right } from "fp-ts/Either";
-import type { IsNull, IsRecord } from "./predicates";
+import type { IsNull, IsRecord, IsNonTupleArray, TupleKeyof } from "./predicates";
 import { LastSegment } from "./segments";
 import type { Cases, Discriminant } from "./sum";
 
@@ -8,10 +8,14 @@ import type { Cases, Discriminant } from "./sum";
 // https://fettblog.eu/typescript-union-to-intersection/
 type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
 
-type TupleKeyof<A> = Exclude<keyof A, keyof Array<unknown>>;
-
 type RecordChildren<A> = keyof {
-  [K in TupleKeyof<A> as true extends IsRecord<A[K]> ? (Discriminant<A[K]> extends never ? K : never) : never]: unknown;
+  [K in TupleKeyof<A> as true extends IsRecord<A[K]>
+    ? Discriminant<A[K]> extends never
+      ? true extends IsNonTupleArray<A[K]>
+        ? never
+        : K
+      : never
+    : never]: unknown;
 };
 
 type SumChildren<A> = keyof {
@@ -20,6 +24,10 @@ type SumChildren<A> = keyof {
 
 type NullableChildren<A> = keyof {
   [K in TupleKeyof<A> as true extends IsNull<A[K]> ? K : never]: unknown;
+};
+
+type ArrayChildren<A> = keyof {
+  [K in TupleKeyof<A> as true extends IsNonTupleArray<A[K]> ? K : never]: unknown;
 };
 
 type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
@@ -55,6 +63,11 @@ type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
         [K2 in K as K extends "" ? `?` : `${Extract<K, string>}.?`]: NonNullable<A[K]>;
       };
     }[NullableChildren<A>]
+  | {
+      [K in ArrayChildren<A>]: {
+        [K2 in K as K extends "" ? "[]>" : `${Extract<K, string>}.[]>`]: A[K][number];
+      };
+    }[ArrayChildren<A>]
 >;
 
 type BubbleSum<

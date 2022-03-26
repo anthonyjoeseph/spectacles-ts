@@ -17,3 +17,10 @@ const modifyOpted = pipe(
   modifyOption("type:A.a.?some.c", (j) => j + 4)
 );
 expectType<O.Option<Data>>(modifyOpted);
+
+// modifies a traversal (un-optionally)
+const modifyTraversal = pipe(
+  [{ a: O.some(123) }, { a: O.some(456) }],
+  modifyOption("[]>.a.?some", (j) => j + 4)
+);
+expectType<{ a: O.Option<number> }[]>(modifyTraversal);
