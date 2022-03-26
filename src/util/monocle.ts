@@ -1,5 +1,7 @@
 import { pipe } from "fp-ts/function";
 import * as A from "fp-ts/ReadonlyArray";
+import * as R from "fp-ts/ReadonlyRecord";
+import { Ord as StringOrd } from "fp-ts/string";
 import * as L from "monocle-ts/lib/Lens";
 import * as Op from "monocle-ts/lib/Optional";
 import * as Tr from "monocle-ts/lib/Traversal";
@@ -10,9 +12,10 @@ export const isPathLens = (path: string): boolean =>
   !path.includes("?some") &&
   !path.includes("?left") &&
   !path.includes("?right") &&
-  !path.includes("[]>");
+  !path.includes("[]>") &&
+  !path.includes("{}>");
 
-export const isPathTraversal = (path: string): boolean => path.includes("[]>");
+export const isPathTraversal = (path: string): boolean => path.includes("[]>") || path.includes("{}>");
 
 export const optionalFromPath = (path: string): Op.Optional<any, any> => {
   const opt = path.split(".").reduce((acc, cur) => {
@@ -53,6 +56,9 @@ export const traversalFromPath = (path: string): Tr.Traversal<any, any> => {
       return pipe(acc, Tr.left);
     } else if (cur === "[]>") {
       const a = pipe(acc, Tr.traverse(A.Traversable));
+      return a;
+    } else if (cur === "{}>") {
+      const a = pipe(acc, Tr.traverse(R.getTraversable(StringOrd)));
       return a;
     } else if (cur.includes("[") && cur.includes("]") && cur.indexOf("[") < cur.indexOf("]")) {
       const component: number = Number.parseInt(cur.substring(cur.indexOf("[") + 1, cur.indexOf("]")), 10);

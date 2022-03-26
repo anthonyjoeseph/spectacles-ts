@@ -36,11 +36,11 @@ describe("modifyOptionW", () => {
     );
     assert.deepStrictEqual(modifyArrayTraversal, [{ a: O.some("127") }, { a: O.some("460") }]);
   });
-  /* it("modifies a record traversal", () => {
+  it("modifies a record traversal", () => {
     const modifyRecordTraversal = pipe(
       { a: 123, b: 456 } as Record<string, number>,
-      modifyOptionW(["{}>"], (j) => `${j + 4}`)
+      modifyOptionW("{}>", (j) => `${j + 4}`)
     );
     assert.deepStrictEqual(modifyRecordTraversal, { a: "127", b: "460" });
-  }); */
+  });
 });

@@ -22,6 +22,8 @@ export type ApplyTraversals<A, Args extends string> = Args extends ""
   ? A
   : Args extends `${string}[]>${infer Tail}`
   ? ApplyTraversals<A[], Tail>
+  : Args extends `${string}{}>${infer Tail}`
+  ? ApplyTraversals<Record<string, A>, Tail>
   : A;
 
 type ApplySegment<A, Seg extends string> = Seg extends "?"
@@ -34,6 +36,8 @@ type ApplySegment<A, Seg extends string> = Seg extends "?"
   ? Extract<A, Right<unknown>>["right"]
   : Seg extends "[]>"
   ? Extract<A, unknown[]>[number]
+  : Seg extends "{}>"
+  ? Extract<A, Record<string, unknown>>[string]
   : Seg extends `[${infer TupleIndex}]`
   ? A[Extract<TupleIndex, keyof A>]
   : Seg extends `${infer Discriminant}:${infer Member}`
