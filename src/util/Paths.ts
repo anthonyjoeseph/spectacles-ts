@@ -1,7 +1,7 @@
 import type { Option, Some } from "fp-ts/Option";
 import type { Either, Left, Right } from "fp-ts/Either";
 import type { IsNull, IsRecord, IsNonTupleArray, TupleKeyof, IsNonStructRecord } from "./predicates";
-import { LastSegment } from "./segments";
+import { EscapeSpecialChars, LastSegment } from "./segments";
 import type { Cases, Discriminant } from "./sum";
 
 // Credit to Stefan Baumgartner
@@ -116,7 +116,7 @@ type UpsertableKeys<A> = Extract<
 
 type Operation = "static" | "dynamic" | "upsert";
 
-export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": A }, Op>;
+export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": EscapeKeys<A> }, Op>;
 
 type _Paths<A, Op extends Operation, Acc extends string = never> = true extends IsRecord<A>
   ? _Paths<
@@ -130,3 +130,12 @@ type _Paths<A, Op extends Operation, Acc extends string = never> = true extends 
           : ExtractChangeableKeys<keyof A>)
     >
   : Acc;
+
+// Not tail recursive!!
+type EscapeKeys<A> = A extends Record<string, any>
+  ? A extends unknown[]
+    ? A
+    : {
+        [K in keyof A as EscapeSpecialChars<Extract<K, string>>]: EscapeKeys<A[K]>;
+      }
+  : A;

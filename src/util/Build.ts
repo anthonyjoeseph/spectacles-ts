@@ -2,7 +2,7 @@ import { Option } from "fp-ts/Option";
 import { Either, Left, Right } from "fp-ts/Either";
 import type { AtPath } from "./AtPath";
 import { IsRecord } from "./predicates";
-import { AddDots, InitSegment, LastSegment } from "./segments";
+import { AddNullSegments, InitSegment, LastSegment, UnescapeParenthesis } from "./segments";
 
 type Operation = "augment" | "remove";
 
@@ -12,7 +12,7 @@ export type Build<
   Original = unknown,
   NewKey extends string = string,
   Op extends Operation = "augment"
-> = _Build<AddDots<Path>, Output, Original, NewKey, Op>;
+> = _Build<AddNullSegments<Path>, Output, Original, NewKey, Op>;
 
 type _Build<Path extends string, Output, Original, NewKey extends string, Op extends Operation> = Path extends ""
   ? Output
@@ -42,7 +42,7 @@ type FromScratch<Segment extends string, New> = OnSegment<
         } & { readonly [K in Discriminant]: string }
       : never;
     tuple: New[] & { readonly [K in Segment]: New };
-    record: { readonly [K in Segment]: New };
+    record: { readonly [K in UnescapeParenthesis<Segment>]: New };
   }
 >;
 
@@ -62,7 +62,7 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
           | Exclude<Old, Record<Discriminant, Member>>
       : never;
     tuple: Segment extends `[${infer TupleKey}]` ? AugmentRecord<TupleKey, Old, New, NewKey, Op> : never;
-    record: true extends IsRecord<Old> ? AugmentRecord<Segment, Old, New, NewKey, Op> : never;
+    record: true extends IsRecord<Old> ? AugmentRecord<UnescapeParenthesis<Segment>, Old, New, NewKey, Op> : never;
   }
 >;
 
@@ -96,7 +96,9 @@ type OnSegment<
     tuple: unknown;
     record: unknown;
   }
-> = S extends "?"
+> = S extends `(${string}`
+  ? Handler["record"]
+  : S extends "?"
   ? Handler["null"]
   : S extends "?some"
   ? Handler["option"]

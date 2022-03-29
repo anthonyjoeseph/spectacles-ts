@@ -1,9 +1,9 @@
 {
   "extends": "./tsconfig.settings.json",
   "compilerOptions": {
-    /* Basic Options */
     "target": "es2019",
     "module": "commonjs",
     "noEmit": true
   },
+  "include": ["src/**/*.ts", "test/jest/**/*.ts"],
 }

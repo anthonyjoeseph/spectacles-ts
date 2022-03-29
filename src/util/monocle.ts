@@ -7,16 +7,53 @@ import * as Op from "monocle-ts/lib/Optional";
 import * as Tr from "monocle-ts/lib/Traversal";
 
 export const isPathLens = (path: string): boolean =>
-  !path.includes("?") &&
-  !path.includes(":") &&
-  !path.includes("?some") &&
-  !path.includes("?left") &&
-  !path.includes("?right") &&
-  !path.includes("[]>") &&
-  !path.includes("{}>");
+  !split(path).some(
+    (s) => ["?", "?some", "?left", "right", "[]>", "{}>"].includes(s) || (!s.startsWith("(") && s.includes(":"))
+  );
 
-const splitIntoSegments = (path: string): string[] => {
-  const segments = path.split(".");
+export const isPathTraversal = (path: string): boolean => split(path).some((s) => ["[]>", "{}>"].includes(s));
+
+const lastSegment = (path: string): string => {
+  if (path === "") {
+    return path;
+  }
+  const escapeable = path.match(/\((.*)\*(.*)\)$/);
+  if (escapeable) {
+    return escapeable[2] as string;
+  }
+  const escapeable2 = path.match(/\((.*)\)$/);
+  if (escapeable2) {
+    return escapeable2[0] as string;
+  }
+  const finalSegment = path.match(/(.*)\.(.*)/);
+  if (finalSegment) {
+    return finalSegment[2] as string;
+  }
+  return path;
+};
+
+const initSegment = (path: string): string => {
+  if (path === "") {
+    return path;
+  }
+  const escapeable = path.match(/(.*)\.\((.*)\*(.*)\)$/);
+  if (escapeable) {
+    return escapeable[1] as string;
+  }
+  return path.substring(0, path.lastIndexOf(lastSegment(path)) - 1);
+};
+
+const splitIntoSegments = (path: string, acc: string[] = []): string[] => {
+  const init = initSegment(path);
+  const last = lastSegment(path);
+  if (init === "") {
+    return [last, ...acc];
+  }
+  return splitIntoSegments(init, [last, ...acc]);
+};
+
+const split = (path: string): string[] => {
+  const segments = splitIntoSegments(path, []);
   return segments.flatMap((segment) => {
     if (
       segment.includes("?some") ||
@@ -35,10 +72,8 @@ const splitIntoSegments = (path: string): string[] => {
   });
 };
 
-export const isPathTraversal = (path: string): boolean => path.includes("[]>") || path.includes("{}>");
-
 export const optionalFromPath = (path: string): Op.Optional<any, any> => {
-  const opt = splitIntoSegments(path).reduce((acc, cur) => {
+  const opt = split(path).reduce((acc, cur) => {
     if (cur === "?") {
       return pipe(acc, Op.fromNullable);
     } else if (cur === "?some") {
@@ -65,7 +100,7 @@ export const optionalFromPath = (path: string): Op.Optional<any, any> => {
 };
 
 export const traversalFromPath = (path: string): Tr.Traversal<any, any> => {
-  const opt = splitIntoSegments(path).reduce((acc, cur) => {
+  const opt = split(path).reduce((acc, cur) => {
     if (cur === "?") {
       return pipe(acc, Tr.fromNullable);
     } else if (cur === "?some") {
@@ -98,7 +133,7 @@ export const traversalFromPath = (path: string): Tr.Traversal<any, any> => {
 };
 
 export const lensFromPath = (path: string): L.Lens<any, any> => {
-  const lens = splitIntoSegments(path).reduce((acc, cur) => {
+  const lens = split(path).reduce((acc, cur) => {
     if (cur.includes("[") && cur.includes("]") && cur.indexOf("[") < cur.indexOf("]")) {
       const component = cur.substring(cur.indexOf("[") + 1, cur.indexOf("]"));
       return pipe(acc, L.component(Number.parseInt(component, 10)));

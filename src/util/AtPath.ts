@@ -1,5 +1,6 @@
 import { Some } from "fp-ts/Option";
 import { Left, Right } from "fp-ts/Either";
+import { FirstSegment, TailSegment, UnescapeParenthesis } from "./segments";
 
 type Operation = "apply-traversals" | "no-traversals";
 
@@ -9,24 +10,28 @@ export type AtPath<A, Args extends string, Op extends Operation = "apply-travers
   ? A
   : Op extends "apply-traversals"
   ? ApplyTraversals<
-      Args extends `${infer Key}.${infer Rest}`
-        ? AtPath<ApplySegment<A, Key>, Rest, "no-traversals">
-        : ApplySegment<A, Args>,
+      TailSegment<Args> extends ""
+        ? ApplySegment<A, Args>
+        : AtPath<ApplySegment<A, FirstSegment<Args>>, TailSegment<Args>, "no-traversals">,
       Args
     >
-  : Args extends `${infer Key}.${infer Rest}`
-  ? AtPath<ApplySegment<A, Key>, Rest, Op>
-  : ApplySegment<A, Args>;
+  : TailSegment<Args> extends ""
+  ? ApplySegment<A, Args>
+  : AtPath<ApplySegment<A, FirstSegment<Args>>, TailSegment<Args>, Op>;
 
 export type ApplyTraversals<A, Args extends string> = Args extends ""
   ? A
-  : Args extends `${string}[]>${infer Tail}`
-  ? ApplyTraversals<A[], Tail>
-  : Args extends `${string}{}>${infer Tail}`
-  ? ApplyTraversals<Record<string, A>, Tail>
-  : A;
+  : FirstSegment<Args> extends `(${string}`
+  ? ApplyTraversals<A, TailSegment<Args>>
+  : FirstSegment<Args> extends "[]>"
+  ? ApplyTraversals<A[], TailSegment<Args>>
+  : FirstSegment<Args> extends "{}>"
+  ? ApplyTraversals<Record<string, A>, TailSegment<Args>>
+  : ApplyTraversals<A, TailSegment<Args>>;
 
-type ApplySegment<A, Seg extends string> = Seg extends "?"
+type ApplySegment<A, Seg extends string> = Seg extends `(${string}`
+  ? A[Extract<UnescapeParenthesis<Seg>, keyof A>]
+  : Seg extends "?"
   ? NonNullable<A>
   : Seg extends "?some"
   ? Extract<A, Some<unknown>>["value"]

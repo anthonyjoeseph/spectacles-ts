@@ -1,27 +1,45 @@
 import type { Option } from "fp-ts/Option";
-import { AddDots } from "./segments";
+import { AddNullSegments, FirstSegment, TailSegment } from "./segments";
 
 export type TupleKeyof<A> = Exclude<keyof A, keyof Array<unknown>>;
 
-export type GiveOpt<A, Args extends string> = true extends HasTraversals<AddDots<Args>>
+export type GiveOpt<A, Args extends string> = true extends HasTraversals<AddNullSegments<Args>>
   ? A
-  : true extends HasNull<AddDots<Args>>
+  : true extends HasNull<AddNullSegments<Args>>
   ? Option<A>
-  : true extends HasSum<AddDots<Args>>
+  : true extends HasSum<AddNullSegments<Args>>
   ? Option<A>
   : A;
 
-export type HasOptional<Args extends string> = true extends HasNull<AddDots<Args>>
+export type HasOptional<Args extends string> = true extends HasNull<AddNullSegments<Args>>
   ? true
-  : true extends HasSum<AddDots<Args>>
+  : true extends HasSum<AddNullSegments<Args>>
   ? true
   : never;
 
-export type HasSum<Args extends string> = AddDots<Args> extends `${string}:${string}` ? true : never;
+type HasSum<Args extends string> = Args extends ""
+  ? never
+  : FirstSegment<Args> extends `(${string}`
+  ? HasSum<TailSegment<Args>>
+  : FirstSegment<Args> extends `${string}:${string}`
+  ? true
+  : HasSum<TailSegment<Args>>;
 
-export type HasNull<Args extends string> = AddDots<Args> extends `${string}?${string}` ? true : never;
+type HasNull<Args extends string> = Args extends ""
+  ? never
+  : FirstSegment<Args> extends `(${string}`
+  ? HasNull<TailSegment<Args>>
+  : FirstSegment<Args> extends `${string}?${string}`
+  ? true
+  : HasNull<TailSegment<Args>>;
 
-export type HasTraversals<Args extends string> = AddDots<Args> extends `${string}[]>${string}` ? true : never;
+type HasTraversals<Args extends string> = Args extends ""
+  ? never
+  : FirstSegment<Args> extends `(${string}`
+  ? HasTraversals<TailSegment<Args>>
+  : FirstSegment<Args> extends "[]>" | "{}>"
+  ? true
+  : HasTraversals<TailSegment<Args>>;
 
 export type IsNull<A> = undefined extends A ? true : null extends A ? true : never;
 

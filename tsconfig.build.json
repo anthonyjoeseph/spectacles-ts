@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.settings.json",
   "compilerOptions": {
-    "target": "es2015",
+    "target": "es2019",
     "module": "commonjs",
     "declaration": true,
     "outDir": "./dist",
@@ -9,5 +9,5 @@
     "rootDirs": [],
     "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "test/jest/**/*.ts"],
+  "include": ["src/**/*.ts"],
 }
