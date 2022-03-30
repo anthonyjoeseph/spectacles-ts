@@ -6,3 +6,10 @@ test
 scripts
 .github
 .vscode
+blog-post.md
+.eslintignore
+.eslintrc.js
+.gitignore
+jest.config.js
+PathIdea.md
+yarn-error.log
