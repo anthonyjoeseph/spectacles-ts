@@ -1,0 +1,16 @@
+name: CI
+on: 
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install modules
+      run: yarn
+    - name: Build types for tsd
+      run: yarn build
+    - name: Run tests lint, tsd, jest
+      run: yarn test

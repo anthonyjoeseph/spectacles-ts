@@ -1,25 +1,13 @@
-import { get } from './get'
-import { set } from './set'
-import { setOption } from './setOption'
-import { modify } from './modify'
-import { modifyOption } from './modifyOption'
-import { modifyW } from './modifyW'
-import { modifyOptionW } from './modifyOptionW'
-import { modifyF } from './modifyF'
-import { upsert } from './upsert'
-import { remove } from './remove'
-import { rename } from './rename'
+import { get } from "./values/get";
+import { set } from "./values/set";
+import { setOption } from "./values/setOption";
+import { modify } from "./values/modify";
+import { modifyOption } from "./values/modifyOption";
+import { modifyW } from "./values/modifyW";
+import { modifyOptionW } from "./values/modifyOptionW";
+import { modifyF } from "./values/modifyF";
+import { upsert } from "./values/upsert";
+import { remove } from "./values/remove";
+import { rename } from "./values/rename";
 
-export { 
-  get,
-  set,
-  setOption,
-  modify,
-  modifyOption,
-  modifyW,
-  modifyOptionW,
-  modifyF,
-  upsert,
-  remove,
-  rename,
-}
+export { get, set, setOption, modify, modifyOption, modifyW, modifyOptionW, modifyF, upsert, remove, rename };
