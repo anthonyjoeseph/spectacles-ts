@@ -49,10 +49,38 @@ type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
       };
     }[RecordChildren<A>]
   | {
+      [K in SumChildren<A>]: Option<any> extends A[K]
+        ? Record<
+            K,
+            {
+              "?some": Extract<A[K], Some<unknown>>["value"];
+            }
+          >
+        : Either<any, any> extends A[K]
+        ? Record<
+            K,
+            {
+              "?left": Extract<A[K], Left<unknown>>["left"];
+              "?right": Extract<A[K], Right<unknown>>["right"];
+            }
+          >
+        : Record<K, BubbleSum<A[K]>>;
+    }[SumChildren<A>]
+  | {
       [K in NullableChildren<A>]-?: {
         [K2 in K as `${Extract<K, string>}?`]: NonNullable<A[K]>;
       };
     }[NullableChildren<A>]
+  | {
+      [K in ArrayChildren<A>]: {
+        [K2 in K as K extends "" ? "[]>" : `${Extract<K, string>}.[]>`]: A[K][number];
+      };
+    }[ArrayChildren<A>]
+  | {
+      [K in NonStructRecordChildren<A>]: {
+        [K2 in K as K extends "" ? "{}>" : `${Extract<K, string>}.{}>`]: A[K][number];
+      };
+    }[NonStructRecordChildren<A>]
 >;
 
 type BubbleSum<
@@ -88,7 +116,7 @@ type UpsertableKeys<A> = Extract<
 
 type Operation = "static" | "dynamic" | "upsert";
 
-export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": A }, Op>;
+export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": EscapeKeys<A> }, Op>;
 
 type _Paths<A, Op extends Operation, Acc extends string = never> = true extends IsRecord<A>
   ? _Paths<
@@ -102,3 +130,12 @@ type _Paths<A, Op extends Operation, Acc extends string = never> = true extends 
           : ExtractChangeableKeys<keyof A>)
     >
   : Acc;
+
+// Not tail recursive!!
+type EscapeKeys<A> = A extends Record<string, any>
+  ? A extends unknown[]
+    ? A
+    : {
+        [K in keyof A as EscapeSpecialChars<Extract<K, string>>]: EscapeKeys<A[K]>;
+      }
+  : A;
