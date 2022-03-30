@@ -1,0 +1,8 @@
+node_modules/
+yarn-error.log
+.vscode/settings.json
+src
+test
+scripts
+.github
+.vscode
