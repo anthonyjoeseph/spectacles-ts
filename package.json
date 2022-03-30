@@ -1,6 +1,6 @@
 {
   "name": "spectacles-ts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "./index.js",
   "types": "./index.d.ts",
   "sideEffects": false,
@@ -48,5 +48,10 @@
   "tsd": {
     "directory": "test/tsd"
   },
-  "files": ["dist/index.js", "dist/**/*.js", "dist/index.d.ts", "dist/**/*.ts"]
+  "files": [
+    "dist/index.js",
+    "dist/**/*.js",
+    "dist/index.d.ts",
+    "dist/**/*.ts"
+  ]
 }
