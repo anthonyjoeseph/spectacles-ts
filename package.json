@@ -47,5 +47,6 @@
   },
   "tsd": {
     "directory": "test/tsd"
-  }
+  },
+  "files": ["dist/index.js", "dist/**/*.js", "dist/index.d.ts", "dist/**/*.ts"],
 }
