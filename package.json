@@ -1,6 +1,6 @@
 {
   "name": "spectacles-ts",
-  "version": "0.0.7",
+  "version": "1.0.0",
   "main": "./index.js",
   "types": "./index.d.ts",
   "sideEffects": false,
