@@ -6,6 +6,7 @@ Are you perplexed by the syntax of [immutability-helper](https://github.com/kolo
 
 Looking for something a little more intuitive, powerful & flexible? Clear up your data w/ `spectacles-ts` ([github repo](https://github.com/anthonyjoeseph/spectacles-ts))!
 
+
 ## IDEAS
 
 ## setOption as motivation for Option
@@ -37,7 +38,7 @@ import { pipe } from 'fp-ts'
 import { set } from 'spectacles-ts'
 
 const oldObj = { a: { b: 123 } }
-const newObj = pipe(oldObj, set(['a', 'b'], 999))
+const newObj = pipe(oldObj, set("a.b", 999))
 // oldObj = { a: { b: 123 } }
 // newObj = { a: { b: 999 } }
 ```
@@ -51,7 +52,7 @@ You can `get` a value with similar syntax:
 ```ts
 import { get } from 'spectacles-ts'
 
-const num: number = pipe({ a: { b: 123 } }, get('a', 'b'))
+const num: number = pipe({ a: { b: 123 } }, get("a.b"))
 
 // equivalent to
 const num2: number = { a: { b: 123 } }.a.b
@@ -116,7 +117,7 @@ We can traverse an `Array` to collect its nested data
 ```ts
 const a: number[] = pipe(
   [{ a: 123 }, { a: 456 }],
-  get('[]>', 'a')
+  get("[]>.a")
 )
 
 // equivalent to:
@@ -130,7 +131,7 @@ Or to make a change across all of its values
 ```ts
 const a: { a: number }[] = pipe(
   [{ a: 123 }, { a: 456 }],
-  set(['[]>', 'a'], 999)
+  set(["[]>.a"], 999)
 )
 
 // a = [{ a: 999 }, { a: 999 }]
@@ -141,7 +142,7 @@ We can also traverse a `Record`. The keys are sorted alphabetically
 ```ts
 const rec = 
   { two: { a: 456 }, one: { a: 123 } } as Record<string, { a: number }>
-const a: number[] = pipe(rec, get('{}>', 'a'))
+const a: number[] = pipe(rec, get("{}>.a"))
 
 // a = [123, 456]
 ```
@@ -165,7 +166,7 @@ import * as A from 'fp-ts/ReadonlyArray'
 
 const app: { a: number[] } = pipe(
   { a: [123] },
-  modify(['a'], A.append(456))
+  modify("a", A.append(456))
 )
 // app = { a: [123, 456] }
 ```
@@ -195,7 +196,7 @@ import { upsert } from 'spectacles-ts'
 
 const obj: { a: { b: string} } = pipe(
   { a: { b: 123 } }, 
-  upsert(['a', 'b'], 'abc')
+  upsert("a", "b", 'abc')
 )
 // obj = { a: { b: 'abc' } }
 ```
@@ -206,19 +207,19 @@ Or add a new one:
 
 const obj: { a: { b: number; c: string } } = pipe(
   { a: { b: 123 } }, 
-  upsert(['a', 'c'], 'abc')
+  upsert("a", "c" 'abc')
 )
 // obj = { a: { b: 123, c: 'abc' } }
 ```
 
-Or remove a few of them:
+Or remove one of them:
 
 ```ts
 import { remove } from 'spectacles-ts'
 
 const removedKeys: { nest: { b: string } } = pipe(
   { nest: { a: 123, b: 'abc', c: false } }, 
-  remove('nest', ['a', 'c'] as const)
+  remove("nest.a")
 )
 // removedKeys = { nest: { b: 'abc' } }
 ```
@@ -230,7 +231,7 @@ import { rename } from 'spectacles-ts'
 
 const renamedKey: { nest: { a2: number } } = pipe(
   { nest: { a: 123 } }, 
-  rename(['nest', 'a'], 'a2')
+  rename("nest.a", "a2")
 )
 // renamedKey = { nest: { a2: 123 } }
 ```
@@ -245,16 +246,6 @@ const getIndex: number = pipe(tup, get('0'))
 // getIndex = 123
 ```
 
-You can pick a few keys:
-
-```ts
-const pickedKeys: { a: number; c: boolean } = pipe(
-  { nest: { a: 123, b: 'abc', c: false } }, 
-  get(['nest', ['a', 'c'] as const])
-)
-// pickedKeys = { a: 123, c: true }
-```
-
 You can access a [nullable value](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types):
 
 ```ts
@@ -262,14 +253,6 @@ interface Obj { a?: { b: number } }
 const obj: Obj = { a: { b: 123 } }
 const a: O.Option<number> = pipe(a, get('a', '?', 'b'))
 // a = O.some(123)
-```
-
-You can access a key of a record:
-
-```ts
-const rec = { a: 123 } as Record<string, number>
-const getKey: O.Option<number> = pipe(rec, get('?key', 'a'))
-// getKey = O.some(123)
 ```
 
 You can refine a union type:
@@ -283,46 +266,6 @@ const refined: O.Option<number> = pipe(
 ```
 
 And there are [convenience](https://github.com/anthonyjoeseph/spectacles-ts#operations) operations for working with `Option` and [Either](https://rlee.dev/practical-guide-to-fp-ts-part-3) types
-
-## Limitation
-
-You can only use up to four operations at a time (Alas!)
-
-You can nest functions instead:
-
-```ts
-import { pipe } from 'fp-ts/function'
-import { get, set, modify } from 'spectacles-ts'
-
-const getDeep: number = pipe(
-  { a: { b: { c: { d: { e: 123 } } } } },
-  get('a', 'b', 'c', 'd'),
-  get('e')
-)
-
-const setDeep = pipe(
-  { a: { b: { c: { d: { e: 123 } } } } },
-  modify(
-    ['a', 'b', 'c', 'd'],
-    set(['e'], 321)
-  )
-)
-```
-
-Nesting functions that change their output type looks a little uglier, but it works:
-
-```ts
-const upsertDeep: { a: { b: { c: { d: { e: number; e2: string } } } } } = pipe(
-  { a: { b: { c: { d: { e: 123 } } } } },
-  modifyW(
-    ['a', 'b', 'c', 'd'],
-    val => pipe(
-      val,
-      upsert(['e2'], 'abc')
-    )
-  )
-)
-```
 
 ## `spectacles-ts` vs `monocle-ts`
 
