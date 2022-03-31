@@ -39,7 +39,7 @@ type ApplySegment<A, Seg extends string> = Seg extends `(${string}`
   ? Extract<A, Left<unknown>>["left"]
   : Seg extends "?right"
   ? Extract<A, Right<unknown>>["right"]
-  : Seg extends "[]>"
+  : Seg extends "[]>" | "[number]"
   ? Extract<A, unknown[]>[number]
   : Seg extends "{}>"
   ? Extract<A, Record<string, unknown>>[string]

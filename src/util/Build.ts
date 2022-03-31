@@ -35,7 +35,8 @@ type FromScratch<Segment extends string, New> = OnSegment<
     option: Option<New>;
     left: Either<New, never>;
     right: Either<never, New>;
-    traversal: New;
+    arrayIndex: New[];
+    traversal: New[];
     sum: Segment extends `${infer Discriminant}:${string}`
       ? {
           readonly [K in Exclude<keyof New, Discriminant>]+?: New[K];
@@ -53,7 +54,8 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
     option: Option<New>;
     left: Either<New, Extract<Old, Right<unknown>>["right"]>;
     right: Either<Extract<Old, Left<unknown>>["left"], New>;
-    traversal: New;
+    arrayIndex: New[];
+    traversal: New[];
     sum: Segment extends `${infer Discriminant}:${infer Member}`
       ?
           | {
@@ -91,6 +93,7 @@ type OnSegment<
     option: unknown;
     left: unknown;
     right: unknown;
+    arrayIndex: unknown;
     traversal: unknown;
     sum: unknown;
     tuple: unknown;
@@ -108,6 +111,8 @@ type OnSegment<
   ? Handler["right"]
   : S extends `${string}:${string}`
   ? Handler["sum"]
+  : S extends "[number]"
+  ? Handler["arrayIndex"]
   : S extends "[]>"
   ? Handler["traversal"]
   : S extends "{}>"
