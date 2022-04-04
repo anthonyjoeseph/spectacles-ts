@@ -11,16 +11,8 @@ export type Build<
   Original = unknown,
   NewKey extends string = string,
   Op extends Operation = "augment"
-> = _Build<Segments, Output, Original, NewKey, Op>;
-
-type _Build<
-  Segments extends unknown[],
-  Output,
-  Original,
-  NewKey extends string,
-  Op extends Operation
 > = Segments extends [...infer Init, infer Last]
-  ? _Build<
+  ? Build<
       Init,
       BuildSegment<Extract<Last, string>, AtPath<Original, Init, "no-traversals">, Output, NewKey, Op>,
       Original,
@@ -60,7 +52,7 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
     option: Option<New>;
     left: Either<New, Extract<Old, Right<unknown>>["right"]>;
     right: Either<Extract<Old, Left<unknown>>["left"], New>;
-    arrayIndex: New[];
+    arrayIndex: { [K in keyof Old]: New };
     recordIndex: Record<string, New>;
     traversal: New[];
     sum: Segment extends `${infer Discriminant}:${infer Member}`

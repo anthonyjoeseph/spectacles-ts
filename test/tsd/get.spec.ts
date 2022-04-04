@@ -17,7 +17,7 @@ expectError<O.Option<never>>(optional);
 
 // has checked record access
 const record = { a: 123 } as Record<string, number>;
-const picked2 = pipe(record, get("?key", "b"));
+const picked2 = pipe(record, get("[string]", "b"));
 expectType<O.Option<number>>(picked2);
 
 // can traverse arrays

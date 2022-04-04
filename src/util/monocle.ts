@@ -9,7 +9,8 @@ import * as Tr from "monocle-ts/lib/Traversal";
 export const isPathLens = (path: string): boolean =>
   !split(path).some(
     (s) =>
-      ["?", "?some", "?left", "right", "[]>", "{}>", "[number]"].includes(s) || (!s.startsWith("(") && s.includes(":"))
+      ["?", "?some", "?left", "right", "[]>", "{}>", "[number]", "[string]"].includes(s) ||
+      (!s.startsWith("(") && s.includes(":"))
   );
 
 export const isPathTraversal = (path: string): boolean => split(path).some((s) => ["[]>", "{}>"].includes(s));

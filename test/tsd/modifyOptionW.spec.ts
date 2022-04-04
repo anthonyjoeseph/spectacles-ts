@@ -43,7 +43,7 @@ expectType<O.Option<{ a: string | undefined }>>(optionalReplacesType);
 
 const collectionWidensType = pipe(
   { a: [123, 456] },
-  modifyOptionW(["a", 0], (j) => `${j + 2}`)
+  modifyOptionW("a.[number]", 0, (j) => `${j + 2}`)
 );
 expectType<O.Option<{ a: (string | number)[] }>>(collectionWidensType);
 

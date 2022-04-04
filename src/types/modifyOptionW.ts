@@ -1,11 +1,17 @@
 import type { Paths } from "../util/Paths";
 import type { Build } from "../util/Build";
-import type { ApplyTraversals, AtPath } from "../util/AtPath";
-import type { GiveOpt } from "../util/predicates";
+import type { AtPath } from "../util/AtPath";
+import type { GiveOpt, HasIndexedAccess } from "../util/predicates";
 import type { Segments } from "../util/segments";
 import type { IndiciesForPath } from "../util/indicies";
 
-export type ModifyOptionW = <Infer, Path extends Paths<Infer>, RetVal, S extends unknown[] = Segments<Path>>(
+export type ModifyOptionW = <
+  Infer,
+  Path extends Paths<Infer>,
+  RetVal,
+  S extends unknown[] = Segments<Path>,
+  A = AtPath<Infer, S, "no-traversals">
+>(
   path: Path & string,
-  ...args: [...indicies: IndiciesForPath<S>, modFunc: (v: AtPath<Infer, S, "no-traversals">) => RetVal]
-) => (a: Infer) => GiveOpt<ApplyTraversals<Build<S, RetVal, Infer>, S>, S>;
+  ...args: [...indicies: IndiciesForPath<S>, modFunc: (v: A) => RetVal]
+) => (a: Infer) => GiveOpt<Build<S, true extends HasIndexedAccess<S> ? RetVal | AtPath<Infer, S> : RetVal, Infer>, S>;

@@ -1,7 +1,7 @@
 import type { Option, Some } from "fp-ts/Option";
 import type { Either, Left, Right } from "fp-ts/Either";
 import type { IsNull, IsRecord, IsNonTupleArray, TupleKeyof, IsNonStructRecord } from "./predicates";
-import { EscapeSpecialChars, LastSegment } from "./segments";
+import { EscapeSpecialChars } from "./segments";
 import type { Cases, Discriminant } from "./sum";
 
 // Credit to Stefan Baumgartner
@@ -39,7 +39,7 @@ type NonStructRecordChildren<A> = keyof {
 type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
   | {
       [K in RecordChildren<A>]: {
-        [K2 in TupleKeyof<A[K]> as A[K] extends unknown[]
+        [K2 in TupleKeyof<A[K]> as A[K] extends readonly unknown[]
           ? K extends ""
             ? `[${Extract<K2, string>}]`
             : `${Extract<K, string>}.[${Extract<K2, string>}]`
@@ -98,14 +98,14 @@ type BubbleSum<
       }[Case["tag"]]
     : never
 >;
-
+/* 
 type ExtractChangeableKeys<K> = K extends string
   ? LastSegment<K> extends `${string}:${string}`
     ? never
     : LastSegment<K> extends `${string}?${string}`
     ? never
     : K
-  : never;
+  : never; */
 
 type UpsertableKeys<A> = Extract<
   keyof {
@@ -127,13 +127,13 @@ type _Paths<A, Op extends Operation, Acc extends string = never> = true extends 
           ? Extract<keyof A, string>
           : Op extends "upsert"
           ? UpsertableKeys<A>
-          : ExtractChangeableKeys<keyof A>)
+          : Extract<keyof A, string>) //ExtractChangeableKeys<keyof A>)
     >
   : Acc;
 
 // Not tail recursive!!
 type EscapeKeys<A> = A extends Record<string, any>
-  ? A extends unknown[]
+  ? A extends readonly unknown[]
     ? A
     : {
         [K in keyof A as EscapeSpecialChars<Extract<K, string>>]: EscapeKeys<A[K]>;

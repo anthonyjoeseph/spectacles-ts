@@ -25,7 +25,7 @@ expectType<
   | B
   | {
       a: O.Option<{
-        c: string | number;
+        c: string;
         d: string[];
         e: boolean;
       }>;
@@ -33,20 +33,20 @@ expectType<
     }
 >(modifyOptional);
 
-const optionalWidensType = pipe(
+const optionalReplacesType = pipe(
   { a: 123 } as { a: number | undefined },
   modifyW("a?", (j) => `${j + 2}`)
 );
-expectType<{ a: string | number | undefined }>(optionalWidensType);
+expectType<{ a: string | undefined }>(optionalReplacesType);
 
 const collectionWidensType = pipe(
   { a: [123, 456] },
-  modifyW(["a", 0], (j) => `${j + 2}`)
+  modifyW("a.[number]", 0, (j) => `${j + 2}`)
 );
 expectType<{ a: (string | number)[] }>(collectionWidensType);
 
 const preservesReadonlyArr = pipe(
   [123, 456] as readonly number[],
-  modifyW([0], (j) => `${j + 2}`)
+  modifyW("[number]", 0, (j) => `${j + 2}`)
 );
 expectType<readonly (number | string)[]>(preservesReadonlyArr);

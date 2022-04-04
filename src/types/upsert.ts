@@ -1,7 +1,9 @@
 import type { Paths } from "../util/Paths";
 import type { Build } from "../util/Build";
 import type { IndiciesForPath } from "../util/indicies";
-import { Segments } from "../util/segments";
+import type { HasIndexedAccess } from "../util/predicates";
+import type { Segments } from "../util/segments";
+import type { AtPath } from "../util/AtPath";
 
 export type Upsert = <
   Infer,
@@ -13,4 +15,4 @@ export type Upsert = <
   path: Path & string,
   final: Final,
   ...args: [...indicies: IndiciesForPath<S>, val: Val]
-) => (a: Infer) => Build<[...S, Final], Val, Infer>;
+) => (a: Infer) => Build<[...S, Final], true extends HasIndexedAccess<S> ? AtPath<Infer, S> | Val : Val, Infer>;
