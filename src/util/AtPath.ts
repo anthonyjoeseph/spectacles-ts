@@ -1,36 +1,35 @@
 import { Some } from "fp-ts/Option";
 import { Left, Right } from "fp-ts/Either";
-import { FirstSegment, TailSegment, UnescapeParenthesis } from "./segments";
 
 type Operation = "apply-traversals" | "no-traversals";
 
-export type AtPath<A, Args extends string, Op extends Operation = "apply-traversals"> = unknown extends A
+export type AtPath<A, Args extends unknown[], Op extends Operation = "apply-traversals"> = unknown extends A
   ? unknown
   : Args extends ""
   ? A
   : Op extends "apply-traversals"
   ? ApplyTraversals<
-      TailSegment<Args> extends ""
-        ? ApplySegment<A, Args>
-        : AtPath<ApplySegment<A, FirstSegment<Args>>, TailSegment<Args>, "no-traversals">,
+      Args extends [infer First, ...infer Tail]
+        ? AtPath<ApplySegment<A, Extract<First, string>>, Tail, "no-traversals">
+        : A,
       Args
     >
-  : TailSegment<Args> extends ""
-  ? ApplySegment<A, Args>
-  : AtPath<ApplySegment<A, FirstSegment<Args>>, TailSegment<Args>, Op>;
+  : Args extends [infer First, ...infer Tail]
+  ? AtPath<ApplySegment<A, Extract<First, string>>, Tail, Op>
+  : A;
 
-export type ApplyTraversals<A, Args extends string> = Args extends ""
-  ? A
-  : FirstSegment<Args> extends `(${string}`
-  ? ApplyTraversals<A, TailSegment<Args>>
-  : FirstSegment<Args> extends "[]>"
-  ? ApplyTraversals<A[], TailSegment<Args>>
-  : FirstSegment<Args> extends "{}>"
-  ? ApplyTraversals<Record<string, A>, TailSegment<Args>>
-  : ApplyTraversals<A, TailSegment<Args>>;
+export type ApplyTraversals<A, Args extends unknown[]> = Args extends [infer First, ...infer Tail]
+  ? First extends `(${string}`
+    ? ApplyTraversals<A, Tail>
+    : First extends "[]>"
+    ? ApplyTraversals<A[], Tail>
+    : First extends "{}>"
+    ? ApplyTraversals<Record<string, A>, Tail>
+    : ApplyTraversals<A, Tail>
+  : A;
 
-type ApplySegment<A, Seg extends string> = Seg extends `(${string}`
-  ? A[Extract<UnescapeParenthesis<Seg>, keyof A>]
+type ApplySegment<A, Seg extends string> = Seg extends `(${infer Middle})`
+  ? A[Extract<Middle, keyof A>]
   : Seg extends "?"
   ? NonNullable<A>
   : Seg extends "?some"

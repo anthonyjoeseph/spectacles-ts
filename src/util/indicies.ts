@@ -1,10 +1,7 @@
-import { AddNullSegments, FirstSegment, TailSegment } from "./segments";
-export type IndiciesForPath<P extends string> = _IndiciesForPath<AddNullSegments<P>>;
-
-type _IndiciesForPath<P extends string, Acc extends unknown[] = []> = FirstSegment<P> extends ""
-  ? Acc
-  : FirstSegment<P> extends "[number]"
-  ? _IndiciesForPath<TailSegment<P>, [...Acc, number]>
-  : FirstSegment<P> extends "[string]"
-  ? _IndiciesForPath<TailSegment<P>, [...Acc, string]>
-  : _IndiciesForPath<TailSegment<P>, Acc>;
+export type IndiciesForPath<P extends unknown[], Acc extends unknown[] = []> = P extends [infer First, ...infer Tail]
+  ? First extends "[number]"
+    ? IndiciesForPath<Tail, [...Acc, number]>
+    : First extends "[string]"
+    ? IndiciesForPath<Tail, [...Acc, string]>
+    : IndiciesForPath<Tail, Acc>
+  : Acc;

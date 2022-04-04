@@ -21,7 +21,7 @@ describe("special characters", () => {
           },
         },
       },
-      get("().(colon:char).(end?).(?front).(middle?middle).([]>)")
+      get("().(colon:char).(end?).(?front).(middle?middle).([]>).({}>)")
     );
     assert.deepStrictEqual(specialCharKeys, 123);
   });

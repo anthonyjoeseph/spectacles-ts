@@ -29,7 +29,7 @@ describe("modifyW", () => {
   it("widens a collection's type", () => {
     const collectionWidensType = pipe(
       { a: [123, 456] },
-      modifyW(["a", 0], (j) => `${j + 2}`)
+      modifyW("a.[number]", 0, (j) => `${j + 2}`)
     );
     assert.deepStrictEqual(collectionWidensType, { a: ["125", 456] });
   });

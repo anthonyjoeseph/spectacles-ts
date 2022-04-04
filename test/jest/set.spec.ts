@@ -11,7 +11,6 @@ describe("set", () => {
   });
   it("modifies an optional value", () => {
     const optSet: Data = pipe(data, set("type:A.a.?some.c", -123));
-    const optSet2: Data = pipe(data, set("type:A.a.?some.d.[number]", 0, "cde"));
     assert.deepStrictEqual(optSet, {
       type: "A",
       a: O.some({

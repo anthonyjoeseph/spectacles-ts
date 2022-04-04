@@ -4,21 +4,20 @@ import type { Build } from "../util/Build";
 import type { IndiciesForPath } from "../util/indicies";
 import type { Paths } from "../util/Paths";
 import type { GiveOpt, HasOptional } from "../util/predicates";
-import type { AddNullSegments } from "../util/segments";
+import type { Segments } from "../util/segments";
 
 export type Get = <
   Infer,
   Path extends unknown extends Infer ? string : Paths<Infer>,
-  Ret extends unknown extends Infer ? unknown : GiveOpt<AtPath<Infer, AddNullSegments<Path>>, AddNullSegments<Path>>
+  Ret extends unknown extends Infer ? unknown : GiveOpt<AtPath<Infer, S>, S>,
+  S extends unknown[] = Segments<Path>
 >(
   path: Path & string,
-  ...indicies: IndiciesForPath<Path>
+  ...indicies: IndiciesForPath<S>
 ) => unknown extends Infer
   ? unknown extends Ret
-    ? <Constructed extends Build<Path, unknown>>(
-        obj: Constructed
-      ) => GiveOpt<AtPath<Constructed, AddNullSegments<Path>>, AddNullSegments<Path>>
-    : true extends HasOptional<Path>
-    ? (obj: Build<Path, [Ret] extends [Option<infer A>] ? A : unknown>) => Ret
-    : (obj: Build<Path, Ret>) => Ret
+    ? <Constructed extends Build<S, unknown>>(obj: Constructed) => GiveOpt<AtPath<Constructed, S>, S>
+    : true extends HasOptional<S>
+    ? (obj: Build<S, [Ret] extends [Option<infer A>] ? A : unknown>) => Ret
+    : (obj: Build<S, Ret>) => Ret
   : (obj: Infer) => Ret;

@@ -2,27 +2,32 @@ import { Option } from "fp-ts/Option";
 import { Either, Left, Right } from "fp-ts/Either";
 import type { AtPath } from "./AtPath";
 import { IsRecord } from "./predicates";
-import { AddNullSegments, InitSegment, LastSegment, UnescapeParenthesis } from "./segments";
 
 type Operation = "augment" | "remove";
 
 export type Build<
-  Path extends string,
+  Segments extends unknown[],
   Output,
   Original = unknown,
   NewKey extends string = string,
   Op extends Operation = "augment"
-> = _Build<AddNullSegments<Path>, Output, Original, NewKey, Op>;
+> = _Build<Segments, Output, Original, NewKey, Op>;
 
-type _Build<Path extends string, Output, Original, NewKey extends string, Op extends Operation> = Path extends ""
-  ? Output
-  : _Build<
-      InitSegment<Path>,
-      BuildSegment<LastSegment<Path>, AtPath<Original, InitSegment<Path>, "no-traversals">, Output, NewKey, Op>,
+type _Build<
+  Segments extends unknown[],
+  Output,
+  Original,
+  NewKey extends string,
+  Op extends Operation
+> = Segments extends [...infer Init, infer Last]
+  ? _Build<
+      Init,
+      BuildSegment<Extract<Last, string>, AtPath<Original, Init, "no-traversals">, Output, NewKey, Op>,
       Original,
       string,
       "augment"
-    >;
+    >
+  : Output;
 
 type BuildSegment<Segment extends string, Old, New, NewKey extends string, Op extends Operation> = unknown extends Old
   ? FromScratch<Segment, New>
@@ -44,7 +49,7 @@ type FromScratch<Segment extends string, New> = OnSegment<
         } & { readonly [K in Discriminant]: string }
       : never;
     tuple: New[] & { readonly [K in Segment]: New };
-    record: { readonly [K in UnescapeParenthesis<Segment>]: New };
+    record: { readonly [K in Segment extends `(${infer Middle})` ? Middle : Segment]: New };
   }
 >;
 
@@ -66,7 +71,9 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
           | Exclude<Old, Record<Discriminant, Member>>
       : never;
     tuple: Segment extends `[${infer TupleKey}]` ? AugmentRecord<TupleKey, Old, New, NewKey, Op> : never;
-    record: true extends IsRecord<Old> ? AugmentRecord<UnescapeParenthesis<Segment>, Old, New, NewKey, Op> : never;
+    record: true extends IsRecord<Old>
+      ? AugmentRecord<Segment extends `(${infer Middle})` ? Middle : Segment, Old, New, NewKey, Op>
+      : never;
   }
 >;
 
