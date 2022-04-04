@@ -22,3 +22,10 @@ declare const nullable: { a?: { b: number; c: string } };
 expectType<typeof nullable>(pipe(nullable, upsert("a?", "b", 123)));
 expectError(pipe(nullable, upsert("a", "a", 123)));
 expectError(pipe(nullable, upsert("a?.c", "a", 123)));
+
+// insert into record type
+const insertInsideCollection = pipe(
+  { a: { x: { b: 123 }, y: { b: 456 } } as Record<string, { b: number }> },
+  upsert(["a", "?key", "z", "b"], "789")
+);
+expectType<{ a: Record<string, { b: string | number }> }>(insertInsideCollection);

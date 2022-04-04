@@ -11,5 +11,5 @@ export const set: Set =
     if (isPathLens(path as any)) {
       return lensFromPath(path as any).set(val)(obj);
     }
-    return pipe(traversalFromPath(path as any), Tr.set(val))(obj);
+    return pipe(traversalFromPath(path as any, indicies), Tr.set(val))(obj);
   };

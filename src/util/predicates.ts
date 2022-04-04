@@ -23,6 +23,8 @@ type HasSum<Args extends string> = Args extends ""
   ? HasSum<TailSegment<Args>>
   : FirstSegment<Args> extends `${string}:${string}`
   ? true
+  : FirstSegment<Args> extends "[number]"
+  ? true
   : HasSum<TailSegment<Args>>;
 
 type HasNull<Args extends string> = Args extends ""

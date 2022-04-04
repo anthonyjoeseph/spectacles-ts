@@ -78,7 +78,7 @@ type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
     }[ArrayChildren<A>]
   | {
       [K in NonStructRecordChildren<A>]: {
-        [K2 in K as K extends "" ? "{}>" : `${Extract<K, string>}.{}>`]: A[K][number];
+        [K2 in K as K extends "" ? "{}>" | "[string]" : `${Extract<K, string>}.${"{}>" | "[string]"}`]: A[K][number];
       };
     }[NonStructRecordChildren<A>]
 >;

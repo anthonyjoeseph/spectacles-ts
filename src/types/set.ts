@@ -5,5 +5,5 @@ import { AddNullSegments } from "../util/segments";
 
 export type Set = <Infer, Path extends Paths<Infer>, Val extends AtPath<Infer, AddNullSegments<Path>, "no-traversals">>(
   path: Path & string,
-  ...args: [...IndiciesForPath<Path>, Val]
+  ...args: [...indicies: IndiciesForPath<Path>, val: Val]
 ) => (obj: Infer) => Infer;

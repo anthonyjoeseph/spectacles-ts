@@ -15,6 +15,11 @@ const optional = pipe(data, get("type:A.a.?some.c"));
 expectType<O.Option<number>>(optional);
 expectError<O.Option<never>>(optional);
 
+// has checked record access
+const record = { a: 123 } as Record<string, number>;
+const picked2 = pipe(record, get("?key", "b"));
+expectType<O.Option<number>>(picked2);
+
 // can traverse arrays
 const traverseArray = pipe([{ a: 123 }, { a: 456 }], get("[]>.a"));
 expectType<number[]>(traverseArray);

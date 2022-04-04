@@ -2,11 +2,15 @@ import type { Paths } from "../util/Paths";
 import type { Build } from "../util/Build";
 import type { ApplyTraversals, AtPath } from "../util/AtPath";
 import type { HasOptional } from "../util/predicates";
-import { AddNullSegments } from "../util/segments";
+import type { AddNullSegments } from "../util/segments";
+import type { IndiciesForPath } from "../util/indicies";
 
 export type ModifyW = <Infer, Path extends Paths<Infer>, RetVal>(
   path: Path & string,
-  modFunc: (v: AtPath<Infer, AddNullSegments<Path>, "no-traversals">) => RetVal
+  ...args: [
+    ...indicies: IndiciesForPath<Path>,
+    modFunc: (v: AtPath<Infer, AddNullSegments<Path>, "no-traversals">) => RetVal
+  ]
 ) => (
   a: Infer
 ) => true extends HasOptional<Path>

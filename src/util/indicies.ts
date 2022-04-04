@@ -5,4 +5,6 @@ type _IndiciesForPath<P extends string, Acc extends unknown[] = []> = FirstSegme
   ? Acc
   : FirstSegment<P> extends "[number]"
   ? _IndiciesForPath<TailSegment<P>, [...Acc, number]>
+  : FirstSegment<P> extends "[string]"
+  ? _IndiciesForPath<TailSegment<P>, [...Acc, string]>
   : _IndiciesForPath<TailSegment<P>, Acc>;

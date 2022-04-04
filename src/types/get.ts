@@ -1,16 +1,18 @@
 import type { Option } from "fp-ts/Option";
 import type { AtPath } from "../util/AtPath";
 import type { Build } from "../util/Build";
+import type { IndiciesForPath } from "../util/indicies";
 import type { Paths } from "../util/Paths";
 import type { GiveOpt, HasOptional } from "../util/predicates";
-import { AddNullSegments } from "../util/segments";
+import type { AddNullSegments } from "../util/segments";
 
 export type Get = <
   Infer,
   Path extends unknown extends Infer ? string : Paths<Infer>,
   Ret extends unknown extends Infer ? unknown : GiveOpt<AtPath<Infer, AddNullSegments<Path>>, AddNullSegments<Path>>
 >(
-  path: Path & string
+  path: Path & string,
+  ...indicies: IndiciesForPath<Path>
 ) => unknown extends Infer
   ? unknown extends Ret
     ? <Constructed extends Build<Path, unknown>>(

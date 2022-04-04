@@ -1,7 +1,8 @@
 import type { AtPath } from "../util/AtPath";
+import type { IndiciesForPath } from "../util/indicies";
 import type { Paths } from "../util/Paths";
 import type { GiveOpt } from "../util/predicates";
-import { AddNullSegments } from "../util/segments";
+import type { AddNullSegments } from "../util/segments";
 
 export type SetOption = <
   Infer,
@@ -9,5 +10,5 @@ export type SetOption = <
   Val extends AtPath<Infer, AddNullSegments<Path>, "no-traversals">
 >(
   path: Path & string,
-  val: Val
+  ...args: [...indicies: IndiciesForPath<Path>, val: Val]
 ) => (obj: Infer) => GiveOpt<Infer, Path>;

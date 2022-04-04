@@ -41,6 +41,12 @@ const optionalReplacesType = pipe(
 );
 expectType<O.Option<{ a: string | undefined }>>(optionalReplacesType);
 
+const collectionWidensType = pipe(
+  { a: [123, 456] },
+  modifyOptionW(["a", 0], (j) => `${j + 2}`)
+);
+expectType<O.Option<{ a: (string | number)[] }>>(collectionWidensType);
+
 const modifyArrayTraversal = pipe(
   [{ a: O.some(123) }, { a: O.some(456) }],
   modifyOptionW("[]>.a.?some", (j) => `${j + 4}`)

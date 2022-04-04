@@ -38,3 +38,15 @@ const optionalWidensType = pipe(
   modifyW("a?", (j) => `${j + 2}`)
 );
 expectType<{ a: string | number | undefined }>(optionalWidensType);
+
+const collectionWidensType = pipe(
+  { a: [123, 456] },
+  modifyW(["a", 0], (j) => `${j + 2}`)
+);
+expectType<{ a: (string | number)[] }>(collectionWidensType);
+
+const preservesReadonlyArr = pipe(
+  [123, 456] as readonly number[],
+  modifyW([0], (j) => `${j + 2}`)
+);
+expectType<readonly (number | string)[]>(preservesReadonlyArr);

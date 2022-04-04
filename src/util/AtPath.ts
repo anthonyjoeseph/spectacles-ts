@@ -41,7 +41,7 @@ type ApplySegment<A, Seg extends string> = Seg extends `(${string}`
   ? Extract<A, Right<unknown>>["right"]
   : Seg extends "[]>" | "[number]"
   ? Extract<A, unknown[]>[number]
-  : Seg extends "{}>"
+  : Seg extends "{}>" | "[string]"
   ? Extract<A, Record<string, unknown>>[string]
   : Seg extends `[${infer TupleIndex}]`
   ? A[Extract<TupleIndex, keyof A>]

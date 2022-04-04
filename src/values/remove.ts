@@ -16,7 +16,7 @@ export const remove: Remove = (fullPath: string) => (a: unknown) => {
     )(a);
   }
   return pipe(
-    traversalFromPath(path as any),
+    traversalFromPath(path as any, []),
     Tr.modify((obj) => omit(Array.isArray(final) ? final : [final])(obj))
   )(a);
 };
