@@ -15,7 +15,7 @@ type _Paths<A, Op extends Operation, Acc extends string = never> = true extends 
 type BubbleUp<A extends Record<string, any>> = UnionToIntersection<ValueOf<_BubbleUp<A>>>;
 
 type _BubbleUp<A extends Record<string, any>> = {
-  [K in TupleKeyof<A>]-?: Match<
+  [K in keyof A]-?: Match<
     A[K],
     {
       nullable: Record<`${Extract<K, string>}?`, NonNullable<A[K]>>;
@@ -25,7 +25,7 @@ type _BubbleUp<A extends Record<string, any>> = {
         >}`]: A[K][K2];
       };
       tuple: {
-        [K2 in keyof A[K] as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}[${Extract<
+        [K2 in TupleKeyof<A[K]> as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}[${Extract<
           K2,
           string
         >}]`]: A[K][K2];
@@ -85,7 +85,13 @@ type Match<
     sum: unknown;
     other: unknown;
   }
-> = Discriminant<A> extends never
+> = true extends IsNull<A>
+  ? Matches["nullable"]
+  : [A] extends [Option<unknown>]
+  ? Matches["option"]
+  : [A] extends [Either<unknown, unknown>]
+  ? Matches["either"]
+  : Discriminant<A> extends never
   ? [A] extends [readonly unknown[]]
     ? TupleKeyof<A> extends never
       ? Matches["array"]
@@ -94,13 +100,7 @@ type Match<
     ? Matches["record"]
     : true extends IsRecord<A>
     ? Matches["struct"]
-    : true extends IsNull<A>
-    ? Matches["nullable"]
     : Matches["other"]
-  : Option<any> extends A
-  ? Matches["option"]
-  : Either<any, any> extends A
-  ? Matches["either"]
   : Matches["sum"];
 
 // Credit to Stefan Baumgartner
