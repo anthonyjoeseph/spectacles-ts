@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "fp-ts-std": "^0.10.1",
-    "monocle-ts": "^2.3.5"
+    "monocle-ts": "^2.3.5",
+    "ts-toolbelt": "^9.6.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.20",

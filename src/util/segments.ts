@@ -73,3 +73,16 @@ type EscapeParenthesis<S extends string> = `(${StartingParens<S>}*${S})`;
 type StartingParens<S extends string, Acc extends string = ""> = S extends `${string})${infer Tail}`
   ? StartingParens<Tail, `${Acc}(`>
   : Acc;
+
+export type EscapeSpecialChars2<S extends string> = S extends
+  | ""
+  | "[]>"
+  | "{}>"
+  | "({}>)"
+  | `[${string}]`
+  | `${string}.${string}`
+  | `${string}?${string}`
+  | `${string}:${string}`
+  | `${string}(${string}`
+  ? `(${S})`
+  : S;

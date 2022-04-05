@@ -58,7 +58,7 @@ type HasTraversals<Args extends unknown[]> = Args extends [infer First, ...infer
     : HasTraversals<Tail>
   : never;
 
-export type IsNull<A> = undefined extends A ? true : null extends A ? true : never;
+export type IsNull<A> = Extract<A, undefined | null> extends never ? never : true;
 
 export type IsRecord<A> = unknown extends A ? never : [A] extends [Record<string, any>] ? true : never;
 
