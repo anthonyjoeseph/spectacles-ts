@@ -2325,11 +2325,6 @@ format@^0.2.0:
   resolved "https://registry.yarnpkg.com/format/-/format-0.2.2.tgz#d6170107e9efdc4ed30c9dc39016df942b5cb58b"
   integrity sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=
 
-fp-ts-std@^0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/fp-ts-std/-/fp-ts-std-0.10.1.tgz#e8fe6263ae538626a194a3e388a960bd9680a403"
-  integrity sha512-vjQvdRerpFcbuO/LrK8wBIgzM+mK65ixrS4LcPVBPoF0ishnkzg4rRWx5iEVKgVLk5bCq43tXz+oDAoGR7QGYw==
-
 fp-ts@^2.11.1:
   version "2.11.1"
   resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-2.11.1.tgz#b1eeb2540728b6328542664888442f8f805d2443"
@@ -5406,11 +5401,6 @@ ts-node@^9.1.1:
     make-error "^1.1.1"
     source-map-support "^0.5.17"
     yn "3.1.1"
-
-ts-toolbelt@^9.6.0:
-  version "9.6.0"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-9.6.0.tgz#50a25426cfed500d4a09bd1b3afb6f28879edfd5"
-  integrity sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==
 
 tsd@^0.19.1:
   version "0.19.1"
