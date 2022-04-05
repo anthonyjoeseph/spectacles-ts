@@ -9,16 +9,7 @@ type Operation = "static" | "dynamic" | "upsert";
 export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": A }, Op>;
 
 type _Paths<A, Op extends Operation, Acc extends string = never> = true extends IsRecord<A>
-  ? _Paths<
-      keyof A extends never ? unknown : BubbleUp<A>,
-      Op,
-      | Acc
-      | (Op extends "static"
-          ? Extract<keyof A, string>
-          : Op extends "upsert"
-          ? UpsertableKeys<A>
-          : ExtractChangeableKeys<A>)
-    >
+  ? _Paths<keyof A extends never ? unknown : BubbleUp<A>, Op, Acc | Extract<keyof A, string>>
   : Acc;
 
 type BubbleUp<A extends Record<string, any>> = UnionToIntersection<ValueOf<_BubbleUp<A>>>;
@@ -111,20 +102,6 @@ type Match<
   : Either<any, any> extends A
   ? Matches["either"]
   : Matches["sum"];
-
-type UpsertableKeys<A> = Extract<
-  keyof {
-    [K in keyof A as true extends IsRecord<A[K]> ? K : never]: unknown;
-  },
-  string
->;
-
-type ExtractChangeableKeys<A> = Extract<
-  keyof {
-    [K in keyof A as true extends IsNull<A[K]> ? never : Discriminant<A[K]> extends never ? K : never]: unknown;
-  },
-  string
->;
 
 // Credit to Stefan Baumgartner
 // https://fettblog.eu/typescript-union-to-intersection/
