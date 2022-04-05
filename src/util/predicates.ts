@@ -1,50 +1,71 @@
 import type { Option } from "fp-ts/Option";
-import { AddNullSegments, FirstSegment, TailSegment } from "./segments";
 
 export type TupleKeyof<A> = Exclude<keyof A, keyof Array<unknown>>;
 
-export type GiveOpt<A, Args extends string> = true extends HasTraversals<AddNullSegments<Args>>
+export type GiveOpt<A, Args extends unknown[]> = true extends HasTraversals<Args>
   ? A
-  : true extends HasNull<AddNullSegments<Args>>
+  : true extends HasNull<Args>
   ? Option<A>
-  : true extends HasSum<AddNullSegments<Args>>
+  : true extends HasSum<Args>
+  ? Option<A>
+  : true extends HasIndexedAccess<Args>
   ? Option<A>
   : A;
 
-export type HasOptional<Args extends string> = true extends HasNull<AddNullSegments<Args>>
+export type HasOptional<Args extends unknown[]> = true extends HasNull<Args>
   ? true
-  : true extends HasSum<AddNullSegments<Args>>
+  : true extends HasSum<Args>
+  ? true
+  : true extends HasIndexedAccess<Args>
   ? true
   : never;
 
-type HasSum<Args extends string> = Args extends ""
-  ? never
-  : FirstSegment<Args> extends `(${string}`
-  ? HasSum<TailSegment<Args>>
-  : FirstSegment<Args> extends `${string}:${string}`
-  ? true
-  : HasSum<TailSegment<Args>>;
+export type HasIndexedAccess<Args extends unknown[]> = Args extends [infer First, ...infer Tail]
+  ? First extends "[number]"
+    ? true
+    : First extends "[string]"
+    ? true
+    : HasIndexedAccess<Tail>
+  : never;
 
-type HasNull<Args extends string> = Args extends ""
-  ? never
-  : FirstSegment<Args> extends `(${string}`
-  ? HasNull<TailSegment<Args>>
-  : FirstSegment<Args> extends `${string}?${string}`
-  ? true
-  : HasNull<TailSegment<Args>>;
+type HasSum<Args extends unknown[]> = Args extends [infer First, ...infer Tail]
+  ? First extends `(${string})`
+    ? HasSum<Tail>
+    : First extends `${string}:${string}`
+    ? true
+    : HasSum<Tail>
+  : never;
 
-type HasTraversals<Args extends string> = Args extends ""
-  ? never
-  : FirstSegment<Args> extends `(${string}`
-  ? HasTraversals<TailSegment<Args>>
-  : FirstSegment<Args> extends "[]>" | "{}>"
-  ? true
-  : HasTraversals<TailSegment<Args>>;
+type HasNull<Args extends unknown[]> = Args extends [infer First, ...infer Tail]
+  ? First extends `(${string})`
+    ? HasNull<Tail>
+    : First extends `${string}?`
+    ? true
+    : First extends `?some`
+    ? true
+    : First extends `?left`
+    ? true
+    : First extends `?right`
+    ? true
+    : HasNull<Tail>
+  : never;
 
-export type IsNull<A> = undefined extends A ? true : null extends A ? true : never;
+type HasTraversals<Args extends unknown[]> = Args extends [infer First, ...infer Tail]
+  ? First extends `(${string})`
+    ? HasTraversals<Tail>
+    : First extends "[]>" | "{}>"
+    ? true
+    : HasTraversals<Tail>
+  : never;
+
+export type IsNull<A> = Extract<A, undefined | null> extends never ? never : true;
 
 export type IsRecord<A> = unknown extends A ? never : [A] extends [Record<string, any>] ? true : never;
 
-export type IsNonTupleArray<A> = [A] extends [unknown[]] ? (TupleKeyof<A> extends never ? true : never) : never;
+export type IsNonTupleArray<A> = [A] extends [readonly unknown[]]
+  ? TupleKeyof<A> extends never
+    ? true
+    : never
+  : never;
 
 export type IsNonStructRecord<A> = string extends keyof A ? true : never;

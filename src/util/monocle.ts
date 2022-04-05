@@ -8,7 +8,9 @@ import * as Tr from "monocle-ts/lib/Traversal";
 
 export const isPathLens = (path: string): boolean =>
   !split(path).some(
-    (s) => ["?", "?some", "?left", "right", "[]>", "{}>"].includes(s) || (!s.startsWith("(") && s.includes(":"))
+    (s) =>
+      ["?", "?some", "?left", "right", "[]>", "{}>", "[number]", "[string]"].includes(s) ||
+      (!s.startsWith("(") && s.includes(":"))
   );
 
 export const isPathTraversal = (path: string): boolean => split(path).some((s) => ["[]>", "{}>"].includes(s));
@@ -72,7 +74,8 @@ const split = (path: string): string[] => {
   });
 };
 
-export const optionalFromPath = (path: string): Op.Optional<any, any> => {
+export const optionalFromPath = (path: string, _indicies: unknown[]): Op.Optional<any, any> => {
+  const indicies = [..._indicies];
   const opt = split(path).reduce((acc, cur) => {
     if (cur === "?") {
       return pipe(acc, Op.fromNullable);
@@ -82,6 +85,10 @@ export const optionalFromPath = (path: string): Op.Optional<any, any> => {
       return pipe(acc, Op.left);
     } else if (cur === "?right") {
       return pipe(acc, Op.left);
+    } else if (cur === "[number]") {
+      return pipe(acc, Op.index(indicies.shift() as number));
+    } else if (cur === "[string]") {
+      return pipe(acc, Op.key(indicies.shift() as string));
     } else if (cur.includes("[") && cur.includes("]") && cur.indexOf("[") < cur.indexOf("]")) {
       const component: number = Number.parseInt(cur.substring(cur.indexOf("[") + 1, cur.indexOf("]")), 10);
       return pipe(acc, Op.component(component));
@@ -99,7 +106,8 @@ export const optionalFromPath = (path: string): Op.Optional<any, any> => {
   return opt;
 };
 
-export const traversalFromPath = (path: string): Tr.Traversal<any, any> => {
+export const traversalFromPath = (path: string, _indicies: unknown[]): Tr.Traversal<any, any> => {
+  const indicies = [..._indicies];
   const opt = split(path).reduce((acc, cur) => {
     if (cur === "?") {
       return pipe(acc, Tr.fromNullable);
@@ -109,6 +117,10 @@ export const traversalFromPath = (path: string): Tr.Traversal<any, any> => {
       return pipe(acc, Tr.left);
     } else if (cur === "?right") {
       return pipe(acc, Tr.left);
+    } else if (cur === "[number]") {
+      return pipe(acc, Tr.index(indicies.shift() as number));
+    } else if (cur === "[string]") {
+      return pipe(acc, Tr.key(indicies.shift() as string));
     } else if (cur === "[]>") {
       const a = pipe(acc, Tr.traverse(A.Traversable));
       return a;

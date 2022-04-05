@@ -2,27 +2,24 @@ import { Option } from "fp-ts/Option";
 import { Either, Left, Right } from "fp-ts/Either";
 import type { AtPath } from "./AtPath";
 import { IsRecord } from "./predicates";
-import { AddNullSegments, InitSegment, LastSegment, UnescapeParenthesis } from "./segments";
 
 type Operation = "augment" | "remove";
 
 export type Build<
-  Path extends string,
+  Segments extends unknown[],
   Output,
   Original = unknown,
   NewKey extends string = string,
   Op extends Operation = "augment"
-> = _Build<AddNullSegments<Path>, Output, Original, NewKey, Op>;
-
-type _Build<Path extends string, Output, Original, NewKey extends string, Op extends Operation> = Path extends ""
-  ? Output
-  : _Build<
-      InitSegment<Path>,
-      BuildSegment<LastSegment<Path>, AtPath<Original, InitSegment<Path>, "no-traversals">, Output, NewKey, Op>,
+> = Segments extends [...infer Init, infer Last]
+  ? Build<
+      Init,
+      BuildSegment<Extract<Last, string>, AtPath<Original, Init, "no-traversals">, Output, NewKey, Op>,
       Original,
       string,
       "augment"
-    >;
+    >
+  : Output;
 
 type BuildSegment<Segment extends string, Old, New, NewKey extends string, Op extends Operation> = unknown extends Old
   ? FromScratch<Segment, New>
@@ -35,14 +32,16 @@ type FromScratch<Segment extends string, New> = OnSegment<
     option: Option<New>;
     left: Either<New, never>;
     right: Either<never, New>;
-    traversal: New;
+    arrayIndex: New[];
+    recordIndex: Record<string, New>;
+    traversal: New[];
     sum: Segment extends `${infer Discriminant}:${string}`
       ? {
           readonly [K in Exclude<keyof New, Discriminant>]+?: New[K];
         } & { readonly [K in Discriminant]: string }
       : never;
     tuple: New[] & { readonly [K in Segment]: New };
-    record: { readonly [K in UnescapeParenthesis<Segment>]: New };
+    record: { readonly [K in Segment extends `(${infer Middle})` ? Middle : Segment]: New };
   }
 >;
 
@@ -53,7 +52,9 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
     option: Option<New>;
     left: Either<New, Extract<Old, Right<unknown>>["right"]>;
     right: Either<Extract<Old, Left<unknown>>["left"], New>;
-    traversal: New;
+    arrayIndex: { [K in keyof Old]: New };
+    recordIndex: Record<string, New>;
+    traversal: New[];
     sum: Segment extends `${infer Discriminant}:${infer Member}`
       ?
           | {
@@ -62,7 +63,9 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
           | Exclude<Old, Record<Discriminant, Member>>
       : never;
     tuple: Segment extends `[${infer TupleKey}]` ? AugmentRecord<TupleKey, Old, New, NewKey, Op> : never;
-    record: true extends IsRecord<Old> ? AugmentRecord<UnescapeParenthesis<Segment>, Old, New, NewKey, Op> : never;
+    record: true extends IsRecord<Old>
+      ? AugmentRecord<Segment extends `(${infer Middle})` ? Middle : Segment, Old, New, NewKey, Op>
+      : never;
   }
 >;
 
@@ -91,6 +94,8 @@ type OnSegment<
     option: unknown;
     left: unknown;
     right: unknown;
+    arrayIndex: unknown;
+    recordIndex: unknown;
     traversal: unknown;
     sum: unknown;
     tuple: unknown;
@@ -108,6 +113,10 @@ type OnSegment<
   ? Handler["right"]
   : S extends `${string}:${string}`
   ? Handler["sum"]
+  : S extends "[number]"
+  ? Handler["arrayIndex"]
+  : S extends "[string]"
+  ? Handler["recordIndex"]
   : S extends "[]>"
   ? Handler["traversal"]
   : S extends "{}>"

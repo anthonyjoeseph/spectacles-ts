@@ -1,87 +1,60 @@
 import type { Option, Some } from "fp-ts/Option";
 import type { Either, Left, Right } from "fp-ts/Either";
-import type { IsNull, IsRecord, IsNonTupleArray, TupleKeyof, IsNonStructRecord } from "./predicates";
-import { EscapeSpecialChars, LastSegment } from "./segments";
+import type { IsNull, IsRecord, TupleKeyof } from "./predicates";
+import type { EscapeSpecialChars } from "./segments";
 import type { Cases, Discriminant } from "./sum";
 
-// Credit to Stefan Baumgartner
-// https://fettblog.eu/typescript-union-to-intersection/
-type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
+type Operation = "static" | "dynamic" | "upsert";
 
-type RecordChildren<A> = keyof {
-  [K in TupleKeyof<A> as true extends IsRecord<A[K]>
-    ? Discriminant<A[K]> extends never
-      ? true extends IsNonTupleArray<A[K]>
-        ? never
-        : true extends IsNonStructRecord<A[K]>
-        ? never
-        : K
-      : never
-    : never]: unknown;
-};
+export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": A }, Op>;
 
-type SumChildren<A> = keyof {
-  [K in TupleKeyof<A> as Discriminant<A[K]> extends never ? never : K]: unknown;
-};
+type _Paths<A, Op extends Operation, Acc extends string = never> = true extends IsRecord<A>
+  ? _Paths<keyof A extends never ? unknown : BubbleUp<A>, Op, Acc | Extract<keyof A, string>>
+  : Acc;
 
-type NullableChildren<A> = keyof {
-  [K in TupleKeyof<A> as true extends IsNull<A[K]> ? K : never]: unknown;
-};
+type BubbleUp<A extends Record<string, any>> = UnionToIntersection<ValueOf<_BubbleUp<A>>>;
 
-type ArrayChildren<A> = keyof {
-  [K in TupleKeyof<A> as true extends IsNonTupleArray<A[K]> ? K : never]: unknown;
-};
-
-type NonStructRecordChildren<A> = keyof {
-  [K in TupleKeyof<A> as true extends IsNonStructRecord<A[K]> ? K : never]: unknown;
-};
-
-type BubbleUp<A extends Record<string, any>> = UnionToIntersection<
-  | {
-      [K in RecordChildren<A>]: {
-        [K2 in TupleKeyof<A[K]> as A[K] extends unknown[]
-          ? K extends ""
-            ? `[${Extract<K2, string>}]`
-            : `${Extract<K, string>}.[${Extract<K2, string>}]`
-          : K extends ""
-          ? Extract<K2, string>
-          : `${Extract<K, string>}.${Extract<K2, string>}`]: A[K][K2];
+type _BubbleUp<A extends Record<string, any>> = {
+  [K in TupleKeyof<A>]-?: Match<
+    A[K],
+    {
+      nullable: Record<`${Extract<K, string>}?`, NonNullable<A[K]>>;
+      struct: {
+        [K2 in keyof A[K] as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${EscapeSpecialChars<
+          Extract<K2, string>
+        >}`]: A[K][K2];
       };
-    }[RecordChildren<A>]
-  | {
-      [K in SumChildren<A>]: Option<any> extends A[K]
-        ? Record<
-            K,
-            {
-              "?some": Extract<A[K], Some<unknown>>["value"];
-            }
-          >
-        : Either<any, any> extends A[K]
-        ? Record<
-            K,
-            {
-              "?left": Extract<A[K], Left<unknown>>["left"];
-              "?right": Extract<A[K], Right<unknown>>["right"];
-            }
-          >
-        : Record<K, BubbleSum<A[K]>>;
-    }[SumChildren<A>]
-  | {
-      [K in NullableChildren<A>]-?: {
-        [K2 in K as `${Extract<K, string>}?`]: NonNullable<A[K]>;
+      tuple: {
+        [K2 in keyof A[K] as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}[${Extract<
+          K2,
+          string
+        >}]`]: A[K][K2];
       };
-    }[NullableChildren<A>]
-  | {
-      [K in ArrayChildren<A>]: {
-        [K2 in K as K extends "" ? "[]>" : `${Extract<K, string>}.[]>`]: A[K][number];
-      };
-    }[ArrayChildren<A>]
-  | {
-      [K in NonStructRecordChildren<A>]: {
-        [K2 in K as K extends "" ? "{}>" : `${Extract<K, string>}.{}>`]: A[K][number];
-      };
-    }[NonStructRecordChildren<A>]
->;
+      record: Record<
+        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[string]" | "{}>"}`,
+        A[K][string]
+      >;
+      array: Record<
+        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[number]" | "[]>"}`,
+        A[K][number]
+      >;
+      option: Record<
+        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?some`,
+        Extract<A[K], Some<unknown>>["value"]
+      >;
+      either: Record<
+        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?left`,
+        Extract<A[K], Left<unknown>>["left"]
+      > &
+        Record<
+          `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?right`,
+          Extract<A[K], Right<unknown>>["right"]
+        >;
+      sum: BubbleSum<A[K]>;
+      other: never;
+    }
+  >;
+};
 
 type BubbleSum<
   A,
@@ -99,43 +72,39 @@ type BubbleSum<
     : never
 >;
 
-type ExtractChangeableKeys<K> = K extends string
-  ? LastSegment<K> extends `${string}:${string}`
-    ? never
-    : LastSegment<K> extends `${string}?${string}`
-    ? never
-    : K
-  : never;
+type Match<
+  A,
+  Matches extends {
+    struct: unknown;
+    record: unknown;
+    tuple: unknown;
+    array: unknown;
+    nullable: unknown;
+    option: unknown;
+    either: unknown;
+    sum: unknown;
+    other: unknown;
+  }
+> = Discriminant<A> extends never
+  ? [A] extends [readonly unknown[]]
+    ? TupleKeyof<A> extends never
+      ? Matches["array"]
+      : Matches["tuple"]
+    : string extends keyof A
+    ? Matches["record"]
+    : true extends IsRecord<A>
+    ? Matches["struct"]
+    : true extends IsNull<A>
+    ? Matches["nullable"]
+    : Matches["other"]
+  : Option<any> extends A
+  ? Matches["option"]
+  : Either<any, any> extends A
+  ? Matches["either"]
+  : Matches["sum"];
 
-type UpsertableKeys<A> = Extract<
-  keyof {
-    [K in keyof A as true extends IsRecord<A[K]> ? K : never]: unknown;
-  },
-  string
->;
+// Credit to Stefan Baumgartner
+// https://fettblog.eu/typescript-union-to-intersection/
+type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
 
-type Operation = "static" | "dynamic" | "upsert";
-
-export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": EscapeKeys<A> }, Op>;
-
-type _Paths<A, Op extends Operation, Acc extends string = never> = true extends IsRecord<A>
-  ? _Paths<
-      keyof A extends never ? unknown : BubbleUp<A>,
-      Op,
-      | Acc
-      | (Op extends "static"
-          ? Extract<keyof A, string>
-          : Op extends "upsert"
-          ? UpsertableKeys<A>
-          : ExtractChangeableKeys<keyof A>)
-    >
-  : Acc;
-
-// Not tail recursive!!
-type EscapeKeys<A> = A extends Record<string, any>
-  ? A extends unknown[]
-    ? A
-    : {
-        [K in keyof A as EscapeSpecialChars<Extract<K, string>>]: EscapeKeys<A[K]>;
-      }
-  : A;
+type ValueOf<A> = A[keyof A];

@@ -4,15 +4,19 @@ import * as Tr from "monocle-ts/lib/Traversal";
 import { lensFromPath, traversalFromPath, isPathLens } from "../util/monocle";
 import { Upsert } from "../types/upsert";
 
-export const upsert: Upsert = (path: string, final: string, val: unknown) => (a: unknown) => {
-  if (isPathLens(path as any)) {
+export const upsert: Upsert =
+  (path: string, final: string, ...args: unknown[]) =>
+  (a: unknown) => {
+    const indicies = args.slice(0, args.length - 1);
+    const val = args[args.length - 1];
+    if (isPathLens(path as any)) {
+      return pipe(
+        lensFromPath(path as any),
+        L.modify((obj) => ({ ...obj, [final as string]: val }))
+      )(a) as any;
+    }
     return pipe(
-      lensFromPath(path as any),
-      L.modify((obj) => ({ ...obj, [final as string]: val }))
+      traversalFromPath(path as any, indicies),
+      Tr.modify((obj) => ({ ...obj, [final as string]: val }))
     )(a) as any;
-  }
-  return pipe(
-    traversalFromPath(path as any),
-    Tr.modify((obj) => ({ ...obj, [final as string]: val }))
-  )(a) as any;
-};
+  };

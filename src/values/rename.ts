@@ -15,7 +15,7 @@ export const rename: Rename = (fullPath: string, newKey: string) => (a: unknown)
     )(a);
   }
   return pipe(
-    traversalFromPath(path),
+    traversalFromPath(path, []),
     Tr.modify(({ [final as string]: val, ...rest }) => ({ ...rest, [newKey as string]: val }))
   )(a);
 };

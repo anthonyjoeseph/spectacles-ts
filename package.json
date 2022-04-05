@@ -19,7 +19,6 @@
     "prepublishOnly": "yarn fix:lint && yarn test"
   },
   "dependencies": {
-    "fp-ts-std": "^0.10.1",
     "monocle-ts": "^2.3.5"
   },
   "devDependencies": {

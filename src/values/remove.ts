@@ -1,5 +1,4 @@
 import { pipe } from "fp-ts/function";
-import { omit } from "fp-ts-std/Record";
 import * as L from "monocle-ts/lib/Lens";
 import * as Tr from "monocle-ts/lib/Traversal";
 import { lensFromPath, traversalFromPath, isPathLens } from "../util/monocle";
@@ -12,11 +11,19 @@ export const remove: Remove = (fullPath: string) => (a: unknown) => {
   if (isPathLens(path as any)) {
     return pipe(
       lensFromPath(path as any),
-      L.modify((obj) => omit(Array.isArray(final) ? final : [final])(obj))
+      L.modify((obj) => {
+        const omitted = { ...obj };
+        delete omitted[final as string];
+        return omitted;
+      })
     )(a);
   }
   return pipe(
-    traversalFromPath(path as any),
-    Tr.modify((obj) => omit(Array.isArray(final) ? final : [final])(obj))
+    traversalFromPath(path as any, []),
+    Tr.modify((obj) => {
+      const omitted = { ...obj };
+      delete omitted[final as string];
+      return omitted;
+    })
   )(a);
 };

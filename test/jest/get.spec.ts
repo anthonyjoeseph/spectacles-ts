@@ -13,6 +13,20 @@ describe("get", () => {
     const traverse = pipe([{ a: 123 }, { a: 456 }], get("[]>.a"));
     assert.deepStrictEqual(traverse, [123, 456]);
   });
+  it("has indexed array access", () => {
+    const record = [{ a: 123 }];
+    const picked = pipe(record, get("[number].a", 0));
+    assert.deepStrictEqual(picked, O.some(123));
+  });
+  it("has indexed record access", () => {
+    const record = { a: 123 } as Record<string, number>;
+    const picked = pipe(record, get("[string]", "b"));
+    assert.deepStrictEqual(picked, O.none);
+  });
+  it("can traverse arrays", () => {
+    const traverse = pipe([{ a: 123 }, { a: 456 }], get("[]>.a"));
+    assert.deepStrictEqual(traverse, [123, 456]);
+  });
   it("can traverse records (sorting keys)", () => {
     const traverseRecord = pipe({ b: { z: 456 }, a: { z: 123 } } as Record<string, { z: number }>, get("{}>.z"));
     assert.deepStrictEqual(traverseRecord, [123, 456]);

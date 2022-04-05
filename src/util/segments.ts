@@ -4,7 +4,7 @@ type ShouldUnescape<S extends string> = S extends `(${infer Rest}`
   ? true
   : never;
 
-export type FirstSegment<S extends string> = true extends ShouldUnescape<S>
+type FirstSegment<S extends string> = true extends ShouldUnescape<S>
   ? FirstEscapedSegment<S>
   : S extends `(${infer Middle})${string}`
   ? `(${Middle})`
@@ -14,16 +14,16 @@ export type FirstSegment<S extends string> = true extends ShouldUnescape<S>
 
 type FirstEscapedSegment<
   S extends string,
-  Acc extends string = "*"
+  Acc extends string = ""
 > = S extends `(${infer Parens}*${infer Middle})${infer Rest}`
   ? Parens extends ""
     ? `(${Acc}${Middle})`
-    : FirstEscapedSegment<`${Parens}*${Rest}`, `(${Acc}${Middle})`>
+    : FirstEscapedSegment<`${Parens}*${Rest}`, `${Acc}${Middle})`>
   : S extends `(${infer Middle})${string}`
   ? `(${Middle})`
   : S;
 
-export type TailSegment<S extends string> = true extends ShouldUnescape<S>
+type TailSegment<S extends string> = true extends ShouldUnescape<S>
   ? TailEscapedSegment<S>
   : S extends `(${string})${infer Tail}`
   ? Tail extends `.${infer AfterDot}`
@@ -41,33 +41,17 @@ type TailEscapedSegment<S extends string> = S extends `(${infer Parens}*${string
     : TailEscapedSegment<`${Parens}*${Rest}`>
   : S;
 
-export type InitSegment<S, Acc extends string = ""> = S extends `(${string}`
-  ? TailEscapedSegment<S> extends ""
-    ? Acc
-    : InitSegment<TailEscapedSegment<S>, Acc extends "" ? FirstEscapedSegment<S> : `${Acc}.${FirstEscapedSegment<S>}`>
-  : S extends `${infer Head}.${infer Tail}`
-  ? InitSegment<Tail, Acc extends "" ? Head : `${Acc}.${Head}`>
-  : Acc;
-
-export type LastSegment<S> = S extends `(${string}`
-  ? TailEscapedSegment<S> extends ""
-    ? S
-    : LastSegment<TailEscapedSegment<S>>
-  : S extends `${string}.${infer Tail}`
-  ? LastSegment<Tail>
-  : S;
-
-export type AddNullSegments<S extends string, Acc extends string = ""> = S extends ""
+export type Segments<S extends string, Acc extends string[] = [], First extends string = FirstSegment<S>> = S extends ""
   ? Acc
-  : FirstSegment<S> extends `(${string})`
-  ? AddNullSegments<TailSegment<S>, Acc extends "" ? FirstSegment<S> : `${Acc}.${FirstSegment<S>}`>
-  : FirstSegment<S> extends "?"
-  ? AddNullSegments<TailSegment<S>, Acc extends "" ? "?" : `${Acc}.?`>
-  : FirstSegment<S> extends `${infer First}?`
-  ? AddNullSegments<TailSegment<S>, Acc extends "" ? `${First}.?` : `${Acc}.${First}.?`>
-  : FirstSegment<S> extends `(${infer Middle})?`
-  ? AddNullSegments<TailSegment<S>, Acc extends "" ? `(${Middle}).?` : `${Acc}.(${Middle}).?`>
-  : AddNullSegments<TailSegment<S>, Acc extends "" ? FirstSegment<S> : `${Acc}.${FirstSegment<S>}`>;
+  : First extends `(${string})`
+  ? Segments<TailSegment<S>, Acc extends [] ? [First] : [...Acc, First]>
+  : First extends "?"
+  ? Segments<TailSegment<S>, Acc extends [] ? ["?"] : [...Acc, "?"]>
+  : First extends `${infer First}?`
+  ? Segments<TailSegment<S>, Acc extends [] ? [First, "?"] : [...Acc, First, "?"]>
+  : First extends `(${infer Middle})?`
+  ? Segments<TailSegment<S>, Acc extends [] ? [`(${Middle})`, "?"] : [...Acc, `(${Middle})`, "?"]>
+  : Segments<TailSegment<S>, Acc extends [] ? [First] : [...Acc, First]>;
 
 export type EscapeSpecialChars<S extends string> = S extends `${string})${string}`
   ? EscapeParenthesis<S>
@@ -90,13 +74,15 @@ type StartingParens<S extends string, Acc extends string = ""> = S extends `${st
   ? StartingParens<Tail, `${Acc}(`>
   : Acc;
 
-export type UnescapeParenthesis<
-  S extends string,
-  Acc extends string = ""
-> = S extends `(${infer Parens}*${infer Middle})${infer Rest}`
-  ? Parens extends ""
-    ? `${Acc}${Middle}`
-    : UnescapeParenthesis<`${Parens}*${Rest}`, `${Acc}${Middle})`>
-  : S extends `(${infer Middle})`
-  ? Middle
+export type EscapeSpecialChars2<S extends string> = S extends
+  | ""
+  | "[]>"
+  | "{}>"
+  | "({}>)"
+  | `[${string}]`
+  | `${string}.${string}`
+  | `${string}?${string}`
+  | `${string}:${string}`
+  | `${string}(${string}`
+  ? `(${S})`
   : S;
