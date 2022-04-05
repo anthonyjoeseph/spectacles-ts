@@ -23,8 +23,7 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
   - [`modifyOptionW`](#modifyoptionw)
   - [`modifyF`](#modifyf)
 - [Operations](#operations)
-- [Limitation](#limitation)
-- [TSC Issues](#tsc-issues)
+- [Social Media](#social-media)
 <!-- AUTO-GENERATED-CONTENT:END -->
 
 ## Installation
@@ -60,10 +59,11 @@ const nested: O.Option<string> = pipe(
 import { pipe } from 'fp-ts/function'
 import { set } from 'spectacles-ts'
 
-const beenSet: { a: string[] } = pipe(
+const beenSet = pipe(
   { a: ['abc', 'def'] },
-  set(['a', 1], 'xyz')
+  set('a.[number]', 1, 'xyz')
 )
+// beenSet: { a: string[] }
 ```
 
 ### `setOption`
@@ -74,10 +74,11 @@ const beenSet: { a: string[] } = pipe(
 import { pipe } from 'fp-ts/function'
 import { setOption } from 'spectacles-ts'
 
-const beenSet: O.Option<{ a: string[] }> = pipe(
+const beenSet = pipe(
   { a: ['abc', 'def'] },
-  setOption(['a', 1], 'xyz')
+  setOption('a.[number]', 1, 'xyz')
 )
+// beenSet: O.Option<{ a: string[] }>
 ```
 
 ### `upsert`
@@ -88,10 +89,11 @@ const beenSet: O.Option<{ a: string[] }> = pipe(
 import { pipe } from 'fp-ts/function'
 import { upsert } from 'spectacles-ts'
 
-const upsertKey: { a: { b: number; readonly c: string } } = pipe(
+const upsertKey = pipe(
   { a: { b: 123 } },
-  upsert(['a', 'c'], 'abc')
+  upsert('a', 'c', 'abc')
 )
+// upsertKey: { a: { b: number; readonly c: string } }
 ```
 
 ### `remove`
@@ -100,10 +102,11 @@ const upsertKey: { a: { b: number; readonly c: string } } = pipe(
 import { pipe } from 'fp-ts/function'
 import { remove } from 'spectacles-ts'
 
-const removeKey: { a: { b: number } } = pipe(
+const removeKey = pipe(
   { a: { b: 123, c: false } },
-  remove('a', 'c')
+  remove('a.c')
 )
+// removeKey: { a: { b: number } }
 ```
 
 ### `rename`
@@ -114,10 +117,11 @@ import type { NonEmptyArray } from 'fp-ts/NonEmptyArray'
 import type { Option } from 'fp-ts/Option'
 import { rename } from 'spectacles-ts'
 
-const rename: { a: { readonly newKey: number } } = pipe(
+const rename = pipe(
   { a: { oldKey: 123 } },
-  rename(['a', 'oldKey'], 'newKey')
+  rename('a.oldKey', 'newKey')
 )
+// rename: { a: { readonly newKey: number } }
 ```
 
 ### `modify`
@@ -130,10 +134,11 @@ const rename: { a: { readonly newKey: number } } = pipe(
 import { pipe } from 'fp-ts/function'
 import { modify } from 'spectacles-ts'
 
-const modifyOpted: { a: { b: number }[] } = pipe(
+const modified = pipe(
   { a: [{ b: 123 }] },
-  modify(['a', 0, 'b'], (j) => j + 4)
+  modify('a.[number].b', 0, (j) => j + 4)
 )
+// modified: { a: { b: number }[] }
 ```
 
 ### `modifyOption`
@@ -145,10 +150,11 @@ import { pipe } from 'fp-ts/function'
 import * as O from 'fp-ts/Option'
 import { modifyOption } from 'spectacles-ts'
 
-const modifyOpted: O.Option<{ a: { b: number }[] }> = pipe(
+const modifyOpted = pipe(
   { a: [{ b: 123 }] },
-  modifyOption(['a', 0, 'b'], (j) => j + 4)
+  modifyOption('a.[number].b', 0, (j) => j + 4)
 )
+// modifyOpted: O.Option<{ a: { b: number }[] }>
 ```
 
 ### `modifyW`
@@ -170,10 +176,11 @@ import { pipe } from 'fp-ts/function'
 import * as O from 'fp-ts/Option'
 import { modifyOptionW } from 'spectacles-ts'
 
-const modified: O.Option<{ a: string | undefined }> = pipe(
+const modified = pipe(
   { a: 123 } as { a: number | undefined },
-  modifyOptionW(['a', '?'], (j) => `${j + 2}`)
+  modifyOptionW('a.?', (j) => `${j + 2}`)
 )
+// modified: O.Option<{ a: string | undefined }>
 ```
 
 ### `modifyF`
@@ -185,13 +192,14 @@ import { pipe } from 'fp-ts/function'
 import * as E from 'fp-ts/Either'
 import { modifyF } from 'spectacles-ts'
 
-const modified: E.Either<string, { a: { b: number } }> = pipe(
+const modified = pipe(
   { a: { b: 123 } },
   modifyF(E.Applicative)(
     ['a', 'b'], 
-    (j) => j > 10 ? E.left('fail') : E.right(j - 10)
+    (j) => j > 10 ? E.left<string, never>('fail') : E.right(j - 10)
   )
 )
+// modified: E.Either<string, { a: { b: number } }>
 ```
 
 ## Operations
@@ -199,17 +207,16 @@ const modified: E.Either<string, { a: { b: number } }> = pipe(
 | usage &nbsp; &nbsp; &nbsp;  | equals | Optional | monocle |
 |------|-----|-------|-------|
 | `get('a')(x)`| `1` | no | [prop](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L89) |
-| `get(['a', 'b'] as const)(x)` | `{ a: 1, b: 2 }` | no | [props](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L103) |
-| `get('c', '0')(x)`| `123` | no | [component](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L119)
-| `get('d', 0)(x)`| `O.some({ e: 123 })` | yes | [index](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L107)
-| `get('f', '?key', 'a')(x)` | `O.some([123])` | yes | [key](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L133) |
-| `get('g', '?')(x)` | `O.some(2)` | yes | [fromNullable](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L223) |
-| `get('h', '?some')(x)` | `O.some(2)` | yes | [some](https://github.com/gcanti/monocle-ts/blob/master/src/Optional.ts#L287)
-| `get('i', '?left')(x)`| `O.none` | yes | [left](https://github.com/gcanti/monocle-ts/blob/master/test/Prism.ts#L200)
-| `get('i', '?right')(x)`| `O.some(2)` | yes | [right](https://github.com/gcanti/monocle-ts/blob/master/test/Prism.ts#L192)
-| `get('j', (a): a is number => typeof a === 'number')(x)`| `O.some(2)` | yes | [filter](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L160)
-| `get('d', '[]>', 'e')(x)` | `[123, 456]` | never | [traverse](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L215)<br />`Array` |
-| `get('f', '{}>', 0)(x)` | `[123, 456]` | never | `traverse`<br />`Record`<br/> (keys sorted alpha-<br/>betically) |
+| `get('c.[0]')(x)`| `123` | no | [component](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L119)
+| `get('d.[number]', 0)(x)`| `O.some({ e: 123 })` | yes | [index](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L107)
+| `get('f.[string]', 'a')(x)` | `O.some([123])` | yes | [key](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L133) |
+| `get('g.?')(x)` | `O.some(2)` | yes | [fromNullable](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L223) |
+| `get('h.?some')(x)` | `O.some(2)` | yes | [some](https://github.com/gcanti/monocle-ts/blob/master/src/Optional.ts#L287)
+| `get('i.?left')(x)`| `O.none` | yes | [left](https://github.com/gcanti/monocle-ts/blob/master/test/Prism.ts#L200)
+| `get('i.?right')(x)`| `O.some(2)` | yes | [right](https://github.com/gcanti/monocle-ts/blob/master/test/Prism.ts#L192)
+| `get('j.shape:circle.radius')(x)`| `O.some(100)` | yes | [filter](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L160)
+| `get('d.[]>.e')(x)` | `[123, 456]` | never | [traverse](https://github.com/gcanti/monocle-ts/blob/master/test/Optional.ts#L215)<br />`Array` |
+| `get('f.{}>.e')(x)` | `[123, 456]` | never | `traverse`<br />`Record`<br/> (keys sorted alpha-<br/>betically) |
 
 ```ts
 import * as O from 'fp-ts/Option'
@@ -223,65 +230,21 @@ interface Data {
   g?: number
   h: O.Option<number>
   i: E.Either<string, number>
-  j: number | string
+  j: { shape: "circle"; radius: number } | { shape: "rectangle"; width: number; height: number }
 }
 const x: Data = {
   a: 1,
   b: 2,
   c: [123, 'abc'],
   d: [{ e: 123 }, { e: 456 }],
-  f: { b: [456], a: [123] },
+  f: { b: { e: 456 }, a: { e: 123 } },
   g: 2,
   h: O.some(2),
   i: E.right(2),
-  j: 2
+  j: { shape: "circle", radius: 100 }
 }
 ```
 
-## Limitation 
+## Social Media
 
-You can only use up to four (4) operations at a time
-
-Allowing any more could cause [tsc errors](https://stackoverflow.com/questions/57798016/how-to-ignore-type-instantiation-is-excessively-deep-and-possibly-infinite-ts)
-
-You can nest functions instead:
-
-```ts
-import { pipe } from 'fp-ts/function'
-import { get, set, modify } from 'spectacles-ts'
-
-const getDeep: number = pipe(
-  { a: { b: { c: { d: { e: 123 } } } } },
-  get('a', 'b', 'c', 'd'),
-  get('e')
-)
-
-const setDeep = pipe(
-  { a: { b: { c: { d: { e: 123 } } } } },
-  modify(
-    ['a', 'b', 'c', 'd'],
-    set(['e'], 321)
-  )
-)
-```
-
-Nesting functions that change their output type looks a little uglier atm (it's an [open issue](https://github.com/anthonyjoeseph/spectacles-ts/issues/4)):
-
-```ts
-const upsertDeep: { a: { b: { c: { d: { e: number; e2: string } } } } } = pipe(
-  { a: { b: { c: { d: { e: 123 } } } } },
-  modifyW(
-    ['a', 'b', 'c', 'd'],
-    val => pipe(
-      val,
-      upsert(['e2'], 'abc')
-    )
-  )
-)
-```
-
-## TSC Issues
-
-Please give this issue an upvote! It would help w/ autocomplete for this library
-
-- [Restrict the intellisense/auto completion of mapped tuples depending on the first element of the tuple](https://github.com/microsoft/TypeScript/issues/43824)
+Follow me on twitter! [@typesafeFE](https://twitter.com/typesafeFE)
