@@ -6,6 +6,8 @@ A facade on top of [monocle-ts](https://github.com/gcanti/monocle-ts)
 
 [Blog post](https://dev.to/anthonyjoeseph/simple-immutable-data-w-spectacles-4nb5)
 
+[Try it out!](https://www.typescriptlang.org/play?exactOptionalPropertyTypes=true#code/JYWwDg9gTgLgBAbzgMwK4DsDGNgXXAQwGcUAaOAU2BgAsKpCSBROAXxSghDgHJkwAtDCI8AUKEixEcAOYUY5IvMXyA8mBx5yqMEtjkoFEBABuFAxXQEQ5uMYAmwZAE9yDp8-Wb0biI5cA6r7+nhq46EF2fh4AYmwcXLxEYBTYBJgANhREQiLi4NDwYMApcAC8KAB0xSn5kvBZyPAVTJWNMHWFcFDAMjTNcK09fR2imHhE8OjZMBT25XA1FAAUonDSBABc0gBG2wDaPAQ7mDzkPPYUyDwAuvGspGuy8stHlTs8AJSi32MT8DsKJYAMryBZLVbrJBbOCHY6nc6Xa53B5PJQwV4ESr7dCoECAqA3M5wACM5wAHs4AF5fH6iP7oSZwQEgtQacElFZPaEHI4nYkXK63NiPdborzhTHY3H4+hE8hk3iUmnfX7jRnwHR6GAAaQozg5KUhG22SD2pIATABme6iuBa+gYo4ChG8eG0tX-bpGUwUPUGioQ7mEU3M7Yk63kTDbZAEDJKW1PQzGMxS06q+nqpmGKw2eaBznGnnSCAZez+8PWxPrHPWFZvUvl-UC6YAd39HszXvcyGAc0NXKhIdhZsrNtYKLtPecUpxeIJN3exIADORlgArT7lAB8cHXcAA1HAACwZhlM6defsFo3BmH7UeW8eTp6XsJ4WcyhdL8iruAbrcyl3fcj1POlz3gacAjmUMYS-eg4AAHzgSYenQGQkPtdAkWAaZ5nYG9BxNJ94mIYj4IYZCMBwvCRVfaJAilAB+YkAJ3OAAAMABIEBAuALVYDizyzSCGNCbxoPzRZCzvMdSJIYsKMw6irlw-tUXWN8JOY1jN3Y7jeMPfjBOE7sxJia9pNvIcYUfCNxzozTzOWVoAEEwDADJgEwAgcDMT5jXWN4PnIJ51jYoC9zgXcSWXOAmMGNorhgAAeVDcJkchpjMKBt1eWNgAyL44G2IZen6Dc4AEUll2+dZVSAA)
+
 ![prop video](readme-vid.gif)
 
 <!-- AUTO-GENERATED-CONTENT:START (TOC) -->
@@ -45,7 +47,7 @@ import { get } from 'spectacles-ts'
 
 const nested: O.Option<string> = pipe(
   { a: { b: ['abc', 'def'] } },
-  get('a', 'b', 0)
+  get('a.b.[number]', 0)
 )
 ```
 
@@ -165,7 +167,7 @@ import { modifyW } from 'spectacles-ts'
 
 const modified: { a: number | string | undefined } = pipe(
   { a: 123 } as { a: number | undefined },
-  modifyW(['a', '?'], (j) => `${j + 2}`)
+  modifyW('a.?', (j) => `${j + 2}`)
 )
 ```
 
@@ -195,7 +197,7 @@ import { modifyF } from 'spectacles-ts'
 const modified = pipe(
   { a: { b: 123 } },
   modifyF(E.Applicative)(
-    ['a', 'b'], 
+    'a.b', 
     (j) => j > 10 ? E.left<string, never>('fail') : E.right(j - 10)
   )
 )
