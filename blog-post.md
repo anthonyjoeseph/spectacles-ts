@@ -37,8 +37,11 @@ You can set a [nullable value](https://www.typescriptlang.org/docs/handbook/adva
 ```ts
 interface Obj { a?: { b: number } }
 const obj: Obj = { a: { b: 123 } }
-const a = pipe(a, set('a?.b', 456))
-// a = { a: { b: 456 } }
+const obj2: Obj = {}
+const x = pipe(obj, set('a?.b', 456))
+const y = pipe(obj2, set('a?.b', 456))
+// x = { a: { b: 456 } }
+// y = {}
 ```
 
 ## Tuples
@@ -47,8 +50,8 @@ You can change at an index of a tuple:
 
 ```ts
 const tup = [123, 'abc'] as const
-const getIndex = pipe(tup, set('[0]', 456))
-// getIndex = [456, 'abc']
+const x = pipe(tup, set('[0]', 456))
+// x = [456, 'abc']
 ```
 
 (Here are quick guides if you're unfamiliar with [tuples](https://www.typescriptlang.org/docs/handbook/2/objects.html#tuple-types) or [`as const` assertions](https://www.benmvp.com/blog/use-cases-typescript-const-assertions/))
@@ -59,9 +62,12 @@ You can refine a discriminated union:
 
 ```ts
 type Shape = { shape: "circle"; radius: number } | { shape: "rectangle"; width: number; height: number }
-const shape: Shape = { shape: "circle"; radius: 123 }
-const refined = pipe(shape, set('shape:circle.radius', 456))
-// refined = { shape: "circle"; radius: 456 }
+const circle: Shape = { shape: "circle"; radius: 123 }
+const rect: Shape = { shape: "rectangle"; width: 123, height: 123 }
+const x = pipe(circle, set('shape:circle.radius', 456))
+const y = pipe(rect, set('shape:circle.radius', 456))
+// x = { shape: "circle"; radius: 456 }
+// y = { shape: "rectangle"; width: 123, height: 123 }
 ```
 
 (If you're not sure what a discriminated union is, [here's a quick intro](https://basarat.gitbook.io/typescript/type-system/discriminated-unions))
@@ -71,15 +77,15 @@ const refined = pipe(shape, set('shape:circle.radius', 456))
 We can traverse an `Array` to change its nested data
 
 ```ts
-const a = pipe(
+const x = pipe(
   [{ a: 123 }, { a: 456 }],
   set('[]>.a', 999)
 )
 
 // equivalent to:
-const a2 = [{ a: 123 }, { a: 456 }].map(set('a', 999))
+const y = [{ a: 123 }, { a: 456 }].map(set('a', 999))
 
-// a = a2 = [{ a: 999 }, { a: 999 }]
+// x = y = [{ a: 999 }, { a: 999 }]
 ```
 
 We can also traverse a `Record`
@@ -87,8 +93,8 @@ We can also traverse a `Record`
 ```ts
 const rec: Record<string, { a: number }> = 
   { two: { a: 456 }, one: { a: 123 } }
-const a = pipe(rec, set('{}>.a', 999))
-// a = { one: { a: 999 }, two: { a: 999 } }
+const x = pipe(rec, set('{}>.a', 999))
+// x = { one: { a: 999 }, two: { a: 999 } }
 ```
 
 
@@ -98,26 +104,31 @@ We can change the value of an `Array` at a particular index using `[number]`. To
 
 ```ts
 const array: { a: number }[] = [{ a: 123 }]
-const a2 = pipe(array, set('[number].a', 0, 456))
+const x = pipe(array, set('[number].a', 0, 456))
 //                                       ^
 //              The index '0' comes after the path string '[number].a'
+// x = [{ a: 456 }]
+
+const y = pipe(array, set('[number].a', 1, 456))
+// y = [{ a: 123 }]
 ```
 
 Each 'index' in a path gets its own value argument
 
 ```ts
 const nestedArray = [[], [{ a: 123 }]]
-const a2 = pipe(nestedArray, set('[number].[number].a', 1, 0, 456))
-//                                                ^  ^
-//                         Similar to nestedArray[1][0].a
+const x = pipe(nestedArray, set('[number].[number].a', 1, 0, 456))
+//                                                     ^  ^
+//                              Similar to nestedArray[1][0].a
+// x = [[], [{ a: 456 }]]
 ```
 
 You can set the value at an index of a Record in a similar way
 
 ```ts
 const rec: Record<string, number> = { a: 123 }
-const setKey = pipe(rec, set('[string]', 'a', 456))
-// setKey = { a: 456 }
+const x = pipe(rec, set('[string]', 'a', 456))
+// x = { a: 456 }
 ```
 
 ## Modification
@@ -127,9 +138,9 @@ You can modify a value in relation to its old value:
 ```ts
 import { modify } from 'spectacles-ts'
 
-const mod =
+const x =
   pipe({ a: { b: 123 } }, modify('a.b', a => a + 4))
-// mod = { a: { b: 127 } }
+// x = { a: { b: 127 } }
 ```
 
 You can use this to e.g. append to an array
@@ -137,11 +148,11 @@ You can use this to e.g. append to an array
 ```ts
 import * as A from 'fp-ts/ReadonlyArray'
 
-const app = pipe(
+const x = pipe(
   { a: [123] },
   modify('a', A.append(456))
 )
-// app = { a: [123, 456] }
+// x = { a: [123, 456] }
 ```
 
 (For more on fp-ts, check out the appendix)
@@ -155,10 +166,10 @@ import { modifyW } from 'spectacles-ts'
 // The 'W' stands for 'widen'
 // as in 'widen the type'
 
-const modW =
+const x =
   pipe([{ a: 123 }, { a: 456 }], modifyW('[number].a', 0, a => `${a + 4}`))
-// modW: { a: string | number }[]
-// modW = [{ a: "127" }, { a: 456 }]
+// x: { a: string | number }[]
+// x = [{ a: "127" }, { a: 456 }]
 ```
 
 And there are [convenience](https://github.com/anthonyjoeseph/spectacles-ts#operations) operations for working with `Option` and [Either](https://rlee.dev/practical-guide-to-fp-ts-part-3) types
@@ -170,23 +181,23 @@ You can change an existing key:
 ```ts
 import { upsert } from 'spectacles-ts'
 
-const obj = pipe(
+const x = pipe(
   { a: { b: 123 } }, 
   upsert('a', 'b', 'abc')
 )
-// obj: { a: { b: string} }
-// obj = { a: { b: 'abc' } }
+// x: { a: { b: string } }
+// x = { a: { b: 'abc' } }
 ```
 
 Or add a new one:
 
 ```ts
-const obj = pipe(
+const x = pipe(
   { a: { b: 123 } }, 
   upsert('a', 'c', 'abc')
 )
-// obj: { a: { b: number; c: string } }
-// obj = { a: { b: 123, c: 'abc' } }
+// x: { a: { b: number; c: string } }
+// x = { a: { b: 123, c: 'abc' } }
 ```
 
 Or remove one of them:
@@ -194,12 +205,12 @@ Or remove one of them:
 ```ts
 import { remove } from 'spectacles-ts'
 
-const removedKey = pipe(
+const x = pipe(
   { nest: { a: 123, b: 'abc', c: false } }, 
   remove('nest.a')
 )
-// removedKey: { nest: { b: string, c: boolean } }
-// removedKey = { nest: { b: 'abc', c: false } }
+// x: { nest: { b: string, c: boolean } }
+// x = { nest: { b: 'abc', c: false } }
 ```
 
 Or rename a key:
@@ -207,12 +218,12 @@ Or rename a key:
 ```ts
 import { rename } from 'spectacles-ts'
 
-const renamedKey = pipe(
+const x = pipe(
   { nest: { a: 123 } }, 
   rename('nest', 'a', 'a2')
 )
-// renamedKey: { nest: { a2: number } }
-// renamedKey = { nest: { a2: 123 } }
+// x: { nest: { a2: number } }
+// x = { nest: { a2: 123 } }
 ```
 
 ## get
@@ -222,14 +233,14 @@ You can also `get` a value
 ```ts
 import { get } from 'spectacles-ts'
 
-const num = pipe({ a: { b: 123 } }, get('a.b'))
-// num: number
-// num = 123
+const x = pipe({ a: { b: 123 } }, get('a.b'))
+// x: number
+// x = 123
 
 // equivalent to
-const num2 = { a: { b: 123 } }.a.b
-// num2: number
-// num2 = 123
+const y = { a: { b: 123 } }.a.b
+// y: number
+// y = 123
 ```
 
 The [curried functions](https://javascript.info/currying-partials) from `spectacles-ts` fit in nicely w/ a functional style
@@ -237,9 +248,9 @@ The [curried functions](https://javascript.info/currying-partials) from `spectac
 That's one reason you might want to use a function like `get`:
 
 ```ts
-const as = [{ a: 123 }].map(get('a'))
-// as: number[]
-// as = [123]
+const x = [{ a: 123 }].map(get('a'))
+// x: number[]
+// x = [123]
 ```
 
 ## Option
@@ -251,8 +262,8 @@ import * as O from 'fp-ts/Option'
 
 //           |
 //           v
-const a2: O.Option<number> = pipe(array, get('[number].a', 0))
-// a = O.some(123)
+const x: O.Option<number> = pipe(array, get('[number].a', 0))
+// x = O.some(123)
 ``` 
 
 This also gives us a way to know when a 'set' call has failed, using `setOption`:
