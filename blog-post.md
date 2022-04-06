@@ -26,48 +26,132 @@ const newObj = pipe(oldObj, set('a.b', 999))
 
 It's that simple!
 
-## pipe
-
-You might be wondering what that function called `pipe` is for
-
-It can simplify the use of many nested functions
-
-```ts
-import { pipe } from 'fp-ts/function'
-
-const manyfuncs = String(Math.floor(Number.parseFloat("123.456")));
-const samething = pipe(
-  "123.456",
-  Number.parseFloat,
-  Math.floor,
-  String
-);
-```
-
-It's a bit easier to read, and type-safe
-
-At the end, I'll explain why `spectacles-ts` uses `pipe`
-
-# Whats fp-ts
-
-You might have noticed a few references to the npm package called [fp-ts](https://www.npmjs.com/package/fp-ts). It's the latest in the line of successon of data utility libraries for javascript
-
-[underscore.js](https://underscorejs.org/) -> [lodash](https://lodash.com/) -> [ramda](https://ramdajs.com/) -> [fantasy land](https://github.com/fantasyland/fantasy-land) -> [fp-ts](https://github.com/gcanti/fp-ts)
-
-`fp-ts` stands for 'functional programming in typescript'. 'Functional programming' just means that it helps with data transformations
-
-Usually functions from `fp-ts` and its [libraries](https://gcanti.github.io/fp-ts/ecosystem/) (including `spectacles-ts`) rely on `pipe`
-
-# What else can spectacles do
+(In case that function called `pipe` is unfamiliar, check out the appendix for a bit more info)
 
 ## Tuples
 
-You can access the index of a tuple:
+You can change at an index of a tuple:
 
 ```ts
-const tup = [123, 'abc'] as [number, string]
-const getIndex: number = pipe(tup, set('[0]', 456))
+const tup = [123, 'abc'] as const
+const getIndex = pipe(tup, set('[0]', 456))
 // getIndex = [456, 'abc']
+```
+
+## Traversals
+
+We can traverse an `Array` to change its nested data
+
+```ts
+const a = pipe(
+  [{ a: 123 }, { a: 456 }],
+  set('[]>.a', 999)
+)
+
+// equivalent to:
+const a2 = [{ a: 123 }, { a: 456 }].map(set('a', 999))
+
+// a = a2 = [{ a: 999 }, { a: 999 }]
+```
+
+We can also traverse a `Record`
+
+```ts
+const rec: Record<string, { a: number }> = 
+  { two: { a: 456 }, one: { a: 123 } }
+const a = pipe(rec, set('{}>.a', 999))
+// a = { one: { a: 999 }, two: { a: 999 } }
+```
+
+## Change Object types
+
+You can change an existing key:
+
+```ts
+import { upsert } from 'spectacles-ts'
+
+const obj = pipe(
+  { a: { b: 123 } }, 
+  upsert('a', 'b', 'abc')
+)
+// obj: { a: { b: string} }
+// obj = { a: { b: 'abc' } }
+```
+
+Or add a new one:
+
+```ts
+const obj = pipe(
+  { a: { b: 123 } }, 
+  upsert('a', 'c', 'abc')
+)
+// obj: { a: { b: number; c: string } }
+// obj = { a: { b: 123, c: 'abc' } }
+```
+
+Or remove one of them:
+
+```ts
+import { remove } from 'spectacles-ts'
+
+const removedKey = pipe(
+  { nest: { a: 123, b: 'abc', c: false } }, 
+  remove('nest.a')
+)
+// removedKey: { nest: { b: string, c: boolean } }
+// removedKey = { nest: { b: 'abc', c: false } }
+```
+
+Or rename a key:
+
+```ts
+import { rename } from 'spectacles-ts'
+
+const renamedKey = pipe(
+  { nest: { a: 123 } }, 
+  rename('nest', 'a', 'a2')
+)
+// renamedKey: { nest: { a2: number } }
+// renamedKey = { nest: { a2: 123 } }
+```
+
+## Indexed Arrays
+
+We can change the value of an `Array` at a particular index using `[number]`. To preserve auto-complete, we have to pass in the index `number` as a separate argument:
+
+```ts
+const array: { a: number }[] = [{ a: 123 }]
+const a2 = pipe(array, set('[number].a', 0, 456))
+//                                       ^
+//              The index '0' comes after the path string '[number].a'
+```
+
+Each 'index' in a path gets its own value argument
+
+```ts
+const nestedArray = [[], [{ a: 123 }]]
+const a2 = pipe(nestedArray, set('[number].[number].a', 1, 0, 456))
+//                                                ^  ^
+//                         Similar to nestedArray[1][0].a
+```
+
+You can set the value at an index of a Record in a similar way
+
+```ts
+const rec: Record<string, number> = { a: 123 }
+const setKey = pipe(rec, set('[string]', 'a', 456))
+// setKey = { a: 456 }
+```
+
+## Nullables
+
+You can set a [nullable value](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types) using a `?`, similar to [optional chaining syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) in native js:
+
+```ts
+interface Obj { a?: { b: number } }
+const obj: Obj = { a: { b: 123 } }
+const a = pipe(a, set('a?.b', 456))
+// a = { a: { b: 456 } }
 ```
 
 ## Modification
@@ -78,22 +162,9 @@ You can modify a value in relation to its old value:
 import { modify } from 'spectacles-ts'
 
 const mod =
-  pipe([{ a: 123 }], modify('[number].a', 0, a => a + 4))
-// mod: { a: number }[]
-// mod = [{ a: 127 }]
-```
-
-You can use this to e.g. append to an array:
-
-```ts
-import * as A from 'fp-ts/ReadonlyArray'
-
-const app = pipe(
-  { a: [123] },
-  modify('a', A.append(456))
-)
-// app: { a: number[] }
-// app = { a: [123, 456] }
+  pipe({ a: { b: 123 } }, modify('a.b', a => a + 4))
+// mod: { a: { b: number } }
+// mod = { a: { b: 127 } }
 ```
 
 You can even change a value's type this way:
@@ -111,97 +182,62 @@ const modW =
 // modW = [{ a: '127' }, { a: 456 }]
 ```
 
-## Traversals
+## Discriminated Union
 
-We can traverse an `Array` to collect its nested data
+You can refine a discriminated union:
 
 ```ts
-const a = pipe(
-  [{ a: 123 }, { a: 456 }],
-  set('[]>.a', 999)
+type Shape = { shape: "circle"; radius: number } | { shape: "rectangle"; width: number; height: number }
+const shape: Shape = { shape: "circle"; radius: 123 }
+const refined = pipe(shape, set('shape:circle.radius', 456))
+// refined = { shape: "circle"; radius: 456 }
+```
+
+And there are [convenience](https://github.com/anthonyjoeseph/spectacles-ts#operations) operations for working with `Option` and [Either](https://rlee.dev/practical-guide-to-fp-ts-part-3) types
+
+## Can I append to an array?
+
+Yes, using 'modify'
+
+```ts
+import * as A from 'fp-ts/ReadonlyArray'
+
+const app = pipe(
+  { a: [123] },
+  modify('a', A.append(456))
 )
-
-// equivalent to:
-const a2 = [{ a: 123 }, { a: 456 }].map(set('a', 999))
-
-// a: { a: number }[]
-// a2: { a: number }[]
-// a = a2 = [{ a: 999 }, { a: 999 }]
+// app: { a: number[] }
+// app = { a: [123, 456] }
 ```
 
-We can also traverse a `Record`
+## get
+
+You can `get` a value using the same kind of 'path' string
 
 ```ts
-const rec = 
-  { two: { a: 456 }, one: { a: 123 } } as Record<string, { a: number }>
-const a = pipe(rec, set('{}>.a', 999))
-// a: Record<string, { a: number }>
-// a = { one: { a: 999 }, two: { a: 999 } }
+import { get } from 'spectacles-ts'
+
+const num = pipe({ a: { b: 123 } }, get('a.b'))
+// num: number
+// num = 123
+
+// equivalent to
+const num2 = { a: { b: 123 } }.a.b
+// num2: number
+// num2 = 123
 ```
 
-## Change Object types
+The [curried functions](https://javascript.info/currying-partials) from `spectacles-ts` fit in nicely w/ a functional style
 
-You can change an existing key:
+That's one reason you might want to use a function like `get`:
 
 ```ts
-import { upsert } from 'spectacles-ts'
-
-const obj = pipe(
-  { a: { b: 123 } }, 
-  upsert(['a', 'b'], 'abc')
-)
-// obj: { a: { b: string} }
-// obj = { a: { b: 'abc' } }
+const as = [{ a: 123 }].map(get('a'))
+// as: number[]
+// as = [123]
 ```
 
-Or add a new one:
-
-```ts
-const obj = pipe(
-  { a: { b: 123 } }, 
-  upsert(['a', 'c'], 'abc')
-)
-// obj: { a: { b: number; c: string } }
-// obj = { a: { b: 123, c: 'abc' } }
-```
-
-Or remove one of them:
-
-```ts
-import { remove } from 'spectacles-ts'
-
-const removedKeys = pipe(
-  { nest: { a: 123, b: 'abc', c: false } }, 
-  remove('nest.a')
-)
-// removedKeys: { nest: { b: string, c: boolean } }
-// removedKeys = { nest: { b: 'abc', c: false } }
-```
-
-Or rename a key:
-
-```ts
-import { rename } from 'spectacles-ts'
-
-const renamedKey = pipe(
-  { nest: { a: 123 } }, 
-  rename('nest', 'a', 'a2')
-)
-// renamedKey: { nest: { a2: number } }
-// renamedKey = { nest: { a2: 123 } }
-```
-
-## Array access
-
-We can do `Array` access using a `number` for the index:
-
-```ts
-const array: { a: number }[] = [{ a: 123 }]
-const a = array[0].a
-const a2 = pipe(array, get('[number].a', 0))
-//                                       ^
-//              The index '0' comes after the path string '[number].a'
-```
+## Option
 
 Since `Array` access at a given index might fail, we use fp-ts's `Option` type
 
@@ -234,158 +270,54 @@ const noisyFailure: O.Option<number[]> = pipe([123], setOption('[number]', 1, 99
 // noisyFailure = O.none
 ```
 
+(In case the `Option` type is unfamiliar, check out the appendix for a bit more info)
+
 Also featuring [modifyOption](https://github.com/anthonyjoeseph/spectacles-ts#modifyoption) and [modifyOptionW](https://github.com/anthonyjoeseph/spectacles-ts#modifyoptionw)
 
-# Whats Option
+## Conclusion
 
-The `Option` type is a useful alternative to `undefined` because it can nest
+I hope spectacles-ts can help you modify data both immutably & ergonomically!
 
-Consider the following problem:
+Follow me on twitter! [@typesafeFE](https://twitter.com/typesafeFE)
 
-```ts
-const usernames: (string | undefined)[] = ["anthony", undefined, "stu"]
-const atindex = usernames[1]
-// atindex = undefined
-```
+# Appendix: functional programming
 
-We know that `atindex` is `undefined`, but we don't know what that means 
+# Whats fp-ts
 
-It could be `undefined` because the user chose to remain anonymous. It could also be `undefined` because the user doesn't exist at all
+You might have noticed a few references to the npm package called [fp-ts](https://www.npmjs.com/package/fp-ts). It's the latest in the line of successon of data utility libraries for javascript
 
-`Option` gives us a way out
+[underscore.js](https://underscorejs.org/) -> [lodash](https://lodash.com/) -> [ramda](https://ramdajs.com/) -> [fantasy land](https://github.com/fantasyland/fantasy-land) -> [fp-ts](https://github.com/gcanti/fp-ts)
 
-```ts
-import { Option } from 'fp-ts/Option'
-import { lookup } from 'fp-ts/ReadonlyArray' 
-const usernames: Option<string>[] = [O.some("anthony"), O.none, O.some("stu")]
-const atindex: Option<Option<string>> = pipe(usernames, lookup(1))
-// atindex = O.some(O.none)
-```
+`fp-ts` stands for 'functional programming in typescript'. 'Functional programming' is just a style that emphasizes data transformations and type-safety
 
-`atindex = O.some(O.none)` means that the user exists and is anonymous. `atindex = O.none` means that the user doesn't exist in the first place
+Usually functions from `fp-ts` and its [libraries](https://gcanti.github.io/fp-ts/ecosystem/) (including `spectacles-ts`) rely on `pipe`
 
-For this reason `Option` should generally be used instead of `undefined`
+## pipe
 
-The `Option` type is powerful, featuring a [full set of combinators](https://rlee.dev/practical-guide-to-fp-ts-part-2), far more so than `undefined`. They can `map` and `flatten`, just like arrays and objects
+You might be wondering what that function called `pipe` is for
 
-`Option` can be a great, simple intro into the joys of `fp-ts`
-
-# OK what else can spectacles do with Option
-
-## Nullables
-
-You can access a [nullable value](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types):
-
-```ts
-interface Obj { a?: { b: number } }
-const obj: Obj = { a: { b: 123 } }
-const a = pipe(a, get('a?.b'))
-// a: O.Option<number>
-// a = O.some(123)
-```
-
-## Other stuff
-
-You can access a key of a record:
-
-```ts
-const rec = { a: 123 } as Record<string, number>
-const getKey = pipe(rec, get('[string].a'))
-// getKey: O.Option<number>
-// getKey = O.some(123)
-```
-
-You can refine a discriminated union:
-
-```ts
-type Shape = { shape: "circle"; radius: number } | { shape: "rectangle"; width: number; height: number }
-const refined = pipe(
-   { shape: "circle"; radius: 123 } as Shape,
-   get('shape:circle.radius')
-)
-// refined: O.Option<number>
-// refined = O.some(123)
-```
-
-And there are [convenience](https://github.com/anthonyjoeseph/spectacles-ts#operations) operations for working with `Option` and [Either](https://rlee.dev/practical-guide-to-fp-ts-part-3) types
-
-## get
-
-You can `get` a value with similar syntax:
-
-```ts
-import { get } from 'spectacles-ts'
-
-const num = pipe({ a: { b: 123 } }, get('a.b'))
-// num: number
-// num = 123
-
-// equivalent to
-const num2 = { a: { b: 123 } }.a.b
-// num2: number
-// num2 = 123
-```
-
-The [curried functions](https://javascript.info/currying-partials) from `spectacles-ts` fit in nicely w/ a functional style
-
-That's one reason you might want to use a function like `get`:
-
-```ts
-const as = [{ a: 123 }].map(get('a'))
-// as: number[]
-// as = [123]
-```
-
-## `spectacles-ts` vs `monocle-ts`
-
-`spectacles-ts` is built on top of [monocle-ts](https://github.com/gcanti/monocle-ts), which is more powerful and flexible but a little less ergonomic.
-
-Here's a side-by-side comparison between the two.
-
-```ts
-import { pipe } from 'fp-ts/lib/function'
-import * as O from 'fp-ts/lib/Option'
-import * as Op from 'monocle-ts/lib/Optional'
-
-const optional = pipe(
-  Op.id<{ a: { b: readonly string[] } }>(),
-  Op.prop('a'),
-  Op.prop('b'),
-  Op.index(0),
-)
-
-const nestedMonocle =
-  optional.getOption({ a: { b: ['abc', 'def'] } })
-// nestedMonocle: O.Option<string>
-```
+It can simplify the use of many nested functions
 
 ```ts
 import { pipe } from 'fp-ts/function'
-import { get } from 'spectacles-ts'
 
-const nestedSpectacles = 
-  pipe({ a : { b: ['abc', 'def'] } }, get('a.b.[number]', 0))
-// nestedSpectacles: O.Option<string>
+const manyfuncs = String(Math.floor(Number.parseFloat("123.456")));
+const samething = pipe(
+  "123.456",
+  Number.parseFloat,
+  Math.round,
+  String
+);
 ```
 
-You can see the simplicity that `spectacles-ts` offers
-
-monocle-ts has these advantages:
-- `spectacles-ts` only works in piped contexts (except for [get](https://github.com/anthonyjoeseph/spectacles-ts/blob/main/tests/get.spec.ts#L39))
-- No limitation on object size
-- can [filter](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L225) (similar to [es6's filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter))
-- can traverse on any arbitrary traversable object (aka [Zippers](https://github.com/gcanti/fp-ts-contrib/blob/master/test/Zipper.ts) or [Rose Trees](https://github.com/gcanti/fp-ts/blob/master/test/Tree.ts))
-- Can define an [isomorphism](https://github.com/gcanti/monocle-ts/blob/master/test/Iso.ts) between two objects
-- works with the [Map](https://github.com/gcanti/monocle-ts/blob/master/test/Ix.ts) type
-
+It's a bit easier to read in this order - the number is parsed, then rounded, then converted back into a string
 
 ## Why use pipe for spectacles
 
 Let's see what libraries that don't use `pipe` look like
 
 ```ts
-import mapValues from 'lodash/mapValues'
-import filter from 'lodash/filter'
+import { mapValues, filter } from 'lodash'
 
 const data: Record<string, number> = { a: 1, b: 2, c: 3 }
 
@@ -428,11 +360,82 @@ Legibility and economy - that's why we use `pipe` as much as possible
 
 Here's a more in-depth article about [how pipe-able functions work](https://paulgray.net/pipeable-apis/). [Here's one of the original articles](https://medium.com/bootstart/why-using-chain-is-a-mistake-9bc1f80d51ba) motivating their use
 
-## Conclusion
 
-I hope spectacles-ts can help you modify data both immutably & ergonomically!
+# Whats Option
 
-Follow me on twitter! [@typesafeFE](https://twitter.com/typesafeFE)
+The `Option` type is a useful alternative to `undefined` because it can nest
+
+Consider the following problem:
+
+```ts
+const usernames: (string | undefined)[] = ["anthony", undefined, "stu"]
+const atindex = usernames[4]
+// atindex = undefined
+```
+
+We know that `atindex` is `undefined`, but we don't know what that means 
+
+It could be `undefined` because the user chose to remain anonymous. In this case, though, it's `undefined` because the user doesn't exist at all
+
+`Option` gives us a way to represent both of these cases
+
+```ts
+import { Option } from 'fp-ts/Option'
+import { lookup } from 'fp-ts/ReadonlyArray' 
+const usernames: Option<string>[] = [O.some("anthony"), O.none, O.some("stu")]
+const atindex: Option<Option<string>> = pipe(usernames, lookup(1))
+// atindex = O.some(O.none)
+```
+
+`atindex = O.some(O.none)` means that the user exists and is anonymous. `atindex = O.none` means that the user never existed in the first place
+
+For this reason `Option` should generally be used instead of `undefined`
+
+The `Option` type is more powerful than `undefined`. `Options` can `map` and `flatten`, just like arrays and objects, [and much more](https://rlee.dev/practical-guide-to-fp-ts-part-2)
+
+`Option` can be a great, simple intro into the joys of `fp-ts`
+
+## `spectacles-ts` vs `monocle-ts`
+
+`spectacles-ts` is built on top of [monocle-ts](https://github.com/gcanti/monocle-ts), which is more powerful and flexible but a little less ergonomic.
+
+Here's a side-by-side comparison between the two.
+
+```ts
+import { pipe } from 'fp-ts/lib/function'
+import * as O from 'fp-ts/lib/Option'
+import * as Op from 'monocle-ts/lib/Optional'
+
+const optional = pipe(
+  Op.id<{ a: { b: readonly string[] } }>(),
+  Op.prop('a'),
+  Op.prop('b'),
+  Op.index(0),
+)
+
+const nestedMonocle =
+  optional.getOption({ a: { b: ['abc', 'def'] } })
+// nestedMonocle: O.Option<string>
+```
+
+```ts
+import { pipe } from 'fp-ts/function'
+import { get } from 'spectacles-ts'
+
+const nestedSpectacles = 
+  pipe({ a : { b: ['abc', 'def'] } }, get('a.b.[number]', 0))
+// nestedSpectacles: O.Option<string>
+```
+
+You can see the simplicity that `spectacles-ts` offers
+
+monocle-ts has these advantages:
+- `spectacles-ts` only works in piped contexts (except for [get](https://github.com/anthonyjoeseph/spectacles-ts/blob/main/tests/get.spec.ts#L39))
+- No limitation on object size
+- can [filter](https://github.com/gcanti/monocle-ts/blob/master/test/Lens.ts#L225) (similar to [es6's filter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter))
+- can traverse on any arbitrary traversable object (aka [Zippers](https://github.com/gcanti/fp-ts-contrib/blob/master/test/Zipper.ts) or [Rose Trees](https://github.com/gcanti/fp-ts/blob/master/test/Tree.ts))
+- Can define an [isomorphism](https://github.com/gcanti/monocle-ts/blob/master/test/Iso.ts) between two objects
+- works with the [Map](https://github.com/gcanti/monocle-ts/blob/master/test/Ix.ts) type
 
 ## Note
 
