@@ -30,6 +30,17 @@ It's that simple!
 
 (In case that function called `pipe` is unfamiliar, check out the appendix for a bit more info)
 
+## Nullables
+
+You can set a [nullable value](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types) using a `?`, similar to [optional chaining syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) in native js:
+
+```ts
+interface Obj { a?: { b: number } }
+const obj: Obj = { a: { b: 123 } }
+const a = pipe(a, set('a?.b', 456))
+// a = { a: { b: 456 } }
+```
+
 ## Tuples
 
 You can change at an index of a tuple:
@@ -38,6 +49,17 @@ You can change at an index of a tuple:
 const tup = [123, 'abc'] as const
 const getIndex = pipe(tup, set('[0]', 456))
 // getIndex = [456, 'abc']
+```
+
+## Discriminated Union
+
+You can refine a discriminated union:
+
+```ts
+type Shape = { shape: "circle"; radius: number } | { shape: "rectangle"; width: number; height: number }
+const shape: Shape = { shape: "circle"; radius: 123 }
+const refined = pipe(shape, set('shape:circle.radius', 456))
+// refined = { shape: "circle"; radius: 456 }
 ```
 
 ## Traversals
@@ -64,6 +86,78 @@ const rec: Record<string, { a: number }> =
 const a = pipe(rec, set('{}>.a', 999))
 // a = { one: { a: 999 }, two: { a: 999 } }
 ```
+
+
+## Indexed Arrays
+
+We can change the value of an `Array` at a particular index using `[number]`. To preserve auto-complete, we have to pass in the index `number` as a separate argument:
+
+```ts
+const array: { a: number }[] = [{ a: 123 }]
+const a2 = pipe(array, set('[number].a', 0, 456))
+//                                       ^
+//              The index '0' comes after the path string '[number].a'
+```
+
+Each 'index' in a path gets its own value argument
+
+```ts
+const nestedArray = [[], [{ a: 123 }]]
+const a2 = pipe(nestedArray, set('[number].[number].a', 1, 0, 456))
+//                                                ^  ^
+//                         Similar to nestedArray[1][0].a
+```
+
+You can set the value at an index of a Record in a similar way
+
+```ts
+const rec: Record<string, number> = { a: 123 }
+const setKey = pipe(rec, set('[string]', 'a', 456))
+// setKey = { a: 456 }
+```
+
+## Modification
+
+You can modify a value in relation to its old value:
+
+```ts
+import { modify } from 'spectacles-ts'
+
+const mod =
+  pipe({ a: { b: 123 } }, modify('a.b', a => a + 4))
+// mod: { a: { b: number } }
+// mod = { a: { b: 127 } }
+```
+
+You can use this to e.g. append to an array
+
+```ts
+import * as A from 'fp-ts/ReadonlyArray'
+
+const app = pipe(
+  { a: [123] },
+  modify('a', A.append(456))
+)
+// app: { a: number[] }
+// app = { a: [123, 456] }
+```
+
+You can even change a value's type this way:
+
+```ts
+import { modifyW } from 'spectacles-ts'
+//             ^
+//             |
+// The 'W' stands for 'widen'
+// as in 'widen the type'
+
+const modW =
+  pipe([{ a: 123 }, { a: 456 }], modifyW('[number].a', 0, a => `${a + 4}`))
+// modW: { a: string | number }[]
+// modW = [{ a: '127' }, { a: 456 }]
+```
+
+And there are [convenience](https://github.com/anthonyjoeseph/spectacles-ts#operations) operations for working with `Option` and [Either](https://rlee.dev/practical-guide-to-fp-ts-part-3) types
 
 ## Change Object types
 
@@ -117,104 +211,9 @@ const renamedKey = pipe(
 // renamedKey = { nest: { a2: 123 } }
 ```
 
-## Indexed Arrays
-
-We can change the value of an `Array` at a particular index using `[number]`. To preserve auto-complete, we have to pass in the index `number` as a separate argument:
-
-```ts
-const array: { a: number }[] = [{ a: 123 }]
-const a2 = pipe(array, set('[number].a', 0, 456))
-//                                       ^
-//              The index '0' comes after the path string '[number].a'
-```
-
-Each 'index' in a path gets its own value argument
-
-```ts
-const nestedArray = [[], [{ a: 123 }]]
-const a2 = pipe(nestedArray, set('[number].[number].a', 1, 0, 456))
-//                                                ^  ^
-//                         Similar to nestedArray[1][0].a
-```
-
-You can set the value at an index of a Record in a similar way
-
-```ts
-const rec: Record<string, number> = { a: 123 }
-const setKey = pipe(rec, set('[string]', 'a', 456))
-// setKey = { a: 456 }
-```
-
-## Nullables
-
-You can set a [nullable value](https://www.typescriptlang.org/docs/handbook/advanced-types.html#nullable-types) using a `?`, similar to [optional chaining syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) in native js:
-
-```ts
-interface Obj { a?: { b: number } }
-const obj: Obj = { a: { b: 123 } }
-const a = pipe(a, set('a?.b', 456))
-// a = { a: { b: 456 } }
-```
-
-## Modification
-
-You can modify a value in relation to its old value:
-
-```ts
-import { modify } from 'spectacles-ts'
-
-const mod =
-  pipe({ a: { b: 123 } }, modify('a.b', a => a + 4))
-// mod: { a: { b: number } }
-// mod = { a: { b: 127 } }
-```
-
-You can even change a value's type this way:
-
-```ts
-import { modifyW } from 'spectacles-ts'
-//             ^
-//             |
-// The 'W' stands for 'widen'
-// as in 'widen the type'
-
-const modW =
-  pipe([{ a: 123 }, { a: 456 }], modifyW('[number].a', 0, a => `${a + 4}`))
-// modW: { a: string | number }[]
-// modW = [{ a: '127' }, { a: 456 }]
-```
-
-## Discriminated Union
-
-You can refine a discriminated union:
-
-```ts
-type Shape = { shape: "circle"; radius: number } | { shape: "rectangle"; width: number; height: number }
-const shape: Shape = { shape: "circle"; radius: 123 }
-const refined = pipe(shape, set('shape:circle.radius', 456))
-// refined = { shape: "circle"; radius: 456 }
-```
-
-And there are [convenience](https://github.com/anthonyjoeseph/spectacles-ts#operations) operations for working with `Option` and [Either](https://rlee.dev/practical-guide-to-fp-ts-part-3) types
-
-## Can I append to an array?
-
-Yes, using 'modify'
-
-```ts
-import * as A from 'fp-ts/ReadonlyArray'
-
-const app = pipe(
-  { a: [123] },
-  modify('a', A.append(456))
-)
-// app: { a: number[] }
-// app = { a: [123, 456] }
-```
-
 ## get
 
-You can `get` a value using the same kind of 'path' string
+You can also `get` a value
 
 ```ts
 import { get } from 'spectacles-ts'
@@ -312,7 +311,7 @@ const samething = pipe(
 );
 ```
 
-It's a bit easier to read in this order - the number is parsed, then rounded, then converted back into a string
+It's a bit easier to read in this format. We start with a string, then it's parsed into a number, then rounded, and then converted back into a string. It almost looks like a bulleted list!
 
 ## Why use pipe for spectacles
 
