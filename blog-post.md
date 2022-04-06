@@ -139,7 +139,7 @@ You can modify a value in relation to its old value:
 import { modify } from 'spectacles-ts'
 
 const x =
-  pipe({ a: { b: 123 } }, modify('a.b', a => a + 4))
+  pipe({ a: { b: 123 } }, modify('a.b', b => b + 4))
 // x = { a: { b: 127 } }
 ```
 
