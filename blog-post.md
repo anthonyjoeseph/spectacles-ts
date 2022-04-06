@@ -28,7 +28,7 @@ It's that simple!
 
 [Try it out here!](https://codesandbox.io/s/spectacles-ts-experiments-krc1x9?file=/src/experiments.ts)
 
-(In case that function called `pipe` is unfamiliar, check out the appendix for a bit more info)
+(For more info on  `pipe` and `fp-ts`, check out the appendix)
 
 ## Nullables
 
@@ -51,6 +51,8 @@ const getIndex = pipe(tup, set('[0]', 456))
 // getIndex = [456, 'abc']
 ```
 
+(Here are quick guides if you're unfamiliar with [tuples](https://www.typescriptlang.org/docs/handbook/2/objects.html#tuple-types) or [`as const` assertions](https://www.benmvp.com/blog/use-cases-typescript-const-assertions/))
+
 ## Discriminated Union
 
 You can refine a discriminated union:
@@ -61,6 +63,8 @@ const shape: Shape = { shape: "circle"; radius: 123 }
 const refined = pipe(shape, set('shape:circle.radius', 456))
 // refined = { shape: "circle"; radius: 456 }
 ```
+
+(If you're not sure what a discriminated union is, [here's a quick intro](https://basarat.gitbook.io/typescript/type-system/discriminated-unions))
 
 ## Traversals
 
@@ -141,6 +145,8 @@ const app = pipe(
 // app: { a: number[] }
 // app = { a: [123, 456] }
 ```
+
+(For more on fp-ts, check out the appendix)
 
 You can even change a value's type this way:
 
@@ -283,7 +289,7 @@ Follow me on twitter! [@typesafeFE](https://twitter.com/typesafeFE)
 
 # Appendix: functional programming
 
-# Whats fp-ts
+## Whats fp-ts
 
 You might have noticed a few references to the npm package called [fp-ts](https://www.npmjs.com/package/fp-ts). It's the latest in the line of successon of data utility libraries for javascript
 
