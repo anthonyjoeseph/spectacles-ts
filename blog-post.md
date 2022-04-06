@@ -26,6 +26,8 @@ const newObj = pipe(oldObj, set('a.b', 999))
 
 It's that simple!
 
+[Try it out here!](https://codesandbox.io/s/spectacles-ts-experiments-krc1x9?file=/src/experiments.ts)
+
 (In case that function called `pipe` is unfamiliar, check out the appendix for a bit more info)
 
 ## Tuples
