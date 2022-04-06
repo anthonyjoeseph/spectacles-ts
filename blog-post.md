@@ -129,7 +129,6 @@ import { modify } from 'spectacles-ts'
 
 const mod =
   pipe({ a: { b: 123 } }, modify('a.b', a => a + 4))
-// mod: { a: { b: number } }
 // mod = { a: { b: 127 } }
 ```
 
@@ -142,7 +141,6 @@ const app = pipe(
   { a: [123] },
   modify('a', A.append(456))
 )
-// app: { a: number[] }
 // app = { a: [123, 456] }
 ```
 
@@ -160,7 +158,7 @@ import { modifyW } from 'spectacles-ts'
 const modW =
   pipe([{ a: 123 }, { a: 456 }], modifyW('[number].a', 0, a => `${a + 4}`))
 // modW: { a: string | number }[]
-// modW = [{ a: '127' }, { a: 456 }]
+// modW = [{ a: "127" }, { a: 456 }]
 ```
 
 And there are [convenience](https://github.com/anthonyjoeseph/spectacles-ts#operations) operations for working with `Option` and [Either](https://rlee.dev/practical-guide-to-fp-ts-part-3) types
