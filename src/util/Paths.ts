@@ -50,7 +50,7 @@ type _BubbleUp<A extends Record<string, any>> = {
           `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?right`,
           Extract<A[K], Right<unknown>>["right"]
         >;
-      sum: BubbleSum<A[K]>;
+      sum: BubbleSum<A[K], Extract<K, string>>;
       other: never;
     }
   >;
@@ -58,19 +58,18 @@ type _BubbleUp<A extends Record<string, any>> = {
 
 type BubbleSum<
   A,
+  Acc extends string,
   Case extends { tag: string; cases: string } = Extract<Cases<A>, { tag: string; cases: string }>
-> = UnionToIntersection<
-  Case extends unknown
-    ? {
-        [K in Case["tag"]]: {
-          [K2 in Case["cases"] as `${Extract<K, string>}:${Extract<K2, string>}`]: Omit<
-            Extract<A, { [_ in K]: K2 }>,
-            K
-          >;
-        };
-      }[Case["tag"]]
-    : never
->;
+> = Case extends unknown
+  ? ValueOf<{
+      [K in Case["tag"]]: {
+        [K2 in Case["cases"] as `${Acc}${Acc extends "" ? "" : "."}${Extract<K, string>}:${Extract<K2, string>}`]: Omit<
+          Extract<A, { [_ in K]: K2 }>,
+          K
+        >;
+      };
+    }>
+  : never;
 
 type Match<
   A,
@@ -85,7 +84,9 @@ type Match<
     sum: unknown;
     other: unknown;
   }
-> = true extends IsNull<A>
+> = [A] extends [never]
+  ? Matches["other"]
+  : true extends IsNull<A>
   ? Matches["nullable"]
   : [A] extends [Option<unknown>]
   ? Matches["option"]

@@ -32,9 +32,9 @@ type FromScratch<Segment extends string, New> = OnSegment<
     option: Option<New>;
     left: Either<New, never>;
     right: Either<never, New>;
-    arrayIndex: New[];
-    recordIndex: Record<string, New>;
-    traversal: New[];
+    arrayIndex: readonly New[];
+    recordIndex: Readonly<Record<string, New>>;
+    traversal: readonly New[];
     sum: Segment extends `${infer Discriminant}:${string}`
       ? {
           readonly [K in Exclude<keyof New, Discriminant>]+?: New[K];
@@ -53,8 +53,8 @@ type Augment<Segment extends string, Old, New, NewKey extends string, Op extends
     left: Either<New, Extract<Old, Right<unknown>>["right"]>;
     right: Either<Extract<Old, Left<unknown>>["left"], New>;
     arrayIndex: { [K in keyof Old]: New };
-    recordIndex: Record<string, New>;
-    traversal: New[];
+    recordIndex: { [K in keyof Old]: New };
+    traversal: { [K in keyof Old]: New };
     sum: Segment extends `${infer Discriminant}:${infer Member}`
       ?
           | {
@@ -79,7 +79,7 @@ type AugmentRecord<Segment extends string, Old, New, NewKey extends string, Op e
     rename: { [K in Exclude<keyof Old, Segment>]: Old[K] } & { readonly [K in NewKey]: New };
     upsert: Segment extends keyof Old
       ? {
-          [K in keyof Old]: K extends Segment ? New : K extends keyof Old ? Old[K] : never;
+          [K in keyof Old]: K extends Segment ? New : Old[K];
         }
       : Old & {
           readonly [K in Segment]: New;
