@@ -1,6 +1,6 @@
 {
   "name": "spectacles-ts",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "sideEffects": false,
@@ -16,7 +16,7 @@
     "watch:tsc": "yarn run tsc -w -p tsconfig.build.json",
     "watch:tsd": "nodemon --watch './**/*.ts' --ignore './dist' --exec 'ts-node' --transpile-only scripts/run-type-tests.ts",
     "fix:lint": "yarn run eslint . --fix",
-    "prepublishOnly": "yarn fix:lint && yarn test"
+    "prepublishOnly": "yarn fix:lint && yarn build && yarn test"
   },
   "dependencies": {
     "monocle-ts": "^2.3.5"
