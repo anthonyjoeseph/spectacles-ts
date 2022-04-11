@@ -58,9 +58,13 @@ type HasTraversals<Args extends unknown[]> = Args extends [infer First, ...infer
     : HasTraversals<Tail>
   : never;
 
+// credit to Joe Calzaretta
+// https://stackoverflow.com/a/49928360
+export type IsAny<A> = (A extends never ? true : false) extends false ? false : true;
+
 export type IsNull<A> = Extract<A, undefined | null> extends never ? never : true;
 
-export type IsRecord<A> = unknown extends A ? never : [A] extends [Record<string, any>] ? true : never;
+export type IsRecord<A> = [A] extends [Record<string, any>] ? true : never;
 
 export type IsNonTupleArray<A> = [A] extends [readonly unknown[]]
   ? TupleKeyof<A> extends never
@@ -69,3 +73,37 @@ export type IsNonTupleArray<A> = [A] extends [readonly unknown[]]
   : never;
 
 export type IsNonStructRecord<A> = string extends keyof A ? true : never;
+
+export type IsRecursive<A> = {
+  [K in keyof A]: IsRecord<A[K]> extends true ? (A extends A[K] ? true : never) : never;
+}[keyof A];
+
+type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
+
+export type Flatten<A, R = RecordChildren<A>> = keyof R extends never ? unknown : A & R;
+
+type RecordChildren<A> = { [K in keyof A as IsRecord<A[K]> extends true ? K : never]: A[K] };
+
+type t0 = IsRecursive<Rec>;
+type t1 = IsRecursive<NestedRec>;
+type t2 = RecordChildren<Simple>;
+type t3 = Flatten<Simple>;
+
+interface Rec {
+  a: Rec;
+}
+
+interface NestedRec {
+  b?: {
+    a: NestedRec;
+  }[];
+}
+
+interface Simple {
+  a: {
+    b: number;
+  };
+  b: {
+    b: number;
+  };
+}
