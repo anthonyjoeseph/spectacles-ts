@@ -12,82 +12,142 @@ interface Rec {
   a?: Rec;
   b?: Rec[];
 }
-// type t2 = Paths<Document>;
-type t3 = Paths<ChildNode>;
-type t19 = Paths<Element>;
-type t7 = Document;
-type t8 = RecordChildren<t7>;
-type t9 = BubbleUp<t7, t7 | t8>;
-type t10 = RecordChildren<t9>;
-type t11 = BubbleUp<t9, t7 | t8 | t10>;
+type b0 = Paths<ParentNode>;
+type b1 = Paths<ChildNode>;
+type b2 = Paths<Element>;
+type b3 = Paths<HTMLElement>;
+/*type b4 = Paths<Document>;
 
-type t14 = _Paths<BubbleUp<t7, t7 | t8>, t7 | t8 | RecordChildren<BubbleUp<t7, t7 | t8>>>;
-type t15 = Paths<HTMLElement>;
-// type t14 = RecordChildren<t13>;
-//type t15 = _Paths<t13, t7 | t8 | t10 | t12 | t14, "static">;
+declare const b4: b4;
 
-export type Paths<A, Op extends Operation = "static"> = _Paths<A, A, Op, Extract<keyof A, string>>;
+const aaa = b4.Recursed["anchors"];*/
 
-type _Paths<A, Recursed, Op extends Operation = "static", Acc extends string = never> = true extends IsRecord<A>
+/* 
+Obj1 = { a: { b: number, x: boolean }, c: { d: { e: string } } }
+Output1 = keyof Obj1 = 'a' | 'c'
+Rec1 = { a: { b: number, x: boolean }, c: { d: { e: string } } }
+        |
+        V
+Obj2 = { 'a.b': number, 'a.x': boolean, 'c.d': { e: string } }
+Output2 = Output1 | keyof Obj2 = 'a' | 'c' | 'a.b' | 'a.x' | 'c.d'
+Rec2 = { 'a.b': { b: number, x: boolean }, 'c.d': { d: { e: string } } }
+        |
+        V
+Obj3 = { 'c.d.e': string }
+Output3 = Output2 | keyof Obj3 = 'a' | 'c' | 'a.b' | 'a.x' | 'c.d' | 'c.d.e'
+Rec3 = { 'c.d.e': { d: { e: string } } | { e: string } | string }
+*/
+
+type GetParentInterfaces<Key, AllParents> = ValueOf<{
+  [K in keyof AllParents as Key extends `${Extract<K, string>}${string}` ? K : never]: AllParents[K];
+}>;
+
+type NewRec<OldRec, A> = {
+  [K in keyof A]-?: GetParentInterfaces<K, OldRec> | (true extends CanRecurse<A[K]> ? A[K] : never);
+};
+
+type rec = { "a.b": { b: number; x: boolean }; "c.d": { d: { e: string } } };
+
+type parens = GetParentInterfaces<"c.d.e", rec>;
+
+type newrec = NewRec<rec, { "c.d.e": string }>;
+
+type a1 = Paths<Rec>;
+declare const a2: a1;
+
+a2;
+type b = NewRec<never, Rec>;
+
+export type Paths<A, Op extends Operation = "static"> = _Paths<A, { "": A }, Op, Extract<keyof A, string>>;
+
+type _Paths<
+  A,
+  Recursed,
+  Op extends Operation = "static",
+  Acc extends string = never,
+  It extends unknown[] = []
+> = It["length"] extends 10
+  ? {
+      A: A;
+      Recursed: Recursed;
+      Acc: Acc;
+    }
+  : true extends IsRecord<A>
   ? _Paths<
       keyof A extends never ? unknown : BubbleUp<A, Recursed>,
-      Recursed | RecordChildren<BubbleUp<A, Recursed>>,
+      NewRec<Recursed, A>,
       Op,
-      Acc | Extract<keyof A, string>
+      Acc | Extract<keyof A, string>,
+      [...It, unknown]
+    >
+  : Acc;
+
+type _Paths1<
+  A,
+  Recursed,
+  Op extends Operation = "static",
+  Acc extends string = never,
+  It extends unknown[] = []
+> = It["length"] extends 1
+  ? {
+      A: A;
+      Recursed: Recursed;
+      Acc: Acc;
+    }
+  : true extends IsRecord<A>
+  ? _Paths<
+      keyof A extends never ? unknown : BubbleUp<A, Recursed>,
+      NewRec<Recursed, A>,
+      Op,
+      Acc | Extract<keyof A, string>,
+      [...It, unknown]
     >
   : Acc;
 
 type BubbleUp<A extends Record<string, any>, Recursed> = UnionToIntersection<ValueOf<_BubbleUp<A, Recursed>>>;
 
 type _BubbleUp<A extends Record<string, any>, Recursed> = {
-  [K in keyof A]-?: Match<
-    A[K],
-    {
-      nullable: NonNullable<A[K]> extends Recursed ? never : { [K1 in `${Extract<K, string>}?`]: NonNullable<A[K]> };
-      struct: A[K] extends Recursed
-        ? never
-        : {
-            [K2 in keyof A[K] as A[K][K2] extends Recursed
-              ? never
-              : `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${EscapeSpecialChars<
-                  Extract<K2, string>
-                >}`]: A[K][K2];
+  [K in keyof A]-?: A[K] extends GetParentInterfaces<K, Recursed>
+    ? never
+    : Match<
+        A[K],
+        {
+          nullable: { [K1 in `${Extract<K, string>}?`]: NonNullable<A[K]> };
+          struct: {
+            [K2 in keyof A[K] as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${EscapeSpecialChars<
+              Extract<K2, string>
+            >}`]: A[K][K2];
           };
-      tuple: A[K] extends Recursed
-        ? never
-        : {
-            [K2 in TupleKeyof<A[K]> as A[K][K2] extends Recursed
-              ? never
-              : `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}[${Extract<K2, string>}]`]: A[K][K2];
+          tuple: {
+            [K2 in TupleKeyof<A[K]> as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}[${Extract<
+              K2,
+              string
+            >}]`]: A[K][K2];
           };
-      record: A[K][string] extends Recursed
-        ? never
-        : Record<`${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[string]" | "{}>"}`, A[K][string]>;
-      array: A[K][number] extends Recursed
-        ? never
-        : Record<`${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[number]" | "[]>"}`, A[K][number]>;
-      option: Extract<A[K], Some<unknown>>["value"] extends Recursed
-        ? never
-        : Record<
+          record: Record<
+            `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[string]" | "{}>"}`,
+            A[K][string]
+          >;
+          array: Record<
+            `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[number]" | "[]>"}`,
+            A[K][number]
+          >;
+          option: Record<
             `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?some`,
             Extract<A[K], Some<unknown>>["value"]
           >;
-      either: (Extract<A[K], Left<unknown>>["left"] extends Recursed
-        ? never
-        : Record<
+          either: Record<
             `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?left`,
             Extract<A[K], Left<unknown>>["left"]
-          >) &
-        (Extract<A[K], Right<unknown>>["right"] extends Recursed
-          ? never
-          : Record<
+          > &
+            Record<
               `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?right`,
               Extract<A[K], Right<unknown>>["right"]
-            >);
-      sum: BubbleSum<A[K], Extract<K, string>>;
-      other: never;
-    }
-  >;
+            >;
+          sum: BubbleSum<A[K], Extract<K, string>>;
+          other: never;
+        }
+      >;
 };
 
 type BubbleSum<
@@ -173,28 +233,3 @@ type CanRecurse<A> = unknown extends A
 type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
 
 type ValueOf<A> = A[keyof A];
-
-type Specials<A> = {
-  [K in keyof A as [A[K]] extends [Record<string, any>]
-    ? A[K] extends (...args: any[]) => unknown
-      ? never
-      : K
-    : never]-?: A[K];
-};
-type NonSpecials<A> = {
-  [K in keyof A as [A[K]] extends [Record<string, any>]
-    ? A[K] extends (...args: any[]) => unknown
-      ? K
-      : never
-    : K]-?: A[K];
-};
-
-type RecordChildren<A> = {
-  [K in keyof A]-?: [A[K]] extends [Record<string, any>]
-    ? A[K] extends (...args: any[]) => unknown
-      ? never
-      : A[K]
-    : never;
-}[keyof A];
-
-type NoAnds<A> = { [K in keyof A]: A[K] };
