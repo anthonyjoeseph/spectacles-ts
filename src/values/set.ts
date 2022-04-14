@@ -1,8 +1,16 @@
+/** @since 1.0.7 */
 import { pipe } from "fp-ts/function";
 import * as Tr from "monocle-ts/lib/Traversal";
 import { isPathLens, lensFromPath, traversalFromPath } from "../util/monocle";
 import { Set } from "../types/set";
 
+/**
+ * `set`
+ *
+ * @since 1.0.7
+ * @example
+ *   // TODO;
+ */
 export const set: Set =
   (path: string, ...args: unknown[]) =>
   (obj: unknown) => {

@@ -1,8 +1,16 @@
+/** @since 1.0.7 */
 import { pipe } from "fp-ts/function";
 import * as L from "monocle-ts/lib/Lens";
 import { isPathLens, lensFromPath, traversalFromPath } from "../util/monocle";
 import { ModifyF } from "../types/modifyF";
 
+/**
+ * `modifyF`
+ *
+ * @since 1.0.7
+ * @example
+ *   // TODO;
+ */
 export const modifyF: ModifyF =
   (F: any) =>
   (path: string, ...args: unknown[]) =>
