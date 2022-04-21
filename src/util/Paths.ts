@@ -6,58 +6,6 @@ import type { Cases, Discriminant } from "./sum";
 
 type Operation = "static" | "dynamic" | "upsert";
 
-type a = Paths<{ a: { b: { c: { d: number } } } }>;
-
-interface Rec {
-  a?: Rec;
-  b?: Rec[];
-}
-type b0 = Paths<ParentNode>;
-type b1 = Paths<ChildNode>;
-type b2 = Paths<Element>;
-type b3 = Paths<HTMLElement>;
-/*type b4 = Paths<Document>;
-
-declare const b4: b4;
-
-const aaa = b4.Recursed["anchors"];*/
-
-/* 
-Obj1 = { a: { b: number, x: boolean }, c: { d: { e: string } } }
-Output1 = keyof Obj1 = 'a' | 'c'
-Rec1 = { a: { b: number, x: boolean }, c: { d: { e: string } } }
-        |
-        V
-Obj2 = { 'a.b': number, 'a.x': boolean, 'c.d': { e: string } }
-Output2 = Output1 | keyof Obj2 = 'a' | 'c' | 'a.b' | 'a.x' | 'c.d'
-Rec2 = { 'a.b': { b: number, x: boolean }, 'c.d': { d: { e: string } } }
-        |
-        V
-Obj3 = { 'c.d.e': string }
-Output3 = Output2 | keyof Obj3 = 'a' | 'c' | 'a.b' | 'a.x' | 'c.d' | 'c.d.e'
-Rec3 = { 'c.d.e': { d: { e: string } } | { e: string } | string }
-*/
-
-type GetParentInterfaces<Key, AllParents> = ValueOf<{
-  [K in keyof AllParents as Key extends `${Extract<K, string>}${string}` ? K : never]: AllParents[K];
-}>;
-
-type NewRec<OldRec, A> = {
-  [K in keyof A]-?: GetParentInterfaces<K, OldRec> | (true extends CanRecurse<A[K]> ? A[K] : never);
-};
-
-type rec = { "a.b": { b: number; x: boolean }; "c.d": { d: { e: string } } };
-
-type parens = GetParentInterfaces<"c.d.e", rec>;
-
-type newrec = NewRec<rec, { "c.d.e": string }>;
-
-type a1 = Paths<Rec>;
-declare const a2: a1;
-
-a2;
-type b = NewRec<never, Rec>;
-
 export type Paths<A, Op extends Operation = "static"> = _Paths<A, { "": A }, Op, Extract<keyof A, string>>;
 
 type _Paths<
@@ -66,35 +14,13 @@ type _Paths<
   Op extends Operation = "static",
   Acc extends string = never,
   It extends unknown[] = []
-> = It["length"] extends 10
+> = /* It["length"] extends 2
   ? {
       A: A;
       Recursed: Recursed;
       Acc: Acc;
     }
-  : true extends IsRecord<A>
-  ? _Paths<
-      keyof A extends never ? unknown : BubbleUp<A, Recursed>,
-      NewRec<Recursed, A>,
-      Op,
-      Acc | Extract<keyof A, string>,
-      [...It, unknown]
-    >
-  : Acc;
-
-type _Paths1<
-  A,
-  Recursed,
-  Op extends Operation = "static",
-  Acc extends string = never,
-  It extends unknown[] = []
-> = It["length"] extends 1
-  ? {
-      A: A;
-      Recursed: Recursed;
-      Acc: Acc;
-    }
-  : true extends IsRecord<A>
+  :  */ true extends IsRecord<A>
   ? _Paths<
       keyof A extends never ? unknown : BubbleUp<A, Recursed>,
       NewRec<Recursed, A>,
@@ -106,8 +32,32 @@ type _Paths1<
 
 type BubbleUp<A extends Record<string, any>, Recursed> = UnionToIntersection<ValueOf<_BubbleUp<A, Recursed>>>;
 
+export type GetParentInterfaces<Key, AllParents> = ValueOf<{
+  [K in keyof AllParents as Key extends `${Extract<K, string>}${string}` ? K : never]: AllParents[K];
+}>;
+
+export type NewRec<OldRec, A> = {
+  [K in keyof A]-?: GetParentInterfaces<K, OldRec> | (true extends CanRecurse<A[K]> ? A[K] : never);
+};
+
+export type AllKeys<A> = A extends unknown ? keyof A : never;
+
+export type PossiblyExtendible<A, B> = B extends unknown ? (keyof A extends keyof B ? B : never) : never;
+
+export type UnPartial<A> = {
+  [K in keyof Required<A>]: Required<A>[K] | Extract<undefined, A[Extract<K, keyof A>]>;
+};
+
+export type B_extends_A<A, B> = A extends B
+  ? true
+  : {
+      [K in AllKeys<PossiblyExtendible<A, B>>]: K extends keyof A ? A[K] : any;
+    } extends UnPartial<PossiblyExtendible<A, B>>
+  ? true
+  : never;
+
 type _BubbleUp<A extends Record<string, any>, Recursed> = {
-  [K in keyof A]-?: A[K] extends GetParentInterfaces<K, Recursed>
+  [K in keyof A]-?: true extends B_extends_A<A[K], GetParentInterfaces<K, Recursed>>
     ? never
     : Match<
         A[K],
