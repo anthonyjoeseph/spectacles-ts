@@ -1,4 +1,5 @@
-import { Paths, AllKeys, B_extends_A, UnPartial, GetParentInterfaces, NewRec } from "./Paths";
+import { Paths, _Paths, BubbleUp, _BubbleUp, UnionToIntersection, ValueOf } from "./Paths";
+import { AllKeys, B_extends_A, PossiblyExtendible, UnPartial, GetParentInterfaces, NewRec } from "./pathRecursion";
 
 export interface Element2 extends ChildNode, ParentNode {
   readonly attributes: NamedNodeMap;
@@ -12,11 +13,21 @@ type a = Paths<{ a: { b: { c: number } }; x: { c: number } }>;
 type b = Paths<Rec>;
 
 interface Rec {
+  azleep: Rec;
   b?: Rec[];
 }
 
-type Rec2 = (Rec & { z: number }) | { x: string; y: boolean };
-type pp = AllKeys<Rec2>;
+type r0 = _Paths<Rec, { "": Rec }, "static", Extract<keyof Rec, string>, []>;
+
+type bup1 = _BubbleUp<Rec, { "": Rec }>;
+
+type bup2 = B_extends_A<Rec[], Rec>;
+type bup3 = {
+  [K in AllKeys<PossiblyExtendible<Rec[], Rec>>]: K extends keyof Rec[] ? Rec[][K] : any;
+};
+type bup4 = UnPartial<PossiblyExtendible<Rec[], Rec>>;
+
+type r1 = _Paths<bup1, NewRec<{ "": Rec }, Rec>, "static", Extract<keyof Rec, string>>;
 //
 //
 //
@@ -28,20 +39,21 @@ type pp = AllKeys<Rec2>;
 //
 //
 
-type z0 = B_extends_A<Rec, Rec2>;
+/* type z0 = B_extends_A<Rec, Rec2>;
 type z1 = B_extends_A<{ a?: number }, Rec2>;
 type z2 = z0 extends UnPartial<Rec2> ? 1 : 0;
-type z3 = z1 extends UnPartial<Rec2> ? 1 : 0;
+type z3 = z1 extends UnPartial<Rec2> ? 1 : 0; */
 type z96 = { a: number | undefined } extends { a?: Rec } ? 1 : 0;
 
 type p0 = ` ${keyof HTMLInputElement}`;
 type b0 = Paths<ChildNode>;
 type b1 = Paths<ParentNode>;
-type b2 = Paths<Element>;
-//type b25 = Paths<Element2 & { a: number }>;
-type b3 = Paths<HTMLElement>;
+// type b2 = Paths<Element>;
+// type b3 = Paths<HTMLElement>;
 // type b4 = Paths<HTMLElement & { a: number }>;
 type b5 = Paths<HTMLInputElement>;
+// type b24 = Paths<Element2>;
+//type b25 = Paths<Element2 & { a: number }>;
 // type b6 = Paths<Window>;
 // type b7 = Paths<Document>;
 // declare const b3: b2;
@@ -52,7 +64,7 @@ declare const doc: Document;
 /* const aaa = b3.Recursed["ownerDocument.activeElement?"]; */
 /*type b5 = Paths<Document>;
 
-declare const b5: b5;
+
 
 const aaa = b5.Recursed["anchors"];*/
 
