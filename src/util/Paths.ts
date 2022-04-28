@@ -15,13 +15,13 @@ export type _Paths<
   Op extends Operation = "static",
   Acc extends string = never,
   It extends unknown[] = []
-> = /* It["length"] extends 2
+> = It["length"] extends 3
   ? {
       A: A;
       Recursed: Recursed;
       Acc: Acc;
     }
-  :  */ true extends IsRecord<A>
+  : true extends IsRecord<A>
   ? _Paths<
       keyof A extends never ? unknown : BubbleUp<A, Recursed>,
       NewRec<Recursed, A>,

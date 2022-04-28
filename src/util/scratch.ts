@@ -1,19 +1,27 @@
 import { Paths, _Paths, BubbleUp, _BubbleUp, UnionToIntersection, ValueOf } from "./Paths";
 import { AllKeys, B_extends_A, PossiblyExtendible, UnPartial, GetParentInterfaces, NewRec } from "./pathRecursion";
 
-export interface Element2 extends ChildNode, ParentNode {
-  readonly attributes: NamedNodeMap;
-  readonly classList: DOMTokenList;
+export type Element2 = {
   readonly ownerDocument: Document;
-  readonly part: DOMTokenList;
-  readonly shadowRoot: ShadowRoot | null;
-}
+};
+
+type b26 = Paths<{ ownerDocument: Document }>;
+
+declare const yyy: b26["Recursed"];
+
+const a = yyy["ownerDocument.ownerDocument?"];
+type ab1 = B_extends_A<
+  Document,
+  {
+    ownerDocument: Document;
+  }
+>;
 
 type a = Paths<{ a: { b: { c: number } }; x: { c: number } }>;
 type b = Paths<Rec>;
 
 interface Rec {
-  azleep: Rec;
+  a: Rec;
   b?: Rec[];
 }
 
@@ -48,12 +56,12 @@ type z96 = { a: number | undefined } extends { a?: Rec } ? 1 : 0;
 type p0 = ` ${keyof HTMLInputElement}`;
 type b0 = Paths<ChildNode>;
 type b1 = Paths<ParentNode>;
-// type b2 = Paths<Element>;
-// type b3 = Paths<HTMLElement>;
+type b2 = Paths<Element>;
+type b3 = Paths<HTMLElement>;
 // type b4 = Paths<HTMLElement & { a: number }>;
 type b5 = Paths<HTMLInputElement>;
-// type b24 = Paths<Element2>;
-//type b25 = Paths<Element2 & { a: number }>;
+type b24 = Paths<{ ownerDocument: Document }>;
+// type b25 = Paths<Element2 & { a: number }>;
 // type b6 = Paths<Window>;
 // type b7 = Paths<Document>;
 // declare const b3: b2;
