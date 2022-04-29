@@ -7,9 +7,9 @@ export type Element2 = {
 
 type b26 = Paths<{ ownerDocument: Document }>;
 
-declare const yyy: b26["Recursed"];
+// declare const yyy: b26["Recursed"];
 
-const a = yyy["ownerDocument.ownerDocument?"];
+// const a = yyy["ownerDocument.ownerDocument?"];
 type ab1 = B_extends_A<
   Document,
   {
@@ -22,8 +22,15 @@ type b = Paths<Rec>;
 
 interface Rec {
   a: Rec;
-  b?: Rec[];
 }
+
+interface Rec2 extends Rec {
+  b: Rec;
+}
+
+declare const rec: Rec2;
+
+rec.a.a.a.a;
 
 type r0 = _Paths<Rec, { "": Rec }, "static", Extract<keyof Rec, string>, []>;
 
@@ -54,13 +61,13 @@ type z3 = z1 extends UnPartial<Rec2> ? 1 : 0; */
 type z96 = { a: number | undefined } extends { a?: Rec } ? 1 : 0;
 
 type p0 = ` ${keyof HTMLInputElement}`;
-type b0 = Paths<ChildNode>;
-type b1 = Paths<ParentNode>;
-type b2 = Paths<Element>;
-type b3 = Paths<HTMLElement>;
+//type b0 = Paths<ChildNode>;
+//type b1 = Paths<ParentNode>;
+//type b2 = Paths<Element>;
+//type b3 = Paths<HTMLElement>;
 // type b4 = Paths<HTMLElement & { a: number }>;
-type b5 = Paths<HTMLInputElement>;
-type b24 = Paths<{ ownerDocument: Document }>;
+//type b5 = Paths<HTMLInputElement>;
+//type b24 = Paths<{ ownerDocument: Document }>;
 // type b25 = Paths<Element2 & { a: number }>;
 // type b6 = Paths<Window>;
 // type b7 = Paths<Document>;
@@ -100,3 +107,15 @@ type newrec = NewRec<rec, { "c.d.e": string }>;
 
 type a1 = Paths<Rec>;
 declare const a2: a1;
+
+interface Document2 {
+  readonly documentElement: HTMLElement;
+  // readonly head: HTMLHeadElement;
+  // readonly embeds: HTMLCollectionOf<HTMLEmbedElement>;
+  // readonly forms: HTMLCollectionOf<HTMLFormElement>;
+  // readonly images: HTMLCollectionOf<HTMLImageElement>;
+  // readonly doctype: DocumentType | null;
+}
+
+// type b27 = Paths<{ ownerDocument: Document2 }>;
+type b28 = Paths<Document2>;
