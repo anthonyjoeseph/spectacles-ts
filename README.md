@@ -249,6 +249,10 @@ const x: Data = {
 }
 ```
 
+## Restrictions
+
+For the time being, ["strictNullChecks"](https://www.typescriptlang.org/tsconfig#strictNullChecks) must be set to `false` for spectacles to behave properly (see [this issue](https://github.com/anthonyjoeseph/spectacles-ts/issues/32))
+
 ## Social Media
 
 Follow me on twitter! [@typesafeFE](https://twitter.com/typesafeFE)
