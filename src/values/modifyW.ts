@@ -1,9 +1,17 @@
+/** @since 1.0.7 */
 import { pipe } from "fp-ts/function";
 import * as L from "monocle-ts/lib/Lens";
 import { modify as modifyTr } from "monocle-ts/Traversal";
 import { isPathLens, lensFromPath, traversalFromPath } from "../util/monocle";
 import { ModifyW } from "../types/modifyW";
 
+/**
+ * `modifyW`
+ *
+ * @since 1.0.7
+ * @example
+ *   // TODO;
+ */
 export const modifyW: ModifyW =
   (path: string, ...args: unknown[]) =>
   (a: unknown) => {

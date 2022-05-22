@@ -1,9 +1,17 @@
+/** @since 1.0.7 */
 import { pipe } from "fp-ts/function";
 import * as L from "monocle-ts/lib/Lens";
 import * as Tr from "monocle-ts/lib/Traversal";
 import { lensFromPath, traversalFromPath, isPathLens } from "../util/monocle";
 import { Rename } from "../types/rename";
 
+/**
+ * `rename`
+ *
+ * @since 1.0.7
+ * @example
+ *   // TODO;
+ */
 export const rename: Rename = (fullPath: string, newKey: string) => (a: unknown) => {
   const segments = fullPath.split(".");
   const path = segments.slice(0, segments.length - 1).join(".");

@@ -1,9 +1,17 @@
+/** @since 1.0.7 */
 import { pipe } from "fp-ts/function";
 import * as L from "monocle-ts/lib/Lens";
 import * as Tr from "monocle-ts/lib/Traversal";
 import { lensFromPath, traversalFromPath, isPathLens } from "../util/monocle";
 import { Upsert } from "../types/upsert";
 
+/**
+ * `upsert`
+ *
+ * @since 1.0.7
+ * @example
+ *   // TODO;
+ */
 export const upsert: Upsert =
   (path: string, final: string, ...args: unknown[]) =>
   (a: unknown) => {
