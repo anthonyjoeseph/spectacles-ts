@@ -1,59 +1,80 @@
 import type { Option, Some } from "fp-ts/Option";
 import type { Either, Left, Right } from "fp-ts/Either";
-import type { IsNull, IsRecord, TupleKeyof } from "./predicates";
+import type { IsAny, IsNull, IsRecord, TupleKeyof } from "./predicates";
 import type { EscapeSpecialChars } from "./segments";
 import type { Cases, Discriminant } from "./sum";
+import { B_extends_A, GetParentInterfaces, NewRec } from "./pathRecursion";
 
 type Operation = "static" | "dynamic" | "upsert";
 
-export type Paths<A, Op extends Operation = "static"> = _Paths<{ "": A }, Op>;
+export type Paths<A, Op extends Operation = "static"> = _Paths<A, { "": A }, Op, never>;
 
-type _Paths<A, Op extends Operation, Acc extends string = never> = true extends IsRecord<A>
-  ? _Paths<keyof A extends never ? unknown : BubbleUp<A>, Op, Acc | Extract<keyof A, string>>
+export type _Paths<
+  A,
+  Recursed,
+  Op extends Operation = "static",
+  Acc extends string = never,
+  It extends unknown[] = []
+> = /* It["length"] extends 3
+  ? {
+      A: A;
+      Recursed: Recursed;
+      Acc: Acc;
+    }
+  :  */ true extends IsRecord<A>
+  ? _Paths<
+      keyof A extends never ? unknown : BubbleUp<A, Recursed>,
+      NewRec<Recursed, A>,
+      Op,
+      Acc | Extract<keyof A, string>,
+      [...It, unknown]
+    >
   : Acc;
 
-type BubbleUp<A extends Record<string, any>> = UnionToIntersection<ValueOf<_BubbleUp<A>>>;
+export type BubbleUp<A extends Record<string, any>, Recursed> = UnionToIntersection<ValueOf<_BubbleUp<A, Recursed>>>;
 
-type _BubbleUp<A extends Record<string, any>> = {
-  [K in keyof A]-?: Match<
-    A[K],
-    {
-      nullable: Record<`${Extract<K, string>}?`, NonNullable<A[K]>>;
-      struct: {
-        [K2 in keyof A[K] as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${EscapeSpecialChars<
-          Extract<K2, string>
-        >}`]: A[K][K2];
-      };
-      tuple: {
-        [K2 in TupleKeyof<A[K]> as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}[${Extract<
-          K2,
-          string
-        >}]`]: A[K][K2];
-      };
-      record: Record<
-        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[string]" | "{}>"}`,
-        A[K][string]
+export type _BubbleUp<A extends Record<string, any>, Recursed> = {
+  [K in keyof A]-?: true extends B_extends_A<A[K], GetParentInterfaces<K, Recursed>>
+    ? never
+    : Match<
+        A[K],
+        {
+          nullable: { [K1 in `${Extract<K, string>}?`]: NonNullable<A[K]> };
+          struct: {
+            [K2 in keyof A[K] as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${EscapeSpecialChars<
+              Extract<K2, string>
+            >}`]: A[K][K2];
+          };
+          tuple: {
+            [K2 in TupleKeyof<A[K]> as `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}[${Extract<
+              K2,
+              string
+            >}]`]: A[K][K2];
+          };
+          record: Record<
+            `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[string]" | "{}>"}`,
+            A[K][string]
+          >;
+          array: Record<
+            `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[number]" | "[]>"}`,
+            A[K][number]
+          >;
+          option: Record<
+            `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?some`,
+            Extract<A[K], Some<unknown>>["value"]
+          >;
+          either: Record<
+            `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?left`,
+            Extract<A[K], Left<unknown>>["left"]
+          > &
+            Record<
+              `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?right`,
+              Extract<A[K], Right<unknown>>["right"]
+            >;
+          sum: BubbleSum<A[K], Extract<K, string>>;
+          other: never;
+        }
       >;
-      array: Record<
-        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}${"[number]" | "[]>"}`,
-        A[K][number]
-      >;
-      option: Record<
-        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?some`,
-        Extract<A[K], Some<unknown>>["value"]
-      >;
-      either: Record<
-        `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?left`,
-        Extract<A[K], Left<unknown>>["left"]
-      > &
-        Record<
-          `${Extract<K, string>}${Extract<K, string> extends "" ? "" : "."}?right`,
-          Extract<A[K], Right<unknown>>["right"]
-        >;
-      sum: BubbleSum<A[K], Extract<K, string>>;
-      other: never;
-    }
-  >;
 };
 
 type BubbleSum<
@@ -84,7 +105,13 @@ type Match<
     sum: unknown;
     other: unknown;
   }
-> = [A] extends [never]
+> = unknown extends A
+  ? Matches["other"]
+  : IsAny<A> extends true
+  ? Matches["other"]
+  : [A] extends [never]
+  ? Matches["other"]
+  : A extends (...a: any[]) => unknown
   ? Matches["other"]
   : true extends IsNull<A>
   ? Matches["nullable"]
@@ -106,6 +133,6 @@ type Match<
 
 // Credit to Stefan Baumgartner
 // https://fettblog.eu/typescript-union-to-intersection/
-type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
+export type UnionToIntersection<T> = (T extends any ? (x: T) => any : never) extends (x: infer R) => any ? R : never;
 
-type ValueOf<A> = A[keyof A];
+export type ValueOf<A> = A[keyof A];

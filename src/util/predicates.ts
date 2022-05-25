@@ -58,9 +58,13 @@ type HasTraversals<Args extends unknown[]> = Args extends [infer First, ...infer
     : HasTraversals<Tail>
   : never;
 
+// credit to Joe Calzaretta
+// https://stackoverflow.com/a/49928360
+export type IsAny<A> = (A extends never ? true : false) extends false ? false : true;
+
 export type IsNull<A> = Extract<A, undefined | null> extends never ? never : true;
 
-export type IsRecord<A> = unknown extends A ? never : [A] extends [Record<string, any>] ? true : never;
+export type IsRecord<A> = [A] extends [Record<string, any>] ? true : never;
 
 export type IsNonTupleArray<A> = [A] extends [readonly unknown[]]
   ? TupleKeyof<A> extends never
